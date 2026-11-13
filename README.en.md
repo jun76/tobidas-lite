@@ -31,15 +31,16 @@ The goal of tobidas-lite is that **you give an agent the URL of this repository 
 
 ## Examples
 
-Five finished books are included, each made by a different model with this skill. Clone the repository and open the `index.html` of each in a browser.
+Six finished books are included, all made with this skill. The model used for each book is listed below. Clone the repository and open the `index.html` of each in a browser.
 
-| Book | Language | Spreads | Look | Made by |
-|---|---|---|---|---|
-| [`examples/jack`](skills/tobidas-lite/themes/storybook/examples/jack/) — Jack and the Beanstalk | Japanese | 7 | Paper-cut style, wooden desk | Claude Fable5.2 medium |
-| [`examples/urashima`](skills/tobidas-lite/themes/storybook/examples/urashima/) — Urashima Taro | English | 8 | Crayon style, moving seaside, Japanese-style music | Claude Fable5.2 medium |
-| [`examples/alice`](skills/tobidas-lite/themes/storybook/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Vintage picture-book style, a different background for each spread | GPT6.1-Sol medium |
-| [`examples/le-petit-prince`](skills/tobidas-lite/themes/storybook/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Vintage picture-book style, a different background for each spread | Claude Opus 5.5 medium |
-| [`examples/momotaro`](skills/tobidas-lite/themes/storybook/examples/momotaro/) — Momotaro | English | 6 | Paper-cut style, a different background for each spread | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) |
+| Book | Language | Spreads | Look | Made by | Notes |
+|---|---|---|---|---|---|
+| [`examples/jack`](skills/tobidas-lite/themes/storybook/examples/jack/) — Jack and the Beanstalk | Japanese | 7 | Paper-cut style, wooden desk | Claude Fable5.2 medium | Minor adjustments over a few turns |
+| [`examples/urashima`](skills/tobidas-lite/themes/storybook/examples/urashima/) — Urashima Taro | English | 8 | Crayon style, moving seaside, Japanese-style music | Claude Fable5.2 medium | Minor adjustments over a few turns |
+| [`examples/alice`](skills/tobidas-lite/themes/storybook/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Vintage picture-book style, a different background for each spread | GPT6.1-Sol medium | Created in one turn |
+| [`examples/le-petit-prince`](skills/tobidas-lite/themes/storybook/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Vintage picture-book style, a different background for each spread | Claude Opus 5.5 medium | Created in one turn |
+| [`examples/momotaro`](skills/tobidas-lite/themes/storybook/examples/momotaro/) — Momotaro | English | 6 | Paper-cut style, a different background for each spread | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) | Created in one turn |
+| [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/storybook/examples/hanasaka-jiisan/) — Hanasaka Jiisan | Japanese | 6 | Paper-cut style, original backgrounds for each spread and original Japanese-style BGM | GPT-6 Astra medium | Created in one turn |
 
 The examples are under `skills/tobidas-lite/themes/storybook/`.
 

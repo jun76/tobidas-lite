@@ -5,6 +5,7 @@
 机の上、または海辺や森などの動く景色を背景に本が開き、ページをめくるたびにパーツが立体的に立ち上がります。マウスホイールで先送り・巻き戻しができます。
 
 - 見本: [`themes/storybook/examples/jack/index.html`](themes/storybook/examples/jack/index.html)(ジャックと豆の木、7見開き)と [`themes/storybook/examples/urashima/index.html`](themes/storybook/examples/urashima/index.html)(Urashima Taro、英語、8見開き、海辺の動く背景)をブラウザで開く
+- 作例追加: [はなさかじいさん](themes/storybook/examples/hanasaka-jiisan/index.html)(日本語、6見開き、切り紙、見開きごとに書き下ろした背景・和風BGM)。制作: **GPT-6 Astra medium**。桜が枝ごとに咲く仕掛けを収録しています。
 - 操作: ホイール=進む/戻る、←→=見開き単位、左下の▶ボタンか Space=音つきの自動再生(どの位置からでも再生できる)、M=音のオン/オフ、D=デバッグ表示
 - 音: BGMと効果音を、作品定義からブラウザ内で合成します(音声ファイルなし)
 
