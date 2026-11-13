@@ -1,0 +1,7 @@
+{
+  "name": "tobidas-lite-scripts",
+  "private": true,
+  "type": "module",
+  "description": "tobidas-lite の検証・書き出しツール",
+  "dependencies": { "playwright-core": "^1.50.0" }
+}
