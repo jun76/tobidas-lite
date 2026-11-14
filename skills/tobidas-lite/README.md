@@ -19,7 +19,7 @@
 
 ## 使い方
 
-このフォルダをお使いの環境のスキルとして配置します(Claude Code なら `~/.claude/skills/tobidas-lite/`)。そのうえで「桃太郎を飛び出す絵本にして」のように頼むと、作中の言語・題材・長さ・文体・見せ場と、テーマが定める項目(画風・机や背景・曲)を聞き取り、構成表の承認を経て、HTML一式を作ります。
+このフォルダをお使いの環境のスキルとして配置します(Claude Code なら `~/.claude/skills/tobidas-lite/`)。そのうえで「桃太郎を飛び出す絵本にして」のように頼むと、エージェントが聞き取りページを作ります。ブラウザで開き、見本を見ながら作中の言語・長さ・見せ場・素材の有無・画風・机や背景・曲を選んで、結果を会話に貼ってください。構成表の承認を経て、HTML一式ができます。
 
 スクリプトを使うには Node.js と Chrome が必要です。
 
@@ -35,9 +35,10 @@ node scripts/check.mjs themes/storybook/examples/jack         # 代表フレー�
 |---|---|
 | `SKILL.md` | スキル本体(進め方) |
 | `assets/template/` | 作品のひな形(`index.html` と `engine/`)。エンジンは本の機構・操作・音源で、全テーマ共通 |
+| `assets/setup/` | 聞き取りページのひな形 |
 | `themes/<テーマ>/` | テーマパック。`theme.js`(画風・机・曲・効果音)、`parts.js`(絵の部品)、資料、見本画像、書き出し、完成見本 |
 | `references/` | 全テーマ共通の資料(作品定義の書き方、落とし穴、テーマの書式) |
-| `scripts/` | `new-book.mjs`(作品フォルダを作る)、`check.mjs`(静止画チェック)、`gallery.mjs`(画風と机の見本画像)、`embed-audio.mjs`(音声ファイルの埋め込み)、`render-video.mjs`(任意の動画化、要 ffmpeg) |
+| `scripts/` | `setup.mjs`(聞き取りページを作る)、`new-book.mjs`(作品フォルダを作る)、`check.mjs`(静止画チェック)、`gallery.mjs`(画風と机の見本画像と一覧)、`embed-audio.mjs`(音声ファイルの埋め込み)、`render-video.mjs`(任意の動画化、要 ffmpeg) |
 
 作品フォルダは `index.html`、`engine/`、`theme/`(選んだテーマのコピー)、`book/`(その作品の絵と定義)でできています。
 

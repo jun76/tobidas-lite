@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tobidas-lite 聞き取り</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<!-- 聞き取りページのひな形。scripts/setup.mjs が SETUP_DATA を埋めて、ユーザーの作業フォルダに書き出す。作品ごとに編集しない。 -->
+<style>
+/* tobidas の入口画面(昼)と同じ、紙・インク・切り紙の色と形にそろえる */
+:root { --paper: #fbf4e6; --card: #fffdf8; --ink: #3b3127; --muted: #7a6c5a; --line: #eadfc9; --line-hover: #d8c6a2; --coral: #e4775d; --coral-strong: #c95f47; --coral-soft: #fde4da; --checked-shadow: #f3c3b3;
+  --mint: #4f9e78; --mint-soft: #dcf1e5; --lilac: #8a6bc7; --choice: #fffaf1; --field: #ffffff; --shadow: #7a4f1f; --grain: #8a6a3a14; --glow-a: #fffdf6; --glow-b: #f6e7cc;
+  color-scheme: light; accent-color: var(--coral); scrollbar-color: #dccaa9 transparent; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100dvh; color: var(--ink); word-break: auto-phrase;
+  font: 16px/1.7 'Hiragino Maru Gothic ProN', 'Hiragino Kaku Gothic ProN', 'BIZ UDPGothic', 'Yu Gothic UI', 'Meiryo', sans-serif;
+  background: radial-gradient(circle at 1px 1px, var(--grain) 1px, transparent 0) 0 0 / 6px 6px, radial-gradient(ellipse at 78% 18%, var(--glow-a) 0%, transparent 55%), radial-gradient(ellipse at 10% 90%, var(--glow-b) 0%, transparent 50%), var(--paper); background-attachment: fixed; }
+/* 背景に散らす切り紙の飾り。tobidas の入口画面(昼)と同じ形と色で、スクロールしても同じ位置に見せる */
+.confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; opacity: .55; z-index: 0; }
+header, .wrap { position: relative; z-index: 1; }
+header { padding: 30px clamp(20px, 3vw, 40px) 6px; max-width: 1500px; margin: 0 auto; }
+/* 題字。tobidas と同じ切り紙の文字で、一文字ずつ色と傾きを変える。登場は外側、マウスを乗せたときの跳ねは内側の文字が受け持つ */
+.wordmark { display: flex; width: fit-content; margin: 0; font-size: clamp(48px, 6.4vw, 88px); font-weight: 800; line-height: 1; letter-spacing: -.02em; cursor: default;
+  font-family: 'Arial Rounded MT Bold', 'Hiragino Maru Gothic ProN', 'Nunito', 'Segoe UI', sans-serif; }
+.letter { display: inline-block; color: var(--letter); transform: rotate(var(--tilt)); transform-origin: 50% 90%; text-shadow: 0 .05em 0 #00000024;
+  animation: letterPop .7s cubic-bezier(.2, 1.6, .4, 1) both; animation-delay: calc(var(--index) * 70ms + 150ms); }
+.hop { display: inline-block; transform-origin: 50% 90%; }
+.hopping .hop { animation: letterHop .5s ease both; animation-delay: calc(var(--index) * 45ms); }
+@keyframes letterPop { from { transform: translateY(.5em) rotate(0) scale(.6); opacity: 0; } to { transform: rotate(var(--tilt)); opacity: 1; } }
+@keyframes letterHop { 0%, 100% { transform: none; } 40% { transform: translateY(-.14em) rotate(calc(var(--tilt) * -2)); } }
+.tagline { margin: 14px 0 0; font-size: clamp(18px, 2vw, 24px); font-weight: 700; line-height: 1.5; }
+header p.lead { margin: 8px 0 0; color: var(--muted); font-size: 15px; max-width: 60em; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+.wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 44%); gap: clamp(16px, 2vw, 28px); max-width: 1500px; margin: 0 auto; padding: 16px clamp(20px, 3vw, 40px) 64px; align-items: start; }
+@media (max-width: 1000px) { .wrap { grid-template-columns: 1fr; } .side { position: static !important; } }
+section { background: var(--card); border: 2px solid var(--line); border-radius: 22px; padding: 20px 22px 22px; margin-bottom: 18px;
+  box-shadow: 0 3px 0 var(--line), 0 18px 36px -24px color-mix(in srgb, var(--shadow) 40%, transparent); }
+section h2 { margin: 0 0 4px; font-size: 18px; font-weight: 800; display: flex; gap: 12px; align-items: center; }
+section h2 .n { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 12px; background: var(--coral-soft); color: var(--coral); font-size: 17px; transform: rotate(-4deg); font-variant-numeric: tabular-nums; flex: none; }
+section:nth-child(even) h2 .n { background: var(--mint-soft); color: var(--mint); transform: rotate(4deg); }
+section .q { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip, .card { cursor: pointer; border: 2px solid var(--line); background: var(--choice); color: inherit; font: inherit; font-weight: 700; text-align: left; transition: transform .2s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease; }
+.chip { padding: 10px 16px; border-radius: 16px; }
+.card { border-radius: 18px; }
+.chip:hover, .card:hover { transform: translateY(-2px); border-color: var(--line-hover); }
+.chip small, .card small { color: var(--muted); display: block; font-size: 12.5px; line-height: 1.5; font-weight: 400; }
+.chip[aria-pressed="true"], .card[aria-pressed="true"] { border-color: var(--coral); background: var(--coral-soft); box-shadow: 0 3px 0 var(--checked-shadow); }
+.chip:focus-visible, .card:focus-visible, .btn:focus-visible { outline: 3px solid var(--lilac); outline-offset: 3px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+.card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: var(--line); }
+.card .noimg { aspect-ratio: 16 / 9; display: grid; place-items: center; background: var(--paper); color: var(--coral); font-size: 28px; font-weight: 800; }
+.card .cap { padding: 8px 12px 10px; }
+.badge { display: inline-block; font-size: 11.5px; font-weight: 700; color: #fff; background: var(--coral); border-radius: 999px; padding: 1px 9px; margin-left: 6px; vertical-align: 1px; }
+.badge.fixed { background: var(--mint); }
+h3 { font-size: 14px; margin: 18px 0 10px; padding-top: 14px; border-top: 2px dashed var(--line); color: var(--muted); font-weight: 800; }
+section .q + h3 { border-top: 0; padding-top: 0; margin-top: 0; }
+input[type=text], textarea { width: 100%; font: inherit; color: inherit; background: var(--field); border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; margin-top: 12px; }
+input[type=text]:focus, textarea:focus { outline: 0; border-color: var(--coral); box-shadow: 0 0 0 4px rgb(228 119 93 / 22%); }
+::placeholder { color: #b4a48c; }
+textarea { min-height: 80px; resize: vertical; }
+.hide { display: none !important; }
+.side { position: sticky; top: 16px; }
+.frame { position: relative; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #2a211a; border: 2px solid var(--line); }
+.frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+/* 見本を大きく見る。画面いっぱいに広げ、上の帯で画風・本の後ろ・曲を切り替える */
+.ptop { display: flex; align-items: flex-start; justify-content: space-between; gap: 28px; }   /* 説明文はボタンの左で折り返す */
+#s-preview.big .ptop { align-items: center; }
+#s-preview.big .mini { display: grid; place-items: center; width: 42px; height: 42px; padding: 0; }   /* 広げたときは丸いバツボタン */
+#s-preview.big .ptop h2 { margin: 0; }
+.mini { flex: none; padding: 7px 16px; border-radius: 999px; border: 2px solid var(--line); background: var(--card); color: inherit; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 2px 0 var(--line); transition: transform .18s ease, border-color .18s ease; }
+.mini:hover { transform: translateY(-2px); border-color: var(--line-hover); }
+.mini:focus-visible { outline: 3px solid var(--lilac); outline-offset: 3px; }
+#quick { display: none; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0 12px; }
+#quick .chip { padding: 6px 12px; border-radius: 12px; font-size: 14px; }
+#quick select { font: inherit; font-size: 14px; font-weight: 700; color: inherit; background: var(--choice); border: 2px solid var(--line); border-radius: 12px; padding: 7px 10px; max-width: 16em; }
+#s-preview.big { position: fixed; inset: 14px; z-index: 50; margin: 0; display: flex; flex-direction: column; box-shadow: 0 0 0 100vmax rgb(59 49 39 / 45%); }
+#s-preview.big .q, #s-preview.big .note { display: none; }
+#s-preview.big #quick { display: flex; }
+#s-preview.big .frame { flex: 1; aspect-ratio: auto; min-height: 0; }
+.note { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+#result { min-height: 230px; font: 13.5px/1.6 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; margin-top: 0; background: var(--choice); }
+.btn { margin-top: 14px; width: 100%; padding: 13px; font: inherit; font-size: 16px; font-weight: 800; color: #fff; background: var(--coral); border: 0; border-radius: 999px; cursor: pointer; box-shadow: 0 4px 0 var(--coral-strong); transition: transform .18s ease, box-shadow .18s ease; }
+.btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 0 var(--coral-strong); }
+.btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 var(--coral-strong); }
+.btn:disabled { background: #e9d9c2; color: #fffaf1; box-shadow: 0 4px 0 var(--line); cursor: not-allowed; }
+.warn { color: var(--coral-strong); font-size: 13.5px; font-weight: 700; margin: 10px 0 0; min-height: 1.4em; }
+</style>
+</head>
+<body>
+<svg class="confetti" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+  <circle cx="1010" cy="84" r="14" fill="#f6c95b"/>   <!-- tobidas では左上。ここでは題字と重なるので右へ寄せた -->
+  <path d="M1290 120 l26 46 h-52 z" fill="#9fd4b8"/>
+  <rect x="1180" y="700" width="30" height="30" rx="6" fill="#f08a6c" transform="rotate(18 1195 715)"/>
+  <circle cx="70" cy="760" r="20" fill="#b9a6e0"/>
+  <path d="M640 60 q20 -24 40 0 t40 0" fill="none" stroke="#6fa8dc" stroke-width="6" stroke-linecap="round"/>
+  <path d="M1380 470 q-20 20 0 40 t0 40" fill="none" stroke="#f6b84b" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="560" cy="840" r="10" fill="#9fd4b8"/>
+  <path d="M300 860 l18 -32 l18 32 z" fill="#e4775d" opacity=".8"/>
+</svg>
+<header><h1 class="wordmark" id="wordmark" aria-label="tobidas-lite"></h1><p class="tagline" id="h-tag"></p><p class="lead" id="h-lead"></p></header>
+<div class="wrap">
+  <main id="form"></main>
+  <aside class="side">
+    <section id="s-preview">
+      <div class="ptop"><div><h2 id="p-title"></h2><p class="q" id="p-lead"></p></div><button class="mini" id="p-big" type="button"></button></div>
+      <div id="quick"></div>
+      <div class="frame"><iframe id="sample" title="sample" allow="autoplay"></iframe></div>
+      <p class="note" id="p-note"></p>
+    </section>
+    <section>
+      <h2 id="r-title"></h2><p class="q" id="r-lead"></p>
+      <textarea id="result" readonly></textarea>
+      <button class="btn" id="copy" type="button"></button>
+      <p class="warn" id="r-warn"></p>
+    </section>
+  </aside>
+</div>
+<script>
+const SETUP = /*SETUP_DATA*/null;
+(function () {
+  const D = SETUP, TH = D.theme;
+  // 画面の文言。ja と en を持ち、ほかの言語は data の strings(en と同じ形)で上書きする。{topic} と {n} は差し込み。scripts/setup.mjs --strings がこの en を出力する
+  const STR = /*STR_BEGIN*/{"ja": {"title": "tobidas-lite 聞き取り", "tag": "届けよう、あなただけの世界", "lead": "「{topic}」をどんな絵本にするかを選んでください。選び終えたら、右下の結果をコピーして会話に貼ります。迷う所はそのままで構いません(おすすめを選んであります)。", "rec": "おすすめ", "rec2": "おすすめ 2", "fixed": "指定済み", "lang": ["文字の言語", "絵本の中の文字(題字・字幕・看板)は何語にしますか?"], "langOther": "ほかの言語", "langPh": "言語名を書いてください", "len": ["長さ", "長さはどのくらいにしますか?"], "lens": ["短め", "標準", "たっぷり"], "spreads": "見開き{n}", "hi": ["見せ場", "いちばん驚かせたい場面はどこですか?"], "omakase": "おまかせ", "hiOther": "ほかの場面", "hiPh": "場面を書いてください", "as": ["画像・音声ファイル", "用意した画像や音声のファイルを使いますか? 使わなければ、絵も音もこの場で作ります。"], "useImg": "画像を使う", "useAud": "音声を使う", "imgPh": "どの画像を、何に使いますか?(人物、小物、建物、背景など)", "audPh": "どの音声を、何に使いますか?(BGM、効果音、声など)", "style": ["画風", "画風はどうしますか?"], "desk": ["本の後ろ", "本の後ろ(机または背景)はどうしますか?"], "desks": "机", "scenes": "動く背景", "other": "そのほか", "custom": "この作品のために書き下ろす", "deskCustom": "見開きごとに場面に合う背景になります", "deskImg": "用意した画像を背景に使う", "deskImgNote": "使う画像は「画像・音声ファイル」の欄に書いてください", "set": ["曲", "曲はどうしますか?"], "setCustom": "この題材に合わせた曲を作ります", "setAud": "用意した音声をBGMにする", "setAudNote": "使う音声は「画像・音声ファイル」の欄に書いてください", "silent": "音なし", "more": ["そのほかの希望", "ほかに決めておきたいことがあれば書いてください(空欄で構いません)。ここに書いたことは、おすすめや既定より優先されます。"], "pTitle": "見本で確かめる", "pLead": "選んだ画風・本の後ろ・曲を、見本の絵本に当てはめています。見本の上でホイールを回すとページをめくれ、▶ を押すと曲も聞けます。", "pNoDesk": "書き下ろす背景と用意した画像は、見本には出ません。", "pNoSet": "書き下ろす曲と用意した音声は、見本では聞けません。", "rTitle": "結果", "rLead": "このテキストをコピーして、会話に貼ってください。", "copy": "結果をコピー", "copied": "コピーしました。会話に貼ってください。", "needLang": "文字の言語を選んでください。", "needText": "「ほか」を選んだ欄に内容を書いてください。", "needAsset": "使うファイルと使い道を書いてください。", "k": {"head": "[tobidas-lite 聞き取り結果]", "topic": "題材", "lang": "作中の言語", "len": "長さ", "hi": "見せ場", "img": "画像", "aud": "音声", "style": "画風", "desk": "本の後ろ", "set": "曲", "more": "そのほか", "no": "使わない", "yes": "使う"}, "big": "大きく見る", "small": "もとに戻す"}, "en": {"title": "tobidas-lite setup", "tag": "Share a world of your own", "lead": "Choose how “{topic}” should look and sound. When you are done, copy the result at the lower right and paste it into the chat. Anything you leave alone keeps the recommended choice.", "rec": "Recommended", "rec2": "Recommended 2", "fixed": "Already set", "lang": ["Language", "What language should the text in the book (title, captions, signs) be in?"], "langOther": "Another language", "langPh": "Type the language", "len": ["Length", "How long should it be?"], "lens": ["Short", "Standard", "Long"], "spreads": "{n} spreads", "hi": ["Highlight", "Which scene should surprise the reader most?"], "omakase": "You choose", "hiOther": "Another scene", "hiPh": "Describe the scene", "as": ["Image and audio files", "Will you use image or audio files you have prepared? If not, the pictures and sound are made from scratch."], "useImg": "Use images", "useAud": "Use audio", "imgPh": "Which images, and for what? (characters, props, buildings, backgrounds…)", "audPh": "Which audio files, and for what? (music, sound effects, voice…)", "style": ["Art style", "Which art style?"], "desk": ["Behind the book", "What should be behind the book (a desk or a backdrop)?"], "desks": "Desks", "scenes": "Moving backdrops", "other": "Other", "custom": "Write one for this book", "deskCustom": "Each spread gets a backdrop that fits its scene", "deskImg": "Use my images as the backdrop", "deskImgNote": "Describe the images under “Image and audio files”", "set": ["Music", "Which music?"], "setCustom": "Music composed to fit this story", "setAud": "Use my audio as the music", "setAudNote": "Describe the audio under “Image and audio files”", "silent": "No sound", "more": ["Anything else", "Write anything else you want to decide now (optional). What you write here overrides the recommendations and defaults."], "pTitle": "Try it on a sample", "pLead": "Your art style, backdrop and music are applied to a sample book. Scroll over the sample to turn pages, and press ▶ to hear the music.", "pNoDesk": "A custom backdrop or your own images cannot be shown on the sample.", "pNoSet": "Custom music or your own audio cannot be played on the sample.", "rTitle": "Result", "rLead": "Copy this text and paste it into the chat.", "copy": "Copy the result", "copied": "Copied. Paste it into the chat.", "needLang": "Choose the language of the text.", "needText": "Fill in the box for the “Another…” choice.", "needAsset": "Describe the files and what they are for.", "k": {"head": "[tobidas-lite setup result]", "topic": "Story", "lang": "Language", "len": "Length", "hi": "Highlight", "img": "Images", "aud": "Audio", "style": "Art style", "desk": "Behind the book", "set": "Music", "more": "Anything else", "no": "not used", "yes": "used"}, "big": "Enlarge", "small": "Back to normal"}}/*STR_END*/;
+  const base = STR[D.ui] || STR.en, X = D.strings || {}, L = Object.assign({}, base, X, { k: Object.assign({}, base.k, X.k) });
+  const fill = (t, o) => t.replace(/\{(\w+)\}/g, (m, key) => o[key] ?? m);
+  // 内蔵の表示名。テーマの表示名は日本語なので、ほかの言語では data の labels で差し替える
+  const LB = D.labels || {}; for (const kind of ['style', 'desk', 'set']) for (const x of TH[kind + 's']) if ((LB[kind] || {})[x[0]]) x[1] = LB[kind][x[0]];
+  document.documentElement.lang = D.ui || 'ja'; document.title = L.title;
+  const $ = id => document.getElementById(id), el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const R = D.recommend || {}, FX = D.fixed || {}, recStyle = (R.style || []).map(r => r[0]), reason = {};
+  for (const r of R.style || []) reason['style:' + r[0]] = r[1]; if (R.desk) reason['desk:' + R.desk[0]] = R.desk[1]; if (R.set) reason['set:' + R.set[0]] = R.set[1];
+  // 選んだ内容。言語だけは決めつけない(指定済みのときを除く)
+  const S = { lang: FX.lang || null, langText: '', len: FX.length || 6, hi: FX.highlight || '', hiText: '', img: false, imgText: '', aud: false, audText: '',
+    style: FX.style || recStyle[0] || TH.defaults.style, desk: FX.desk || (R.desk || [])[0] || TH.defaults.desk, set: FX.set || (R.set || [])[0] || TH.defaults.set, more: '' };
+  $('h-tag').textContent = L.tag; $('h-lead').textContent = fill(L.lead, { topic: D.topic });
+  // 題字。前半は tobidas と同じ色と傾き。跳ねは、終わる前に次を重ねないよう間をあける
+  { const W = $('wordmark'), LT = [['t', '#e4775d', -4], ['o', '#f6b84b', 3], ['b', '#5fae86', -2], ['i', '#6fa8dc', 4], ['d', '#8a6bc7', -3], ['a', '#f08a6c', 2], ['s', '#5fae86', -1], ['-', '#d8c6a2', 0], ['l', '#6fa8dc', 3], ['i', '#e4775d', -3], ['t', '#f6b84b', 2], ['e', '#8a6bc7', -2]];
+    LT.forEach(([ch, color, tilt], i) => { const o = el('span', 'letter', `<span class="hop">${ch}</span>`); o.setAttribute('aria-hidden', 'true'); o.style.setProperty('--letter', color); o.style.setProperty('--tilt', tilt + 'deg'); o.style.setProperty('--index', i); W.append(o); });
+    let last = -Infinity; W.addEventListener('mouseenter', () => { const now = performance.now(); if (now - last < 1500) return; last = now; W.classList.add('hopping'); setTimeout(() => W.classList.remove('hopping'), 500 + LT.length * 45 + 100); }); }
+  const form = $('form'); let n = 0;
+  const section = ([title, q], key) => { const s = el('section'); s.append(el('h2', '', `<span class="n">${++n}</span>${esc(title)}${key && FX[key] != null ? `<span class="badge fixed">${L.fixed}</span>` : ''}`), el('p', 'q', esc(q))); form.append(s); return s; };
+  const groups = {};   // 名前 → その欄のボタン一覧(選び直したとき aria-pressed を付け替える)
+  const choose = (key, val) => { S[key] = val; for (const b of groups[key] || []) b.setAttribute('aria-pressed', String(b.dataset.v === String(val))); update(); };
+  const chip = (key, val, label, sub) => { const b = el('button', 'chip', `${esc(label)}${sub ? `<small>${esc(sub)}</small>` : ''}`); b.type = 'button'; b.dataset.v = val; b.onclick = () => choose(key, val); (groups[key] = groups[key] || []).push(b); return b; };
+  const card = (key, val, label, sub, img, badge) => { const b = el('button', 'card', `${img ? `<img src="${esc(img)}" alt="" loading="lazy">` : `<div class="noimg">＋</div>`}<div class="cap"><b>${esc(label)}</b>${badge ? `<span class="badge">${esc(badge)}</span>` : ''}${sub ? `<small>${esc(sub)}</small>` : ''}</div>`); b.type = 'button'; b.dataset.v = val; b.onclick = () => choose(key, val);
+    const im = b.querySelector('img'); if (im) im.onerror = () => im.replaceWith(el('div', 'noimg', '')); (groups[key] = groups[key] || []).push(b); return b; };
+  const text = (key, ph, multi) => { const t = el(multi ? 'textarea' : 'input'); if (!multi) t.type = 'text'; t.placeholder = ph; t.oninput = () => { S[key] = t.value; update(); }; return t; };
+  const thumb = (kind, name) => `${D.base}previews/${kind}_${name}.jpg`;
+
+  // 1 言語
+  let s = section(L.lang, 'lang'), c = el('div', 'chips'); const langs = [...new Set([FX.lang, ...(D.langs || [])].filter(Boolean))];
+  for (const l of langs) c.append(chip('lang', l, l)); c.append(chip('lang', '*', L.langOther)); const langT = text('langText', L.langPh); s.append(c, langT);
+  // 2 長さ
+  s = section(L.len, 'length'); c = el('div', 'chips'); [4, 6, 8].forEach((v, i) => c.append(chip('len', v, L.lens[i] + (v === 6 ? ` ★` : ''), fill(L.spreads, { n: v })))); s.append(c);
+  // 3 見せ場
+  s = section(L.hi, 'highlight'); c = el('div', 'chips'); for (const h of [...new Set([FX.highlight, ...(D.highlights || [])].filter(Boolean))]) c.append(chip('hi', h, h));
+  c.append(chip('hi', '', L.omakase), chip('hi', '*', L.hiOther)); const hiT = text('hiText', L.hiPh); s.append(c, hiT);
+  // 4 素材
+  s = section(L.as); c = el('div', 'chips');
+  const toggle = (key, label) => { const b = el('button', 'chip', esc(label)); b.type = 'button'; b.setAttribute('aria-pressed', 'false'); b.onclick = () => { S[key] = !S[key]; b.setAttribute('aria-pressed', String(S[key])); update(); }; return b; };
+  const imgT = text('imgText', L.imgPh, true), audT = text('audText', L.audPh, true); c.append(toggle('img', L.useImg), toggle('aud', L.useAud)); s.append(c, imgT, audT);
+  // 5 画風(書き下ろしは持ちかけない)
+  s = section(L.style, 'style'); c = el('div', 'grid');
+  for (const [name, label] of [...TH.styles].sort((a, b) => (recStyle.indexOf(a[0]) + 1 || 9) - (recStyle.indexOf(b[0]) + 1 || 9))) { const r = recStyle.indexOf(name); c.append(card('style', name, label, reason['style:' + name], thumb('style', name), r === 0 ? L.rec : r === 1 ? L.rec2 : '')); }
+  s.append(c);
+  // 6 本の後ろ
+  s = section(L.desk, 'desk'); const deskCards = moving => { const g = el('div', 'grid'); for (const [name, label, mv] of TH.desks) if (!!mv === moving) g.append(card('desk', name, label, reason['desk:' + name], thumb('desk', name), (R.desk || [])[0] === name ? L.rec : '')); return g; };
+  const gOther = el('div', 'grid'), deskImg = card('desk', '*image', L.deskImg, L.deskImgNote); gOther.append(card('desk', '*custom', L.custom, L.deskCustom), deskImg);
+  s.append(el('h3', '', L.desks), deskCards(false), el('h3', '', L.scenes), deskCards(true), el('h3', '', L.other), gOther);
+  // 7 曲
+  s = section(L.set, 'set'); c = el('div', 'chips'); for (const [name, label] of TH.sets) c.append(chip('set', name, label + ((R.set || [])[0] === name ? ` ★` : ''), reason['set:' + name]));
+  const setAud = chip('set', '*audio', L.setAud, L.setAudNote); c.append(chip('set', '*custom', L.custom, L.setCustom), setAud, chip('set', '*none', L.silent)); s.append(c);
+  // 8 そのほか
+  s = section(L.more); s.append(text('more', '', true));
+
+  $('p-title').textContent = L.pTitle; $('p-lead').textContent = L.pLead; $('r-title').textContent = L.rTitle; $('r-lead').textContent = L.rLead; $('copy').textContent = L.copy;
+  if (!TH.sample) $('s-preview').classList.add('hide');
+  // 大きく見るときの切り替え。画風はボタン、本の後ろと曲はプルダウン(どれも下の欄と同じ選択を動かす)
+  const quick = $('quick'), pv = $('s-preview'), bigBtn = $('p-big');
+  for (const [name, label] of TH.styles) quick.append(chip('style', name, label));
+  const pickList = (key, list, extra) => { const sel = el('select'); sel.title = L[key][0]; for (const [v, label] of [...list, ...extra]) { const o = el('option', '', esc(label)); o.value = v; sel.append(o); } sel.onchange = () => choose(key, sel.value); quick.append(sel); return sel; };
+  const qDesk = pickList('desk', TH.desks, [['*custom', L.custom], ['*image', L.deskImg]]), qSet = pickList('set', TH.sets, [['*custom', L.custom], ['*audio', L.setAud], ['*none', L.silent]]);
+  const setBig = on => { pv.classList.toggle('big', on); bigBtn.innerHTML = on ? '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>' : esc(L.big); bigBtn.title = on ? L.small : ''; bigBtn.setAttribute('aria-label', on ? L.small : L.big); };
+  bigBtn.onclick = () => setBig(!pv.classList.contains('big')); addEventListener('keydown', e => { if (e.key === 'Escape') setBig(false); }); setBig(false);
+  const frame = $('sample'); let shown = null, timer = 0, at = 'open';   // 見本は最初の見開きから見せ、選び直しても見ていた位置を保つ
+  addEventListener('message', e => { if (e.source === frame.contentWindow && e.data && e.data.tobidas === 'time' && isFinite(e.data.t)) at = e.data.t; });
+  const name = (list, v) => { const f = list.find(x => x[0] === v); return f ? `${v}(${f[1]})` : v; };
+  function update() {
+    for (const k of ['lang', 'len', 'hi', 'style', 'desk', 'set']) for (const b of groups[k] || []) b.setAttribute('aria-pressed', String(b.dataset.v === String(S[k])));
+    langT.classList.toggle('hide', S.lang !== '*'); hiT.classList.toggle('hide', S.hi !== '*'); imgT.classList.toggle('hide', !S.img); audT.classList.toggle('hide', !S.aud);
+    // 素材を使わないなら、素材に頼る選択肢は出さない
+    deskImg.classList.toggle('hide', !S.img); if (!S.img && S.desk === '*image') S.desk = (R.desk || [])[0] || TH.defaults.desk;
+    setAud.classList.toggle('hide', !S.aud); if (!S.aud && S.set === '*audio') S.set = (R.set || [])[0] || TH.defaults.set;
+    for (const k of ['desk', 'set']) for (const b of groups[k]) b.setAttribute('aria-pressed', String(b.dataset.v === String(S[k])));
+    qDesk.value = S.desk; qSet.value = S.set; qDesk.querySelector('[value="*image"]').hidden = !S.img; qSet.querySelector('[value="*audio"]').hidden = !S.aud;
+    // 見本: 内蔵の組み合わせだけ当てはめられる
+    if (TH.sample) {
+      const q = new URLSearchParams({ style: S.style }); if (S.desk[0] !== '*') q.set('desk', S.desk); if (S.set[0] !== '*') q.set('set', S.set);
+      const url = `${D.base}${TH.sample}/index.html?${q}`; if (url !== shown) { shown = url; clearTimeout(timer); timer = setTimeout(() => { frame.src = `${url}&at=${at}&embed`; }, 250); }
+      $('p-note').textContent = [S.desk[0] === '*' ? L.pNoDesk : '', S.set[0] === '*' ? L.pNoSet : ''].filter(Boolean).join(' ');
+    }
+    // 結果
+    const K = L.k, lang = S.lang === '*' ? S.langText.trim() : S.lang, hi = S.hi === '*' ? S.hiText.trim() : (S.hi || L.omakase);
+    const desk = S.desk === '*custom' ? `${L.custom}(${L.deskCustom})` : S.desk === '*image' ? L.deskImg : name(TH.desks, S.desk);
+    const set = S.set === '*custom' ? L.custom : S.set === '*audio' ? L.setAud : S.set === '*none' ? L.silent : name(TH.sets, S.set);
+    const lines = [K.head, `${K.topic}: ${D.topic}`, `${K.lang}: ${lang || ''}`, `${K.len}: ${fill(L.spreads, { n: S.len })}`, `${K.hi}: ${hi}`,
+      `${K.img}: ${S.img ? `${K.yes} / ${S.imgText.trim()}` : K.no}`, `${K.aud}: ${S.aud ? `${K.yes} / ${S.audText.trim()}` : K.no}`,
+      `${K.style}: ${name(TH.styles, S.style)}`, `${K.desk}: ${desk}`, `${K.set}: ${set}`]; if (S.more.trim()) lines.push(`${K.more}: ${S.more.trim()}`);
+    $('result').value = lines.join('\n');
+    const miss = !lang ? (S.lang === '*' ? L.needText : L.needLang) : (S.hi === '*' && !S.hiText.trim()) ? L.needText : (S.img && !S.imgText.trim()) || (S.aud && !S.audText.trim()) ? L.needAsset : '';
+    $('copy').disabled = !!miss; $('r-warn').textContent = miss;
+  }
+  $('copy').onclick = async () => { const t = $('result'); try { await navigator.clipboard.writeText(t.value); } catch { t.select(); document.execCommand('copy'); } $('r-warn').textContent = L.copied; };
+  update();
+})();
+</script>
+</body>
+</html>

@@ -14,7 +14,7 @@ themes/<名前>/
   assets/       任意。テーマが使う画像・音声ファイル(作品の theme/assets/ にコピーされる。作品からは 'theme/assets/…' で指定。書き方は references/assets.md)
   guide.md      必須。向く用途、聞き取りで決めること、資料を読む順
   *.md          任意。そのテーマの資料(一覧、描き方、仕掛けなど)
-  previews/     任意。聞き取りで見せる見本画像(scripts/gallery.mjs で作る)
+  previews/     聞き取りページが使う見本画像と一覧 index.json(scripts/gallery.mjs で作る)
   starter/book/ 任意。新しい作品の書き出し(art.js と book.js)
   examples/     任意。完成見本
 ```
@@ -123,7 +123,7 @@ seaside: { label: '海辺(動く背景)', room: [...], light: '255,250,226',
 ## テーマを作る・直すときの確かめ方
 
 - `node scripts/new-book.mjs <一時フォルダ> --theme <名前>` で作品フォルダが作れ、`node scripts/check.mjs <一時フォルダ>` がエラー・警告なしで通る。
-- `node scripts/gallery.mjs <見本の作品> --out themes/<名前>/previews` で、全部の画風と机を並べた見本画像を作り、目で見る。
+- `node scripts/gallery.mjs <見本の作品> --out themes/<名前>/previews` で、全部の画風と机を並べた見本画像を作り、目で見る。同時に、1種ずつの画像と一覧 `index.json`(画風・机・曲集の名前と、当てはめて見せる見本の場所)ができる。聞き取りページ(`scripts/setup.mjs`)はこれを読むので、見本の作品はテーマの `examples/` の下のものを渡す。
 - 曲集は URL に `?set=<名前>` を付けて `check.mjs` を通す(和音名の間違い、小節数の不一致が警告される)。曲の良し悪しは耳で聞くしかない。
 - テーマが読み込まれていない・名前が間違っているときは、エンジンが警告を出し、仕上げなし・無地の机・曲なしで動く。
 

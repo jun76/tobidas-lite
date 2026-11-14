@@ -1,0 +1,112 @@
+{
+ "theme": "storybook",
+ "defaults": {
+  "style": "kirigami",
+  "desk": "wood",
+  "set": "musicbox"
+ },
+ "styles": [
+  [
+   "kirigami",
+   "切り紙"
+  ],
+  [
+   "flat",
+   "フラット"
+  ],
+  [
+   "crayon",
+   "クレヨン"
+  ],
+  [
+   "vintage",
+   "レトロ"
+  ]
+ ],
+ "desks": [
+  [
+   "wood",
+   "板張り",
+   false
+  ],
+  [
+   "lightwood",
+   "白木",
+   false
+  ],
+  [
+   "linen",
+   "麻布",
+   false
+  ],
+  [
+   "felt",
+   "フェルト(緑)",
+   false
+  ],
+  [
+   "marble",
+   "大理石",
+   false
+  ],
+  [
+   "grass",
+   "芝生",
+   false
+  ],
+  [
+   "night",
+   "星空",
+   false
+  ],
+  [
+   "sky",
+   "青空",
+   false
+  ],
+  [
+   "mat",
+   "カッティングマット",
+   false
+  ],
+  [
+   "seaside",
+   "海辺(動く背景)",
+   true
+  ],
+  [
+   "meadow",
+   "草原(動く背景)",
+   true
+  ],
+  [
+   "forest",
+   "森(動く背景)",
+   true
+  ],
+  [
+   "town",
+   "市街(動く背景)",
+   true
+  ]
+ ],
+ "sets": [
+  [
+   "musicbox",
+   "オルゴール(3拍子・むかし話)"
+  ],
+  [
+   "march",
+   "行進曲(4拍子・元気な冒険)"
+  ],
+  [
+   "lullaby",
+   "子守歌(3拍子・やさしく静か)"
+  ],
+  [
+   "wafu",
+   "和風(4拍子・日本の昔話)"
+  ]
+ ],
+ "sample": "examples/jack"
+}

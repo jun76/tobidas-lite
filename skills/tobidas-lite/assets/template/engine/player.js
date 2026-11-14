@@ -2,7 +2,8 @@
 //   ホイール・↑↓ … 進む/戻る   ←→・PageUp/Down … 前後の見開きへ   ▶ボタン・Space … 自動再生(音つき)   M … 音のオン/オフ   Home/End … 最初/最後   D … デバッグ表示
 //   左下のプルダウン … 画風の切り替え(?style= を付けて読み直し、見ていた位置へ戻る。作品の theme.stylePicker: false で出さない)
 //   音は自動再生中だけ鳴る。どの位置から再生しても、その時刻の音から始まる(engine/sound.js が全体を合成しておく)。
-//   URL: ?t=12.5 … その時刻の静止画だけ描く(チェック・動画化用。HUDなし)   ?autoplay … 自動再生で開始   ?debug … デバッグ表示
+//   URL: ?t=12.5 … その時刻の静止画だけ描く(チェック・動画化用。HUDなし)   ?autoplay … 自動再生で開始   ?debug … デバッグ表示   ?at=12.5 / ?at=open … その時刻 / 最初の見開きの中ほど(字幕が出そろった所)から始める   ?embed … 操作の案内と画風のプルダウンを出さない(聞き取りページの見本用)
+//   ほかのページに埋め込まれているときは、いまの時刻を親へ postMessage で知らせる(聞き取りページが、画風を替えても同じ位置を見せるために使う)
 (function () {
   const q = new URLSearchParams(location.search), root = document.getElementById('tobidas');
   const fit = () => { const k = Math.min(innerWidth / 1920, innerHeight / 1080); root.style.transform = `translate(${((innerWidth - 1920 * k) / 2).toFixed(1)}px,${((innerHeight - 1080 * k) / 2).toFixed(1)}px) scale(${k.toFixed(5)})`; };
@@ -16,10 +17,12 @@
     try { const rs = sessionStorage.getItem('tobidas-resume'); sessionStorage.removeItem('tobidas-resume'); if (rs !== null && isFinite(+rs)) P.target = P.t = Math.max(T0, Math.min(TL.END, +rs)); } catch { }
     // 見開きの「開ききった時刻」= ジャンプ先・目盛り
     const stops = [T0]; for (let s = 1; s <= TL.N; s++) stops.push(TL.open(s) + .05); stops.push(TL.tc + TL.CLOSE + 1.2);
+    { const at = q.get('at'), v = at === 'open' ? (TL.open(1) + TL.until(1)) / 2 : at === null ? NaN : +at; if (isFinite(v)) P.target = P.t = Math.max(T0, Math.min(TL.END, v)); }   // ?at= で始める位置を指定(open は最初の見開きの中ほど。字幕が出そろっている)
     const turns = TL.ts.map(a => [a, a + TL.TURN]).concat([[TL.tc, TL.tc + TL.CLOSE]]);
     // --- HUD ---
     const hud = document.createElement('div'); hud.id = 'tb-hud'; hud.innerHTML = `<div class="bar"><div class="fill"></div>${stops.slice(1).map(s => `<div class="tick" style="left:${(s / TL.END * 100).toFixed(3)}%"></div>`).join('')}</div>`;
     const hint = document.createElement('div'); hint.id = 'tb-hint'; hint.textContent = ja ? 'ホイールでめくる ・ ←→ 見開き ・ ▶ / Space で再生(音つき)' : 'Scroll to turn pages · ←→ spreads · ▶ / Space to play with sound';
+    if (q.has('embed')) hint.style.display = 'none';
     const dbg = document.createElement('div'); dbg.id = 'tb-debug'; if (q.has('debug')) dbg.style.display = 'block';
     // --- 再生ボタンと音 ---
     const IC = { play: '<path d="M8 5v14l11-7z"/>', pause: '<path d="M6 5h4v14H6zM14 5h4v14h-4z"/>', on: '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>', off: '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>' };
@@ -30,10 +33,10 @@
     if (!hasSound) bSnd.style.display = 'none';
     // --- 画風のプルダウン(画風は起動時に組み立てるので、?style= を付けて読み直す)---
     const styles = Object.entries(Tobidas.STYLES);
-    if (styles.length > 1 && (Tobidas.def.theme || {}).stylePicker !== false) {
+    if (styles.length > 1 && (Tobidas.def.theme || {}).stylePicker !== false && !q.has('embed')) {
       const sel = document.createElement('select'); sel.className = 'sty'; sel.tabIndex = -1; sel.title = ja ? '画風' : 'Art style';
       for (const [k, v] of styles) { const o = document.createElement('option'); o.value = k; o.textContent = v.label || k; o.selected = k === Tobidas.style.name; sel.append(o); }
-      sel.addEventListener('change', () => { try { sessionStorage.setItem('tobidas-resume', P.target.toFixed(2)); } catch { } const u = new URLSearchParams(location.search); u.set('style', sel.value); u.delete('autoplay'); location.search = u.toString(); });
+      sel.addEventListener('change', () => { try { sessionStorage.setItem('tobidas-resume', P.target.toFixed(2)); } catch { } const u = new URLSearchParams(location.search); u.set('style', sel.value); u.delete('autoplay'); u.delete('at'); location.search = u.toString(); });
       ctl.append(sel);
     }
     const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { } } };
@@ -106,6 +109,7 @@
       if (P.t !== shown) {
         shown = P.t; fill.style.width = (P.t / TL.END * 100).toFixed(3) + '%';
         if (dbg.style.display === 'block') { const w = Tobidas.where(P.t); dbg.textContent = `t = ${P.t.toFixed(2)} / ${TL.END.toFixed(1)}\nspread ${w.spread}   tl = ${w.tl.toFixed(2)}${Tobidas.warnings.length ? '\n⚠ ' + Tobidas.warnings.join('\n⚠ ') : ''}`; }
+        if (parent !== window && Math.abs(P.target - (P.sent ?? -9)) > .05) { P.sent = P.target; try { parent.postMessage({ tobidas: 'time', t: +P.target.toFixed(2) }, '*'); } catch { } }
         document.dispatchEvent(new CustomEvent('tobidas:time', { detail: { t: P.t, auto: P.auto } }));   // 音声などを後付けするためのフック
       }
       requestAnimationFrame(loop);

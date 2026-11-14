@@ -4,7 +4,7 @@
 
 ## 聞き取りで決めること
 
-次の3つをそれぞれ「内蔵から選ぶ」か「書き下ろす」かで決める(聞き方は SKILL.md の手順1)。一覧・向く題材・書き下ろしの書き方は `presets.md`。
+次の3つを聞き取りページで決める(進め方は SKILL.md の手順1)。机・背景と曲は「内蔵から選ぶ」か「書き下ろす」かを選べる。画風は内蔵から選び、書き下ろすのはユーザーが自分から頼んだときだけにする。一覧・向く題材・書き下ろしの書き方は `presets.md`。
 
 | 項目 | 内蔵 | 作品定義での書き方 |
 |---|---|---|
@@ -14,7 +14,7 @@
 
 机・背景は内蔵なら全部の見開きで共通。書き下ろすなら、見開きごとにその場面に合う背景を書く(`presets.md`)。
 
-見本画像: `previews/styles.jpg`(画風)、`previews/desks.jpg`(机と動く背景)。動く背景は静止画では動きが伝わらないので、「雲や波がゆっくり動く」と言葉で添える。
+見本画像: `previews/styles.jpg`(画風)、`previews/desks.jpg`(机と動く背景)。聞き取りページは、1種ずつの画像(`previews/style_<名前>.jpg` `previews/desk_<名前>.jpg`)と、選んだ組み合わせを当てはめた見本の絵本(`examples/jack`)を見せる。動く背景と曲は、見本の絵本で実際に動かして確かめてもらえる。
 
 ## 資料を読む順
 
@@ -38,4 +38,4 @@
 
 ## このテーマを直したとき
 
-`node scripts/check.mjs themes/storybook/examples/jack` と `…/examples/urashima` で見本を撮って確かめる。画風や机を足した・変えたときは `node scripts/gallery.mjs themes/storybook/examples/jack --out themes/storybook/previews` で見本画像を作り直す。
+`node scripts/check.mjs themes/storybook/examples/jack` と `…/examples/urashima` で見本を撮って確かめる。画風・机・曲集を足した・変えたときは `node scripts/gallery.mjs themes/storybook/examples/jack --out themes/storybook/previews` で見本画像と一覧(`previews/index.json`)を作り直す。聞き取りページはこの一覧を読む。
