@@ -117,52 +117,50 @@
     // 市街: 夕方前の空、かすむ遠くの塔と家並み、屋根の形がいろいろの建物とまたたく窓、アーチの高架を走る電車、煙突のけむり、気球
     // 奥ほど淡く青く・手前ほど濃くして奥行きを出す。日は左の低いところ(建物の右側を少し暗く)
     town: {
+      // 低い家並みが左右に続く通り。まん中は道が手前から奥へ伸び、その上に空が開ける(本が中央を占めるので、見どころは左右の家並みと空)
       svg: () => {
-        const r = R(17), pick = a => a[Math.floor(r() * a.length)], smk = []; let twn = 34;
+        const r = R(23), pick = a => a[Math.floor(r() * a.length)], VX = 960, VY = 600, BASE = 1010, HAZE = '#e9e1e0', smk = []; let twn = 10;
+        const mix = (c, d, f) => '#' + [1, 3, 5].map(i => Math.round(parseInt(c.slice(i, i + 2), 16) * (1 - f) + parseInt(d.slice(i, i + 2), 16) * f).toString(16).padStart(2, '0')).join('');
         const cloud = (x, y, k) => sCloud(x, y + 10 * k, k, '#f1d6c2') + sCloud(x, y, k, '#fffaf2');
-        const balloon = (x, y, k, c1, c2, p) => `<g class="bl" data-x="${x}" data-y="${y}" data-p="${p}"><g transform="scale(${k})"><path d="M-30 40L-12 74M30 40L12 74" stroke="#7a5a3a" stroke-width="2.5" fill="none"/><ellipse rx="46" ry="54" fill="${c1}"/><ellipse rx="30" ry="54" fill="${c2}"/><ellipse rx="13" ry="54" fill="${c1}"/><path d="M-46 4Q-40 50 0 54Q40 50 46 4Q30 34 0 36Q-30 34 -46 4Z" fill="#3a2030" opacity=".16"/><rect x="-13" y="72" width="26" height="19" rx="3" fill="#8a5a33"/></g></g>`;
-        // 建物1棟: 屋根(切妻・マンサード・階段・陸屋根)、壁、窓。窓は幅に合わせて等間隔に並べ、暗い窓・明るい窓をそれぞれ1本のパスにまとめる
-        const bld = (x, w, h, Y, L) => {
-          const k = Y.k, top = Y.base - h, c = pick(Y.body), rc = pick(Y.roof), cx = x + w / 2, ww = 20 * k, wh = 28 * k, cols = Math.max(1, Math.floor((w - 14 * k) / (ww + 16 * k))), gap = (w - cols * ww) / (cols + 1), arch = r() > .65, rt = r();
-          let o = '';
-          const chimney = (hx, y0, y1) => { o += `<rect x="${N1(hx)}" y="${N1(y0)}" width="${N1(14 * k)}" height="${N1(y1 - y0)}" fill="${Y.chim}"/><rect x="${N1(hx - 2 * k)}" y="${N1(y0 - 4 * k)}" width="${N1(18 * k)}" height="${N1(6 * k)}" fill="${rc}"/>`; if (L && hx > 60 && hx < 1860) smk.push([hx + 7 * k, y0 - 8 * k, L]); };
-          if (!L && rt < .2) { const tw = w * .42, th = 50 + r() * 50, sp = 60 + r() * 50; o += `<rect x="${N1(cx - tw / 2)}" y="${N1(top - th)}" width="${N1(tw)}" height="${N1(th + 2)}" fill="${c}"/><path d="M${N1(cx - tw / 2 - 4)} ${N1(top - th)}L${N1(cx)} ${N1(top - th - sp)}L${N1(cx + tw / 2 + 4)} ${N1(top - th)}Z" fill="${rc}"/><circle cx="${N1(cx)}" cy="${N1(top - th * .6)}" r="${N1(tw * .26)}" fill="${Y.lit}"/>`; }
-          else if (rt < .42) { const rh = (30 + r() * 34) * k; if (r() < .7) chimney(x + w * (r() < .5 ? .2 : .68), top - rh * .4 - 30 * k, top); o += `<path d="M${N1(x - 6 * k)} ${N1(top + 1)}L${N1(cx)} ${N1(top - rh)}L${N1(x + w + 6 * k)} ${N1(top + 1)}Z" fill="${rc}"/><path d="M${N1(cx)} ${N1(top - rh)}L${N1(x + w + 6 * k)} ${N1(top + 1)}H${N1(cx)}Z" fill="#1f1530" opacity=".16"/>` + (rh > 44 * k ? `<circle cx="${N1(cx)}" cy="${N1(top - rh * .36)}" r="${N1(6 * k)}" fill="${Y.dark}"/>` : ''); }
-          else if (rt < .62) { const rh = (30 + r() * 16) * k; if (r() < .5) chimney(x + w * .12, top - rh - 16 * k, top); o += `<path d="M${N1(x - 4 * k)} ${N1(top + 1)}L${N1(x + 8 * k)} ${N1(top - rh)}H${N1(x + w - 8 * k)}L${N1(x + w + 4 * k)} ${N1(top + 1)}Z" fill="${rc}"/>`; for (let i = 0; i < (cols > 2 ? 2 : 1); i++) { const dx = cols > 2 ? x + w * (.3 + i * .4) : cx; o += `<path d="M${N1(dx - 10 * k)} ${N1(top - rh * .2)}V${N1(top - rh * .78)}L${N1(dx)} ${N1(top - rh * 1.08)}L${N1(dx + 10 * k)} ${N1(top - rh * .78)}V${N1(top - rh * .2)}Z" fill="${c}"/><rect x="${N1(dx - 5 * k)}" y="${N1(top - rh * .74)}" width="${N1(10 * k)}" height="${N1(rh * .46)}" fill="${r() < .5 ? Y.lit : Y.dark}"/>`; } }
-          else if (rt < .78) { const sw = w / 7, sh = 15 * k; let d = `M${N1(x)} ${N1(top + 1)}`; for (let i = 1; i <= 3; i++) d += `V${N1(top - i * sh)}H${N1(x + i * sw)}`; d += `H${N1(x + w - 3 * sw)}`; for (let i = 2; i >= 0; i--) d += `V${N1(top - i * sh)}H${N1(x + w - i * sw)}`; o += `<path d="${d}V${N1(top + 1)}Z" fill="${c}"/><path d="M${N1(x + 3 * sw)} ${N1(top - 3 * sh)}h${N1(sw)}v${N1(-5 * k)}h${N1(-sw)}Z" fill="${rc}"/><circle cx="${N1(cx)}" cy="${N1(top - sh * .9)}" r="${N1(7 * k)}" fill="${Y.dark}"/>`; }
-          else { const it = r(), tx = x + w * (.15 + r() * .4);
-            if (it < .35) o += `<path d="M${N1(tx + 4 * k)} ${N1(top - 12 * k)}V${N1(top)}M${N1(tx + 26 * k)} ${N1(top - 12 * k)}V${N1(top)}" stroke="#6a5a4a" stroke-width="${N1(3 * k)}"/><rect x="${N1(tx)}" y="${N1(top - 38 * k)}" width="${N1(30 * k)}" height="${N1(27 * k)}" rx="3" fill="#a8845c"/><path d="M${N1(tx - 3 * k)} ${N1(top - 37 * k)}L${N1(tx + 15 * k)} ${N1(top - 52 * k)}L${N1(tx + 33 * k)} ${N1(top - 37 * k)}Z" fill="${rc}"/>`;
-            else if (it < .7) o += [0, 1, 2].map(i => `<circle cx="${N1(tx + i * 20 * k)}" cy="${N1(top - (10 + (i % 2) * 6) * k)}" r="${N1((13 + (i % 2) * 4) * k)}" fill="${i % 2 ? '#8fc084' : '#6fa672'}"/>`).join('');
-            else chimney(tx, top - 30 * k, top);
-            o += `<rect x="${N1(x - 4 * k)}" y="${N1(top - 9 * k)}" width="${N1(w + 8 * k)}" height="${N1(11 * k)}" fill="${rc}"/>`; }
-          o += `<rect x="${N1(x)}" y="${N1(top)}" width="${N1(w)}" height="${N1(Y.yMax - top + 80)}" fill="${c}"/><rect x="${N1(x + w * .8)}" y="${N1(top)}" width="${N1(w * .2)}" height="${N1(Y.yMax - top + 80)}" fill="#241a38" opacity=".13"/><rect x="${N1(x)}" y="${N1(top)}" width="${N1(w * .07)}" height="${N1(Y.yMax - top + 80)}" fill="#fff" opacity=".14"/>`;
-          let dk = '', lt = '';
-          for (let yy = top + 20 * k; yy < Y.yMax; yy += wh + 18 * k) for (let i = 0; i < cols; i++) { const xx = x + gap + i * (ww + gap), lit = r() < Y.pLit, d = `M${N1(xx)} ${N1(yy + wh)}V${N1(yy + (arch ? ww / 2 : 0))}${arch ? `a${N1(ww / 2)} ${N1(ww / 2)} 0 0 1 ${N1(ww)} 0` : `h${N1(ww)}`}V${N1(yy + wh)}Z`; if (lit && L && r() > .82 && twn-- > 0) o += `<path class="wn" data-p="${N1(r() * 6.3)}" d="${d}" fill="${Y.lit}"/>`; else if (lit) lt += d; else dk += d; }
-          return o + `<path d="${dk}" fill="${Y.dark}"/><path d="${lt}" fill="${Y.lit}"/>`;
+        // 遠近: 消失点 (VX, VY)。z は奥行き(1 が画面の端あたり、大きいほど奥)、h は地面からの高さ、xe は z=1 での横位置
+        const Pn = (xe, z, h) => [VX + (xe - VX) / z, VY + (BASE - h - VY) / z], P = (xe, z, h) => Pn(xe, z, h).map(N1).join(' ');
+        const quad = (xe, z0, z1, h0, h1, fill, extra = '') => `<path d="M${P(xe, z0, h1)}L${P(xe, z1, h1)}L${P(xe, z1, h0)}L${P(xe, z0, h0)}Z" fill="${fill}"${extra}/>`;
+        const BODY = ['#f3e6d0', '#e8c7a6', '#c9785a', '#d9a37c', '#b9c7d6', '#e6d2ba', '#c98f7a', '#f1dcc0'], SHOP = ['#3f6a5c', '#7a3f48', '#3f5a7a', '#8a6a3a', '#5a4a6a'];
+        // 通りの片側。通りに面した壁を1枚の面として、奥から手前へ1軒ずつ描く(2〜3階建て。1階は店、屋根の上に煙突)
+        const row = side => {
+          const XE = VX + side * 1060, hs = []; let o = '';
+          for (let z = .78; z < 7;) { const d = .2 + r() * .1; hs.push([z, z + d, 500 + r() * 170, pick(BODY), pick(SHOP)]); z += d; }
+          hs.reverse().forEach(([z0, z1, h, c, sc]) => {
+            const f = Math.min(.8, (1 - 1 / z0) * .92), col = x => mix(x, HAZE, f), near = z0 < 1.8, zc = z0 + (z1 - z0) * .5;
+            o += quad(XE, z0 + .02, z0 + .075, h - 4, h + 64, col('#a9705a')) + quad(XE, z0 + .012, z0 + .083, h + 60, h + 72, col('#6b5560'));   // 煙突
+            if (near && z0 > .95) smk.push([...Pn(XE, z0 + .047, h + 84), 1 / z0]);
+            o += quad(XE, z0, z1, 0, h, col(c)) + quad(XE, z0, z1, h - 18, h + 6, col('#5d6478')) + quad(XE, z1 - .012, z1, 0, h - 18, '#241a38', ' opacity=".12"');   // 壁、屋根の縁、隣との境目
+            o += quad(XE, z0, z1, 0, 150, col(sc)) + quad(XE, z0, z1, 150, 168, col('#f6efe0')) + quad(XE, z0 + .035, z1 - .035, 28, 122, col('#ffe9b0'));   // 1階の店と明るい窓
+            let dk = '', lt = ''; const n = z1 - z0 > .26 ? 3 : 2, w = (z1 - z0) / (n * 2 + 1);
+            for (let y = 215; y + 96 < h - 22; y += 150) for (let i = 0; i < n; i++) { const a = z0 + w * (1 + i * 2), d = `M${P(XE, a, y + 96)}L${P(XE, a + w, y + 96)}L${P(XE, a + w, y)}L${P(XE, a, y)}Z`, lit = r() < .4;
+              if (lit && near && twn-- > 0) o += `<path class="wn" data-p="${N1(r() * 6.3)}" d="${d}" fill="${col('#ffe59a')}"/>`; else if (lit) lt += d; else dk += d; }
+            o += `<path d="${dk}" fill="${col('#5c6f88')}"/><path d="${lt}" fill="${col('#ffe59a')}"/>`;
+          });
+          // 街灯。歩道に沿って奥へ並ぶ
+          for (const z of [1.12, 1.62, 2.3, 3.3, 4.8]) { const XL = VX + side * 790, [x0, y0] = Pn(XL, z, 0), [x1, y1] = Pn(XL, z, 285), c = mix('#3d3a44', HAZE, Math.min(.7, (1 - 1 / z) * .8));
+            o += `<path d="M${N1(x0)} ${N1(y0)}V${N1(y1)}" stroke="${c}" stroke-width="${N1(8 / z)}" stroke-linecap="round"/><circle cx="${N1(x1)}" cy="${N1(y1)}" r="${N1(54 / z)}" fill="url(#twLamp)"/><circle cx="${N1(x1)}" cy="${N1(y1)}" r="${N1(15 / z)}" fill="#fff3c4"/>`; }
+          return o;
         };
-        let s = `<defs>${lgrad('twSky', [[0, '#6fb0e6'], [.55, '#cfe6f4'], [1, '#ffe3bd']])}${rgrad('twSun', [[0, '#fff6d6', .95], [.35, '#fff0c4', .5], [1, '#fff0c0', 0]])}${lgrad('twHz', [[0, '#ffeeda', 0], [1, '#ffeeda', .7]])}${lgrad('twDark', [[0, '#241a30', 0], [1, '#241a30', .62]])}</defs>`;
-        s += `<rect x="-100" y="-100" width="2120" height="900" fill="url(#twSky)"/><circle cx="330" cy="540" r="560" fill="url(#twSun)"/>`;
-        s += cloud(240, 130, 1.15) + cloud(960, 90, .8) + cloud(1540, 200, 1) + cloud(1880, 80, .6);
-        [{ base: 500, hmax: 230, wmax: 130, k: .6, yMax: 520, gap: 10, pLit: .25, body: ['#b9c5dc', '#c7cfe3', '#aebbd6', '#c2c0dc'], roof: ['#97a5c6', '#a39cc4', '#8ea6c2'], lit: '#f1eede', dark: '#98a9c8', chim: '#9aa6c2' },
-          { base: 640, hmax: 280, wmax: 180, k: .85, yMax: 720, gap: 0, pLit: .4, body: ['#f1dcc0', '#e8c7a6', '#f3e6d0', '#dfb9a0', '#e6d2ba', '#d9c3b6'], roof: ['#b5654e', '#8a6f8f', '#6f86a6', '#a4553f'], lit: '#fff0b8', dark: '#8fa3bd', chim: '#b08a78' },
-          { base: 930, hmax: 250, wmax: 230, k: 1.15, yMax: 1080, gap: 0, pLit: .45, body: ['#c9785a', '#d99a6c', '#8f7fa6', '#6f8fae', '#b86a5a', '#7fa08c', '#deb06e'], roof: ['#7a3f38', '#4f5f80', '#5a4660', '#8a4a3a'], lit: '#ffe59a', dark: '#4a5f7c', chim: '#8a5a4c' }].forEach((Y, L) => {
-          for (let x = -60; x < 1980;) { const w = Y.wmax * (.55 + r() * .5); s += bld(x, w, Y.hmax * (.45 + r() * .6), Y, L); x += w + Y.gap; }
-          if (L === 0) s += `<rect x="-100" y="280" width="2120" height="260" fill="url(#twHz)"/>` + balloon(300, 170, .55, '#5f9fd0', '#f6efe0', 2.4) + balloon(1400, 250, 1, '#e8607a', '#f3c64f', 0);
-          if (L === 1) { // 街路樹、アーチの高架、電車
-            s += `<rect x="-100" y="440" width="2120" height="300" fill="url(#twHz)" opacity=".6"/>`;
-            for (let i = 0; i < 16; i++) { const x = r() * 1920, y = 676 + r() * 14, q = 26 + r() * 16; s += `<circle cx="${N1(x)}" cy="${N1(y)}" r="${N1(q)}" fill="#7dab78"/><circle cx="${N1(x + q * .7)}" cy="${N1(y + 6)}" r="${N1(q * .75)}" fill="#6b9c6e"/><circle cx="${N1(x - q * .2)}" cy="${N1(y - q * .4)}" r="${N1(q * .6)}" fill="#93bf86"/>`; }
-            s += `<path fill-rule="evenodd" d="M-100 640H2020V860H-100Z${Array.from({ length: 15 }, (_, i) => `M${i * 146 - 90} 860V718a52 52 0 0 1 104 0V860Z`).join('')}" fill="#b29c8e"/><rect x="-100" y="652" width="2120" height="9" fill="#241a38" opacity=".14"/><rect x="-100" y="634" width="2120" height="12" fill="#8c7a70"/>`;
-            s += `<g class="tn" data-x="200" data-y="634">${[0, 1, 2, 3].map(i => `<rect x="${i * 138}" y="-46" width="132" height="46" rx="${i === 3 ? 16 : 9}" fill="${i === 3 ? '#d9534a' : '#f6efe0'}"/><rect x="${i * 138}" y="-17" width="132" height="8" fill="${i === 3 ? '#f6efe0' : '#d9534a'}"/><rect x="${i * 138 + 6}" y="-50" width="120" height="7" rx="3" fill="#b9b0a4"/>` + [0, 1, 2, 3].map(j => `<rect x="${i * 138 + 12 + j * 28}" y="-38" width="22" height="16" rx="2" fill="#6fa6c4"/>`).join('')).join('')}</g>`;
-          }
-        });
-        smk.sort((a, b) => b[2] - a[2]).slice(0, 4).forEach(([x, y], j) => { for (let i = 0; i < 3; i++) s += `<circle class="sm" data-x="${N1(x)}" data-y="${N1(y)}" data-p="${N1(j * 1.3 + i / 3)}" r="14" fill="#fffaf2" opacity="0"/>`; });
+        let s = `<defs>${lgrad('twSky', [[0, '#6fb0e6'], [.55, '#cfe6f4'], [1, '#ffe3bd']])}${rgrad('twSun', [[0, '#fff6d6', .95], [.35, '#fff0c4', .5], [1, '#fff0c0', 0]])}${rgrad('twLamp', [[0, '#fff0b8', .75], [1, '#fff0b8', 0]])}${lgrad('twHz', [[0, '#ffeeda', 0], [1, '#ffeeda', .8]])}${lgrad('twDark', [[0, '#241a30', 0], [1, '#241a30', .62]])}</defs>`;
+        s += `<rect x="-100" y="-100" width="2120" height="760" fill="url(#twSky)"/><circle cx="1180" cy="560" r="560" fill="url(#twSun)"/>`;
+        s += cloud(240, 130, 1.15) + cloud(1000, 90, .8) + cloud(1560, 190, 1) + cloud(1880, 80, .6);
+        // 通りの突き当たりにかすむ遠くの町並みと時計塔
+        s += `<path d="M560 ${VY + 8}V566h46v-18h38v30h52v-44h34v-26l22-18l22 18v26h30v52h44v-36h60v24h40V${VY + 8}ZM1016 ${VY + 8}V470l16-34l16 34V${VY + 8}ZM1060 ${VY + 8}v-40h50v-22h44v36h60v-48h36v60h58v-30h46V${VY + 8}Z" fill="#c3cbdf"/><circle cx="1032" cy="486" r="9" fill="#f1eede"/><rect x="-100" y="380" width="2120" height="${VY - 370}" fill="url(#twHz)"/>`;
+        // 地面: 歩道、車道、まん中の線。車道は消失点へすぼまる
+        s += `<rect x="-100" y="${VY + 6}" width="2120" height="520" fill="#d9cdbd"/><path d="M${P(VX - 640, .7, 0)}L${P(VX - 640, 12, 0)}L${P(VX + 640, 12, 0)}L${P(VX + 640, .7, 0)}Z" fill="#b3a8a6"/>`;
+        for (let z = .9; z < 6; z += .42) s += `<path d="M${P(VX - 9, z, 0)}L${P(VX - 9, z + .16, 0)}L${P(VX + 9, z + .16, 0)}L${P(VX + 9, z, 0)}Z" fill="#f1e8da" opacity=".75"/>`;
+        s += row(-1) + row(1);
+        smk.sort((a, b) => b[2] - a[2]).slice(0, 4).forEach(([x, y, k], j) => { for (let i = 0; i < 3; i++) s += `<circle class="sm" data-x="${N1(x)}" data-y="${N1(y)}" data-p="${N1(j * 1.3 + i / 3)}" r="${N1(15 * k)}" fill="#fffaf2" opacity="0"/>`; });
         s += `<rect x="-100" y="760" width="2120" height="340" fill="url(#twDark)"/>`;
-        return s + sBird(360, 240, 22, 0) + sBird(430, 275, 22, 1.4) + sBird(1100, 280, -20, 2);
+        return s + sBird(360, 240, 22, 0) + sBird(430, 275, 22, 1.4) + sBird(1100, 220, -20, 2);
       },
       anim: (t, el, q) => {
         moveClouds(t, el, q); moveBirds(t, el, q);
-        each(el, q, '.tn', e => tr(e, wrap(+e.dataset.x + t * 90, -700, 2100), +e.dataset.y));
-        each(el, q, '.bl', e => { const p = +e.dataset.p; tr(e, +e.dataset.x + 40 * Math.sin(t * .15 + p), +e.dataset.y + 26 * Math.sin(t * .23 + p), ` rotate(${N1(3 * Math.sin(t * .4 + p))})`); });
         each(el, q, '.wn', e => e.setAttribute('opacity', Math.sin(t * .5 + +e.dataset.p) > .2 ? '1' : '.35'));
         each(el, q, '.sm', e => { const p = +e.dataset.p, u = (((t * .14 + p) % 1) + 1) % 1; tr(e, +e.dataset.x + u * 36 + 8 * Math.sin(u * 7 + p * 5), +e.dataset.y - u * 110, ` scale(${(.6 + u * 1.3).toFixed(2)})`); e.setAttribute('opacity', (.75 * (1 - u) * Math.min(1, u * 6)).toFixed(2)); });
       },
@@ -186,7 +184,7 @@
       wood: { label: '板張り', background: th => planks('rgba(40,18,4,.5)', '0 0 0 0 .35  0 0 0 0 .17  0 0 0 0 .05  1.6 0 0 0 -.45', th.table || ['#9a6a3e', '#7d5230']), room: ['#5a3d2a', '#2a1a12', '#120a06'], light: '255,226,170' },
       lightwood: { label: '白木', background: () => planks('rgba(110,74,36,.38)', '0 0 0 0 .55  0 0 0 0 .36  0 0 0 0 .16  1.2 0 0 0 -.42', ['#dcbc8c', '#c8a474']), room: ['#6a5038', '#33241a', '#170f0a'], light: '255,236,196' },
       linen: { label: '麻布', background: () => `${grid('rgba(120,98,64,.17)', 10, 3)}, ${noise(.6, .6, '0 0 0 0 .45  0 0 0 0 .38  0 0 0 0 .28  0 0 0 .35 0')}, linear-gradient(90deg,#e6dac2,#d0c1a4)`, room: ['#6b5f4c', '#352e24', '#17130e'], light: '255,238,206' },
-      felt: { label: 'フェルト(緑)', background: () => `${noise(.85, .85, '0 0 0 0 .08  0 0 0 0 .2  0 0 0 0 .12  0 0 0 .55 0')}, linear-gradient(90deg,#34724f,#245639)`, room: ['#2f4a3a', '#16261d', '#0a120e'], light: '236,244,210' },
+      felt: { label: 'フェルト', background: () => `${noise(.85, .85, '0 0 0 0 .66  0 0 0 0 .3  0 0 0 0 .42  0 0 0 .5 0')}, linear-gradient(90deg,#eba0b4,#d98199)`, room: ['#6a4250', '#33202a', '#170e13'], light: '255,236,240' },
       marble: { label: '大理石', background: () => `${noise(.016, .028, '0 0 0 0 .36  0 0 0 0 .37  0 0 0 0 .42  2.4 0 0 0 -1.1', 1500)} 0 0/6000px 6000px, linear-gradient(120deg,#ebe8e2,#cdc9c2)`, room: ['#5b5a60', '#2c2b30', '#131316'], light: '238,242,255' },
       grass: { label: '芝生', background: () => `${noise(.9, .9, '0 0 0 0 .12  0 0 0 0 .3  0 0 0 0 .08  0 0 0 .5 0')}, ${noise(.02, .02, '0 0 0 0 .2  0 0 0 0 .42  0 0 0 0 .12  1.4 0 0 0 -.5')}, linear-gradient(90deg,#84bd5e,#629e46)`, room: ['#7fb2d6', '#44779c', '#1f4162'], light: '255,250,224' },
       night: { label: '星空', background: () => `${stars()}, ${noise(.014, .014, '0 0 0 0 .3  0 0 0 0 .22  0 0 0 0 .55  1.5 0 0 0 -.6', 1500)} 0 0/6000px 6000px, linear-gradient(90deg,#1d2452,#111635)`, room: ['#232a5c', '#10143a', '#060818'], light: '176,194,255' },
