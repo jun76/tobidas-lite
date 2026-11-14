@@ -8,7 +8,6 @@
 //       "strings": { … },                             ui が 'ja' 'en' 以外のとき必須。--strings の出力を会話の言語に訳したもの({topic} {n} はそのまま残す)
 //       "labels": { "style": { "kirigami": "…" }, "desk": { … }, "set": { … } },   ui が 'ja' 以外のとき。内蔵の表示名(テーマの表示名は日本語)を会話の言語で書く
 //       "topic": "ももたろう",                         題材
-//       "langs": ["日本語", "英語"],                    作中の言語の候補。先頭は会話で使っている言語
 //       "highlights": ["桃から生まれる", "鬼退治"],      見せ場の候補を2つ
 //       "recommend": { "style": [["kirigami", "理由"], ["crayon", "理由"]],   おすすめの画風を第1位・第2位
 //                      "desk": ["meadow", "理由"], "set": ["wafu", "理由"] },  おすすめの本の後ろと曲を1つずつ
@@ -34,7 +33,6 @@ let data; try { data = JSON.parse(fs.readFileSync(opt.data, 'utf8')); } catch (e
 // 候補とおすすめがそろっているか、名前が内蔵にあるかを確かめる(間違った名前のまま見せない)
 const errs = [], has = (list, v) => list.some(x => x[0] === v), names = list => list.map(x => x[0]).join(' ');
 if (!data.topic) errs.push('topic(題材)がありません');
-if (!Array.isArray(data.langs) || !data.langs.length) errs.push('langs(作中の言語の候補)がありません');
 if (!Array.isArray(data.highlights) || data.highlights.length < 2) errs.push('highlights(見せ場の候補)を2つ書いてください');
 const r = data.recommend || {}, fx = data.fixed || {};
 if (!Array.isArray(r.style) || r.style.length < 2) errs.push('recommend.style に第1位と第2位を [名前, 理由] で書いてください');
@@ -57,7 +55,7 @@ if (!STR[ui]) {
 const lb = data.labels || {};
 for (const [k, list] of [['style', theme.styles], ['desk', theme.desks], ['set', theme.sets]]) { for (const n of Object.keys(lb[k] || {})) if (!has(list, n)) errs.push(`labels.${k}.${n} という名前はありません(使える名前: ${names(list)})`); if (ui !== 'ja') { const miss = list.filter(x => !(lb[k] || {})[x[0]]).map(x => x[0]); if (miss.length) notes.push(`labels.${k} に ${miss.join(' ')} がないので、日本語の表示名で出します`); } }
 if (errs.length) fail('data に問題があります:\n  ' + errs.join('\n  '));
-const setup = { ui, strings: STR[ui] ? undefined : data.strings, labels: data.labels, topic: data.topic, langs: data.langs, highlights: data.highlights.slice(0, 2), recommend: r, fixed: fx, theme, base: pathToFileURL(themeDir).href + '/' };
+const setup = { ui, strings: STR[ui] ? undefined : data.strings, labels: data.labels, topic: data.topic, highlights: data.highlights.slice(0, 2), recommend: r, fixed: fx, theme, base: pathToFileURL(themeDir).href + '/' };
 const mark = '/*SETUP_DATA*/null';
 if (!tpl.includes(mark)) fail('assets/setup/setup.html に SETUP_DATA の目印がありません。');
 dest = path.resolve(dest); fs.mkdirSync(path.dirname(dest), { recursive: true });
