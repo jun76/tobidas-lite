@@ -213,10 +213,11 @@ A.oniCastle = dyn => {
     <rect width="${w}" height="16" fill="#5c5380"/><rect y="${h - 20}" width="${w}" height="20" fill="#38314e"/>
     <path d="M${cx - 92} ${h}V${h - 128}Q${cx} ${h - 210} ${cx + 92} ${h - 128}V${h}Z" fill="#171326"/>
     <path d="M${cx - 92} ${h}V${h - 128}Q${cx} ${h - 210} ${cx + 92} ${h - 128}V${h}" fill="none" stroke="#c0392b" stroke-width="16"/>
+    <g transform="translate(${cx} ${h - 190}) scale(.72) translate(${-cx} ${208 - h})">
     <ellipse cx="${cx}" cy="${h - 252}" rx="58" ry="44" fill="#e8e0cf"/>
     <path d="M${cx - 44} ${h - 274}Q${cx - 60} ${h - 312} ${cx - 30} ${h - 312}M${cx + 44} ${h - 274}Q${cx + 60} ${h - 312} ${cx + 30} ${h - 312}" stroke="#f3c64f" stroke-width="10" fill="none"/>
     <path d="M${cx - 34} ${h - 258}L${cx - 12} ${h - 250}M${cx + 34} ${h - 258}L${cx + 12} ${h - 250}" stroke="#2f2640" stroke-width="8" stroke-linecap="round"/>
-    <path d="M${cx - 20} ${h - 232}Q${cx} ${h - 218} ${cx + 20} ${h - 232}" stroke="#2f2640" stroke-width="7" fill="none"/>
+    <path d="M${cx - 20} ${h - 232}Q${cx} ${h - 218} ${cx + 20} ${h - 232}" stroke="#2f2640" stroke-width="7" fill="none"/></g>
     ${[-1, 1].map(sd => `<rect x="${cx + sd * 190 - 26}" y="${h - 170}" width="52" height="64" rx="8" fill="#171326"/>
     <rect x="${cx + sd * 190 - 26}" y="${h - 170}" width="52" height="64" rx="8" fill="none" stroke="#d9cfae" stroke-width="7"/>
     <rect x="${cx + sd * 190 - 18}" y="${h - 162}" width="36" height="48" rx="5" fill="#ff8a50" opacity=".85"/>`).join('')}`; };

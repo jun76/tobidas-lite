@@ -138,8 +138,9 @@ A.zzz = (s) => `<text x="${s * .1}" y="${s * .85}" font-family="sans-serif" font
 A.puff = (w, h, seed) => A.cloud(w, h, seed, '#f6efe0', '#d9cdb5');
 A.village = (w, h) => {
   let s = ''; const r = rnd(12);
-  for (let i = 0; i < 9; i++) { const x = 40 + i * (w - 120) / 8 + r() * 30, hh = h * (.3 + r() * .25), ww = 70 + r() * 40, c = ['#f1d9b8', '#e9c8a4', '#f6e7c8'][i % 3], rc = ['#c0664a', '#a9732c', '#b8554a'][i % 3]; s += `<rect x="${F(x)}" y="${F(h - hh)}" width="${F(ww)}" height="${F(hh)}" fill="${c}"/><path d="M${F(x - 10)} ${F(h - hh + 4)}L${F(x + ww / 2)} ${F(h - hh - 46)}L${F(x + ww + 10)} ${F(h - hh + 4)}Z" fill="${rc}"/><rect x="${F(x + ww * .3)}" y="${F(h - hh + 22)}" width="16" height="20" fill="#7fb3c9"/>`; }
-  s += `<rect x="${w * .46}" y="${h * .12}" width="60" height="${h * .88}" fill="#e9dcc0"/><path d="M${w * .46 - 10} ${h * .14}L${w * .46 + 30} ${-h * .22}L${w * .46 + 70} ${h * .14}Z" fill="#5d7fa8"/><circle cx="${w * .46 + 30}" cy="${h * .32}" r="16" fill="#fff"/><path d="M${w * .46 + 30} ${h * .32}v-11M${w * .46 + 30} ${h * .32}h8" stroke="#3a2a1e" stroke-width="3"/>`;
+  for (let i = 0; i < 9; i++) { const x0 = 40 + i * (w - 120) / 8 + r() * 30, hh = h * (.3 + r() * .25), ww = 70 + r() * 40, x = Math.min(x0, w - ww - 12), c = ['#f1d9b8', '#e9c8a4', '#f6e7c8'][i % 3], rc = ['#c0664a', '#a9732c', '#b8554a'][i % 3]; s += `<rect x="${F(x)}" y="${F(h - hh)}" width="${F(ww)}" height="${F(hh)}" fill="${c}"/><path d="M${F(x - 10)} ${F(h - hh + 4)}L${F(x + ww / 2)} ${F(h - hh - 46)}L${F(x + ww + 10)} ${F(h - hh + 4)}Z" fill="${rc}"/><rect x="${F(x + ww * .3)}" y="${F(h - hh + 22)}" width="16" height="20" fill="#7fb3c9"/>`; }
+  // 時計塔。屋根のてっぺんまで絵の箱(y≧0)に収める(背をまたいで切り分けられると、箱の上へ出た分は描かれない)
+  s += `<rect x="${w * .46}" y="${h * .3}" width="60" height="${h * .7}" fill="#e9dcc0"/><path d="M${w * .46 - 10} ${h * .32}L${w * .46 + 30} 5L${w * .46 + 70} ${h * .32}Z" fill="#5d7fa8"/><circle cx="${w * .46 + 30}" cy="${h * .5}" r="16" fill="#fff"/><path d="M${w * .46 + 30} ${h * .5}v-11M${w * .46 + 30} ${h * .5}h8" stroke="#3a2a1e" stroke-width="3"/>`;
   [[.2, '#e2574c'], [.72, '#58a6d6'], [.86, '#f3c64f']].forEach(([k, c]) => s += `<path d="M${w * k - 50} ${h}V${h * .72}L${w * k} ${h * .52}L${w * k + 50} ${h * .72}V${h}Z" fill="#fff6e6"/><path d="M${w * k - 58} ${h * .74}L${w * k} ${h * .5}L${w * k + 58} ${h * .74}Z" fill="${c}"/>`);
   return s;
 };
@@ -185,5 +186,16 @@ const bird = (X, Y, lift, v, ph, c) => pc(X, Y, 60, 40, A.bird(c), { lift, sh: f
 const fly = (X, Y, c, ph) => pc(X, Y, 44, 40, A.butterfly(c), { lift: 70, sh: false, sway: 0, nosplit: true, k: .9, dyn: tl => ({ dx: 60 * sin(tl * .7 + ph) + 20 * sin(tl * 2.1), lift: 80 + 40 * sin(tl * 1.1 + ph * 2), dy: 20 * sin(tl * .9 + ph) }), anim: aFlap(14, 20) });
 const twinkle = (X, Y, lift, ph, r = 15, c) => pc(X, Y, r * 2, r * 2, A.star(r, r, r - 1, c), { lift, sh: false, flt: false, sway: 0, delay: .25, nosplit: true, glow: 8, dyn: tl => ({ sc: .55 + .45 * sin(tl * 2.4 + ph) }) });
 const note = (X, Y, ph, c) => pc(X, Y, 44, 50, A.note(c), { sh: false, sway: 0, nosplit: true, delay: .3, dyn: tl => { const u = (((tl * .32 + ph) % 1) + 1) % 1; return { lift: 150 + u * 260, dx: 34 * sin(u * 7 + ph * 9) + u * 30, op: sin(u * PI), sc: .7 + u * .5, rz: 14 * sin(u * 9) }; } });
-const hillTrees = (n, seed, s, pine) => yf => { const r = rnd(seed); let o = ''; for (let i = 0; i < n; i++) { const x = 40 + r() * 1320; o += pine && i % 2 ? A.pine(x, yf(x) + 14, s * (.7 + r() * .5)) : A.miniTree(x, yf(x) + 10, s * (.7 + r() * .6)); } return o; };
+// 稜線に並べる木。背をまたぐ丘は左右に切り分けられ、絵の箱(上端 y=0)より上は描かれないので、木のてっぺんが箱を出ないようにする:
+// 稜線が高くて入りきらない場所に当たったら、入る場所を引き直す。それでも無ければ、いちばん低い場所で入る大きさまで縮める
+const hillTrees = (n, seed, s, pine) => yf => {
+  const r = rnd(seed), r2 = rnd(seed + 101); let o = '';
+  for (let i = 0; i < n; i++) {
+    const pn = pine && i % 2, dy = pn ? 14 : 10, tall = pn ? 1.2 : 1.13, room = x => yf(x) + dy - 6; let x = 40 + r() * 1320, k = s * (.7 + r() * (pn ? .5 : .6));
+    for (let j = 0; j < 24 && room(x) < k * tall; j++) { const x2 = 40 + r2() * 1320; if (room(x2) > room(x)) x = x2; }
+    k = Math.min(k, room(x) / tall);
+    o += pn ? A.pine(x, yf(x) + dy, k) : A.miniTree(x, yf(x) + dy, k);
+  }
+  return o;
+};
 const GR = ['#ff9ecb', '#fff', '#ffd24d', '#ff7f7f'];
