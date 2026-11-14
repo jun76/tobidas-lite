@@ -32,16 +32,16 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 
 ## 見本
 
-完成見本を6作品同梱しています。いずれも、このスキルを使って制作したもので、制作モデルは表に記載しています。リポジトリを clone して、それぞれの `index.html` をブラウザで開いてください。
+完成見本を6作品同梱しています。いずれもこのスキルを使って制作したもので、制作モデルは表に記載しています。リポジトリを clone して、それぞれの `index.html` をブラウザで開いてください。
 
 | 作品 | 言語 | 見開き数 | 見た目 | 制作 | 備考 |
 |---|---|---|---|---|---|
-| [`examples/jack`](skills/tobidas-lite/themes/storybook/examples/jack/) — ジャックと豆の木 | 日本語 | 7 | 切り紙、板張りの机 | Claude Fable5.2 medium | 数ターン微調整 |
-| [`examples/urashima`](skills/tobidas-lite/themes/storybook/examples/urashima/) — Urashima Taro | 英語 | 8 | クレヨン、動く背景の海辺、和風の曲 | Claude Fable5.2 medium | 数ターン微調整 |
-| [`examples/alice`](skills/tobidas-lite/themes/storybook/examples/alice/) — 不思議な国のアリス | 日本語 | 6 | レトロ、見開きごとに変わる背景 | GPT6.1-Sol medium | 1ターンで作成 |
-| [`examples/le-petit-prince`](skills/tobidas-lite/themes/storybook/examples/le-petit-prince/) — Le Petit Prince | フランス語 | 6 | レトロ、見開きごとに変わる背景 | Claude Opus 5.5 medium | 1ターンで作成 |
-| [`examples/momotaro`](skills/tobidas-lite/themes/storybook/examples/momotaro/) — Momotaro | 英語 | 6 | 切り紙、見開きごとに変わる背景 | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) | 1ターンで作成 |
-| [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/storybook/examples/hanasaka-jiisan/) — はなさかじいさん | 日本語 | 6 | 切り紙、見開きごとに書き下ろした背景・和風BGM | GPT-6 Astra medium | 1ターンで作成 |
+| [`examples/jack`](skills/tobidas-lite/themes/storybook/examples/jack/): ジャックと豆の木 | 日本語 | 7 | 切り紙、板張りの机 | Claude Fable5.2 medium | 数ターン微調整 |
+| [`examples/urashima`](skills/tobidas-lite/themes/storybook/examples/urashima/): Urashima Taro | 英語 | 8 | クレヨン、動く背景の海辺、和風の曲 | Claude Fable5.2 medium | 数ターン微調整 |
+| [`examples/alice`](skills/tobidas-lite/themes/storybook/examples/alice/): 不思議な国のアリス | 日本語 | 6 | レトロ、見開きごとに変わる背景 | GPT6.1-Sol medium | 1ターンで作成 |
+| [`examples/le-petit-prince`](skills/tobidas-lite/themes/storybook/examples/le-petit-prince/): Le Petit Prince | フランス語 | 6 | レトロ、見開きごとに変わる背景 | Claude Opus 5.5 medium | 1ターンで作成 |
+| [`examples/momotaro`](skills/tobidas-lite/themes/storybook/examples/momotaro/): Momotaro | 英語 | 6 | 切り紙、見開きごとに変わる背景 | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) | 1ターンで作成 |
+| [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/storybook/examples/hanasaka-jiisan/): はなさかじいさん | 日本語 | 6 | 切り紙、見開きごとに書き下ろした背景・和風BGM | GPT-6 Astra medium | 1ターンで作成 |
 
 見本は `skills/tobidas-lite/themes/storybook/` の下にあります。
 
@@ -68,7 +68,7 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 
 何度も使うなら、スキルとして入れておけます。
 
-`skills/tobidas-lite/` を、お使いの環境のスキル用フォルダにコピーします。Claude Code なら `~/.claude/skills/` です。ほかの環境では、その環境がスキルを読み込むフォルダに置いてください。
+`skills/tobidas-lite/` をお使いの環境のスキル用フォルダにコピーします。Claude Code なら `~/.claude/skills/` です。ほかの環境では、その環境がスキルを読み込むフォルダに置いてください。
 
 ```bash
 git clone https://github.com/jun76/tobidas-lite.git
@@ -88,13 +88,13 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 
 ## 制作の流れ
 
-頼まれたエージェントは、次の順で進めます。
+頼まれたエージェントは次の順で進めます。
 
-1. **聞き取り** — 作中の言語、題材、長さ(見開き4・6・8)、字幕の文体、いちばん見せたい場面、見た目と音(画風、机または背景、曲)を尋ねます。
-2. **構成表** — 見開きごとに1行(場面、立ち上がるパーツ、動き、音、字幕)の表を見せ、了承を待ちます。
-3. **制作** — 同梱のエンジンとテーマの上に、その作品だけの絵と場面定義を書きます。
-4. **確認** — スクリプトでフレームを撮り、画像を見て、崩れているところを直します。
-5. **引き渡し** — `index.html` の入ったフォルダを渡します。音の聞こえ方など、確認できなかった点も伝えます。
+1. 聞き取り: 作中の言語、題材、長さ(見開き4・6・8)、字幕の文体、いちばん見せたい場面、見た目と音(画風、机または背景、曲)を尋ねます。
+2. 構成表: 見開きごとに1行(場面、立ち上がるパーツ、動き、音、字幕)の表を見せ、了承を待ちます。
+3. 制作: 同梱のエンジンとテーマの上に、その作品だけの絵と場面定義を書きます。
+4. 確認: スクリプトでフレームを撮り、画像を見て、崩れているところを直します。
+5. 引き渡し: `index.html` の入ったフォルダを渡します。音の聞こえ方など、確認できなかった点も伝えます。
 
 ## テーマ
 
@@ -107,7 +107,7 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 | 動く背景 | 4種: 海辺、草原、森、市街 |
 | 曲集 | 4種: オルゴール、行進曲、子守歌、和風 |
 
-どの項目も、内蔵から選ぶか、その作品のために エージェントに書き下ろしてもらうかを決められます。見本画像は [`themes/storybook/previews/`](skills/tobidas-lite/themes/storybook/previews/) に、テーマの書式は [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) にあります。
+どの項目も内蔵から選ぶか、その作品のためにエージェントに書き下ろしてもらうかを決められます。見本画像は [`themes/storybook/previews/`](skills/tobidas-lite/themes/storybook/previews/) に、テーマの書式は [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) にあります。
 
 ## スクリプト
 
@@ -149,7 +149,7 @@ node scripts/render-video.mjs themes/storybook/examples/jack
 
 ## 注意事項
 
-- このスキルが提供するのは、エージェントが作品を作るための手順と定型処理(スクリプト)です。作品の出来は、最終的にはスキルを使うエージェントの能力に左右されます。
+- このスキルが提供するのは、エージェントが作品を作るための手順と定型処理(スクリプト)です。作品の出来は最終的にはスキルを使うエージェントの能力に左右されます。
 - スキルが想定していない作風を指示することもできます。ただし、その場合の出来は評価していません。
 - 制作中に見つかったスキル側の不備や改善点は、完成時にエージェントからユーザーへ提案されます(そうするようスキルが指示しています)。手元のスキルを調整してよければ、そのまま承認してください。
 
