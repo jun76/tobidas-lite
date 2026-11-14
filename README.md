@@ -37,8 +37,8 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 |---|---|---|---|---|---|
 | [`examples/jack`](skills/tobidas-lite/themes/storybook/examples/jack/) — ジャックと豆の木 | 日本語 | 7 | 切り紙、板張りの机 | Claude Fable5.2 medium | 数ターン微調整 |
 | [`examples/urashima`](skills/tobidas-lite/themes/storybook/examples/urashima/) — Urashima Taro | 英語 | 8 | クレヨン、動く背景の海辺、和風の曲 | Claude Fable5.2 medium | 数ターン微調整 |
-| [`examples/alice`](skills/tobidas-lite/themes/storybook/examples/alice/) — 不思議な国のアリス | 日本語 | 6 | レトロ絵本、見開きごとに変わる背景 | GPT6.1-Sol medium | 1ターンで作成 |
-| [`examples/le-petit-prince`](skills/tobidas-lite/themes/storybook/examples/le-petit-prince/) — Le Petit Prince | フランス語 | 6 | レトロ絵本、見開きごとに変わる背景 | Claude Opus 5.5 medium | 1ターンで作成 |
+| [`examples/alice`](skills/tobidas-lite/themes/storybook/examples/alice/) — 不思議な国のアリス | 日本語 | 6 | レトロ、見開きごとに変わる背景 | GPT6.1-Sol medium | 1ターンで作成 |
+| [`examples/le-petit-prince`](skills/tobidas-lite/themes/storybook/examples/le-petit-prince/) — Le Petit Prince | フランス語 | 6 | レトロ、見開きごとに変わる背景 | Claude Opus 5.5 medium | 1ターンで作成 |
 | [`examples/momotaro`](skills/tobidas-lite/themes/storybook/examples/momotaro/) — Momotaro | 英語 | 6 | 切り紙、見開きごとに変わる背景 | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) | 1ターンで作成 |
 | [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/storybook/examples/hanasaka-jiisan/) — はなさかじいさん | 日本語 | 6 | 切り紙、見開きごとに書き下ろした背景・和風BGM | GPT-6 Astra medium | 1ターンで作成 |
 
@@ -53,6 +53,7 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 | 左下の▶ボタン、または Space | 今の位置から音つきで自動再生 |
 | M | 音のオン/オフ |
 | D | デバッグ表示 |
+| 左下のプルダウン | 画風の切り替え(読み直して同じ位置に戻る) |
 
 ## はじめかた
 
@@ -100,7 +101,7 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 
 | 項目 | 内蔵の選択肢 |
 |---|---|
-| 画風 | 5種: 切り紙、フラット、クレヨン、レトロ絵本、影絵 |
+| 画風 | 4種: 切り紙、フラット、クレヨン、レトロ |
 | 机 | 9種: 板張り、白木、麻布、フェルト、大理石、芝生、青空、星空、カッティングマット |
 | 動く背景 | 4種: 海辺、草原、森、市街 |
 | 曲集 | 4種: オルゴール、行進曲、子守歌、和風 |

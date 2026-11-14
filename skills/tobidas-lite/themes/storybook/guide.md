@@ -8,7 +8,7 @@
 
 | 項目 | 内蔵 | 作品定義での書き方 |
 |---|---|---|
-| **画風** | `kirigami` 切り紙(既定)/ `flat` フラット / `crayon` クレヨン / `vintage` レトロ絵本 / `silhouette` 影絵 | `theme: { style: 'kirigami' }` |
+| **画風** | `kirigami` 切り紙(既定)/ `flat` フラット / `crayon` クレヨン / `vintage` レトロ | `theme: { style: 'kirigami' }` |
 | **机・背景** | 机: `wood` 板張り(既定)/ `lightwood` 白木 / `linen` 麻布 / `felt` フェルト / `marble` 大理石 / `grass` 芝生 / `sky` 青空 / `night` 星空 / `mat` カッティングマット。動く背景: `seaside` 海辺 / `meadow` 草原 / `forest` 森 / `town` 市街 | `theme: { desk: 'wood' }` |
 | **曲** | 曲集 `musicbox` オルゴール(既定)/ `march` 行進曲 / `lullaby` 子守歌 / `wafu` 和風。音なしも可 | `sound: { set: 'musicbox' }`(音なしは `sound: false`) |
 
@@ -30,8 +30,8 @@
 
 - `examples/jack/` — 完成見本「ジャックと豆の木」(7見開き、日本語、切り紙・板張りの机)。`book/art.js` と `book/book.js` が書き方の実例
 - `examples/urashima/` — 完成見本「Urashima Taro」(8見開き、英語、クレヨン・動く背景の海辺・和風の曲)。泳ぐ・乗る・せり上がる・受け渡す・煙で変身、の実例
-- `examples/alice/` — 完成見本「不思議な国のアリス」(6見開き、日本語、レトロ絵本)。見開きごとに変わる背景と書き下ろしの曲集、裁判から目覚めへの切り替えの実例
-- `examples/le-petit-prince/` — 完成見本「Le Petit Prince」(6見開き、フランス語、レトロ絵本)。見開きごとに変わる背景と書き下ろしの曲集、小さな星を浮かべる実例
+- `examples/alice/` — 完成見本「不思議な国のアリス」(6見開き、日本語、レトロ)。見開きごとに変わる背景と書き下ろしの曲集、裁判から目覚めへの切り替えの実例
+- `examples/le-petit-prince/` — 完成見本「Le Petit Prince」(6見開き、フランス語、レトロ)。見開きごとに変わる背景と書き下ろしの曲集、小さな星を浮かべる実例
 - `examples/momotaro/` — 完成見本「Momotaro」(6見開き、英語、切り紙)。見開きごとに変わる背景と書き下ろしの曲集(`book/music.js`)の実例
 - `examples/hanasaka-jiisan/` — 完成見本「はなさかじいさん」(6見開き、日本語、切り紙)。見開きごとに書き下ろした背景と和風BGM、臼から灰への切り替え、灰をまいて枝ごとに桜が咲く仕掛けの実例。制作: GPT-6 Astra medium
 - `starter/book/` — 新しい作品の書き出し(`new-book.mjs` が作品フォルダにコピーする、2見開きの動くひな形)

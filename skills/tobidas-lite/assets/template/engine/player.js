@@ -1,5 +1,6 @@
 // tobidas player — ホイール/キー/タッチで作品の時刻を進めたり戻したりする。作品ごとに編集しない。
 //   ホイール・↑↓ … 進む/戻る   ←→・PageUp/Down … 前後の見開きへ   ▶ボタン・Space … 自動再生(音つき)   M … 音のオン/オフ   Home/End … 最初/最後   D … デバッグ表示
+//   左下のプルダウン … 画風の切り替え(?style= を付けて読み直し、見ていた位置へ戻る。作品の theme.stylePicker: false で出さない)
 //   音は自動再生中だけ鳴る。どの位置から再生しても、その時刻の音から始まる(engine/sound.js が全体を合成しておく)。
 //   URL: ?t=12.5 … その時刻の静止画だけ描く(チェック・動画化用。HUDなし)   ?autoplay … 自動再生で開始   ?debug … デバッグ表示
 (function () {
@@ -11,6 +12,8 @@
     if (q.has('t')) { Tobidas.render(+q.get('t')); return; }             // 静止画モード
     const T0 = 1.5;   // 冒頭の暗転(動画用)は飛ばし、表紙が見えている所から始める
     const P = Tobidas.player = { speed: .006, snap: true, target: T0, t: T0, auto: q.has('autoplay'), dir: 1 };
+    // 画風を切り替えて読み直したときは、見ていた位置から続ける
+    try { const rs = sessionStorage.getItem('tobidas-resume'); sessionStorage.removeItem('tobidas-resume'); if (rs !== null && isFinite(+rs)) P.target = P.t = Math.max(T0, Math.min(TL.END, +rs)); } catch { }
     // 見開きの「開ききった時刻」= ジャンプ先・目盛り
     const stops = [T0]; for (let s = 1; s <= TL.N; s++) stops.push(TL.open(s) + .05); stops.push(TL.tc + TL.CLOSE + 1.2);
     const turns = TL.ts.map(a => [a, a + TL.TURN]).concat([[TL.tc, TL.tc + TL.CLOSE]]);
@@ -25,6 +28,14 @@
     const bPlay = mkBtn('play'), bSnd = mkBtn('snd');
     const hasSound = !!Tobidas.sound && Tobidas.def.sound !== false && !(Tobidas.def.sound && Tobidas.def.sound.off);
     if (!hasSound) bSnd.style.display = 'none';
+    // --- 画風のプルダウン(画風は起動時に組み立てるので、?style= を付けて読み直す)---
+    const styles = Object.entries(Tobidas.STYLES);
+    if (styles.length > 1 && (Tobidas.def.theme || {}).stylePicker !== false) {
+      const sel = document.createElement('select'); sel.className = 'sty'; sel.tabIndex = -1; sel.title = ja ? '画風' : 'Art style';
+      for (const [k, v] of styles) { const o = document.createElement('option'); o.value = k; o.textContent = v.label || k; o.selected = k === Tobidas.style.name; sel.append(o); }
+      sel.addEventListener('change', () => { try { sessionStorage.setItem('tobidas-resume', P.target.toFixed(2)); } catch { } const u = new URLSearchParams(location.search); u.set('style', sel.value); u.delete('autoplay'); location.search = u.toString(); });
+      ctl.append(sel);
+    }
     const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { } } };
     const AU = P.audio = { ctx: null, pcm: null, buf: null, src: null, gain: null, t0: 0, c0: 0, muted: store.get('tobidas-muted') === '1' };
     if (hasSound) setTimeout(() => Tobidas.sound.build().then(r => { AU.pcm = r; ui(); }, e => console.error(e)), 200);   // 開いたらすぐ裏で合成しておく
@@ -60,6 +71,7 @@
     // --- 入力 ---
     addEventListener('wheel', e => { e.preventDefault(); const dy = (e.deltaMode === 1 ? e.deltaY * 33 : e.deltaMode === 2 ? e.deltaY * 800 : e.deltaY) + (e.deltaMode === 0 ? e.deltaX : 0); P.auto = false; seek(P.target + dy * P.speed * (e.shiftKey ? 3 : 1), Math.sign(dy)); }, { passive: false });
     addEventListener('keydown', e => {
+      if (e.target && e.target.tagName === 'SELECT') return;   // プルダウンを選んでいる間は、矢印キーなどを本の操作に使わない
       const k = e.key;
       if (k === 'ArrowDown') { P.auto = false; seek(P.target + .6, 1); } else if (k === 'ArrowUp') { P.auto = false; seek(P.target - .6, -1); }
       else if (k === 'ArrowRight' || k === 'PageDown') jump(1); else if (k === 'ArrowLeft' || k === 'PageUp') jump(-1);

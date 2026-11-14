@@ -15,6 +15,11 @@
   const wavePath = (y, amp, len, seed) => { const r = R(seed); let d = `M-300 ${y}`; for (let x = -300; x < 2300; x += len) d += `q${N1(len / 4)} ${N1(-amp * (.6 + r() * .8))} ${N1(len / 2)} 0t${N1(len / 2)} 0`; return d + 'V1200H-300Z'; };
   const moveClouds = (t, el, q) => each(el, q, '.cl', e => tr(e, wrap(+e.dataset.x + t * +e.dataset.v, -300, 2220), +e.dataset.y));
   const moveBirds = (t, el, q) => each(el, q, '.bd', e => { const v = +e.dataset.v, p = +e.dataset.p; tr(e, wrap(+e.dataset.x + t * v, -100, 2020), +e.dataset.y + 16 * Math.sin(t * .7 + p), ` scale(${v < 0 ? -1 : 1} ${N1(.35 + .65 * Math.abs(Math.sin(t * 5 + p)))})`); });
+  const lgrad = (id, st, x2 = 0, y2 = 1) => `<linearGradient id="${id}" x1="0" y1="0" x2="${x2}" y2="${y2}">${st.map(([o, c, a = 1]) => `<stop offset="${o}" stop-color="${c}" stop-opacity="${a}"/>`).join('')}</linearGradient>`;
+  const rgrad = (id, st) => `<radialGradient id="${id}">${st.map(([o, c, a = 1]) => `<stop offset="${o}" stop-color="${c}" stop-opacity="${a}"/>`).join('')}</radialGradient>`;
+  const circ = (x, y, q) => `M${N1(x - q)} ${N1(y)}a${N1(q)} ${N1(q)} 0 1 0 ${N1(q * 2)} 0a${N1(q)} ${N1(q)} 0 1 0 ${N1(-q * 2)} 0`;
+  // 星空の星: 乱数で散らした大小の星を 1600px のタイル1枚に描く(等間隔に並べると格子に見えるので)。明るい星にはにじみを足す
+  const stars = (n = 260, sz = 1600) => { const r = R(41); let o = ''; for (let i = 0; i < n; i++) { const x = N1(r() * sz), y = N1(r() * sz), k = r(), q = k > .93 ? 4 : k > .7 ? 2.8 : 1.8, c = ['#fffbe6', '#cfe0ff', '#ffe9c4'][i % 3]; o += (k > .93 ? `<circle cx='${x}' cy='${y}' r='8' fill='${c}' opacity='.18'/>` : '') + `<circle cx='${x}' cy='${y}' r='${q}' fill='${c}' opacity='${N1(.45 + r() * .55)}'/>`; } return `url('data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${sz}' height='${sz}'>${o}</svg>`).replace(/'/g, '%27')}') 0 0/${sz}px ${sz}px`; };
   const SCENES = {
     // 海辺: 空と雲、寄せては返す波の重なり、沖の帆かけ舟、かもめ、手前の砂浜と波打ちぎわ
     seaside: {
@@ -54,41 +59,112 @@
       },
       room: ['#d6efc8', '#8fcf7c', '#3f8a46'], light: '255,252,226', blur: 5,
     },
-    // 森: 木もれ日の筋、奥行き3層の木立、ゆれるこずえ、舞い落ちる葉
+    // 森: 光のさす奥の空き地、かすむ遠くの木立、広葉樹と針葉樹のまじる木々、手前を縁どる太い幹と茂み、木もれ日の筋、舞い落ちる葉、光の粒
+    // 奥ほど淡く・手前ほど濃くして奥行きを出す。光は右上から(こずえの右上を明るく、左下を暗く)
     forest: {
       svg: () => {
-        let s = skyGrad('scC', '#cfe9b8', '#5f9a62', 700) + `<rect x="-100" y="640" width="2120" height="560" fill="#356b46"/>`;
-        [[150, 300, 34], [620, 260, 26], [1180, 340, 30], [1640, 240, 24]].forEach(([x, w, a], i) => s += `<path class="ry" data-p="${i * 1.7}" d="M${x} -60L${x + w} -60L${x + w - 380} 1140L${x - 460} 1140Z" fill="#fff8c8" opacity=".${a}"/>`);
         const r = R(13);
-        [[14, 560, .55, '#6fa672', '#5a8f60', '#7a6a52'], [11, 700, .8, '#4f8f5a', '#3f7a4c', '#5f4a36'], [9, 900, 1.15, '#2f6a44', '#255838', '#4a3626']].forEach(([n, y, k, c, c2, tk], L) => {
-          for (let i = 0; i < n; i++) { const x = (i + r() * .7) * (2100 / n) - 80, h = (300 + r() * 160) * k, w = (22 + r() * 12) * k; s += `<g class="tk" data-x="${N1(x)}" data-y="${y + L * 20}" data-p="${N1(r() * 6.3)}" data-a="${N1(1.6 - L * .4)}"><rect x="${N1(-w / 2)}" y="${N1(-h)}" width="${N1(w)}" height="${N1(h + 300)}" fill="${tk}"/><circle cx="0" cy="${N1(-h)}" r="${N1(110 * k)}" fill="${c}"/><circle cx="${N1(-60 * k)}" cy="${N1(-h + 40 * k)}" r="${N1(80 * k)}" fill="${c2}"/><circle cx="${N1(64 * k)}" cy="${N1(-h + 30 * k)}" r="${N1(86 * k)}" fill="${c2}"/><circle cx="${N1(-20 * k)}" cy="${N1(-h - 50 * k)}" r="${N1(70 * k)}" fill="${c}"/></g>`; } });
-        for (let i = 0; i < 22; i++) s += `<ellipse class="lf" data-x="${N1(r() * 1920)}" data-y="${N1(r() * 1100)}" data-p="${N1(r() * 6.3)}" data-v="${N1(24 + r() * 26)}" rx="13" ry="6" fill="${['#e6c84a', '#b9d66a', '#e89a4a'][i % 3]}"/>`;
+        // 針葉樹の輪郭(すそが垂れた4段)。tk=1 で幹も同じ色で足す(遠景の影絵用)
+        const firD = (x, y, w, h, tk = 1) => { let d = tk ? `M${N1(x - w * .1)} ${N1(y)}V${N1(y - h * .3)}H${N1(x + w * .1)}V${N1(y)}Z` : ''; for (let j = 0; j < 4; j++) { const yy = y - h * (.18 + j * .2), ww = w * (1 - j * .2); d += `M${N1(x - ww)} ${N1(yy)}Q${N1(x)} ${N1(yy + ww * .3)} ${N1(x + ww)} ${N1(yy)}L${N1(x)} ${N1(yy - h * .36)}Z`; } return d; };
+        const firHi = (w, h) => { let d = ''; for (let j = 0; j < 4; j++) { const yy = -h * (.18 + j * .2), ww = w * (1 - j * .2); d += `M0 ${N1(yy - h * .36)}L${N1(ww)} ${N1(yy)}Q${N1(ww * .6)} ${N1(yy + ww * .14)} ${N1(ww * .2)} ${N1(yy + ww * .24)}Z`; } return d; };
+        // 広葉樹のこずえ: こぶを輪に並べ、影・地色・光の3枚をずらして重ねる
+        const crown = (cx, cy, k, [c, hi, sh]) => {
+          const lb = [[0, 0, .68]]; for (let i = 0; i < 7; i++) { const a = i / 7 * 6.283 + r() * .6, d = .42 + r() * .22; lb.push([Math.cos(a) * d * 1.2, Math.sin(a) * d * .8, .4 + r() * .2]); }
+          const P = (dx, dy, m, f, fill) => `<path d="${lb.filter(f).map(([x, y, q]) => circ(cx + (x + dx) * k, cy + (y + dy) * k, q * k * m)).join('')}" fill="${fill}"/>`;
+          return P(-.04, .1, 1, () => 1, sh) + P(.03, -.04, .9, () => 1, c) + P(.16, -.2, .55, ([x, y]) => y < .15 && x > -.3, hi);
+        };
+        const trunk = (w, h, c, hi) => `<path d="M${N1(-w * 1.5)} 6Q${N1(-w * .6)} ${N1(-h * .06)} ${N1(-w * .5)} ${N1(-h * .3)}L${N1(-w * .34)} ${N1(-h)}H${N1(w * .34)}L${N1(w * .5)} ${N1(-h * .3)}Q${N1(w * .6)} ${N1(-h * .06)} ${N1(w * 1.5)} 6Z" fill="${c}"/><path d="M${N1(w * .1)} ${N1(-h)}H${N1(w * .34)}L${N1(w * .5)} ${N1(-h * .3)}Q${N1(w * .6)} ${N1(-h * .06)} ${N1(w * 1.5)} 6H${N1(w * .5)}Q${N1(w * .2)} ${N1(-h * .2)} ${N1(w * .1)} ${N1(-h)}Z" fill="${hi}" opacity=".6"/>`;
+        let s = `<defs>${lgrad('fsSky', [[0, '#eef7cf'], [.5, '#b7dba3'], [1, '#5c9862']])}${rgrad('fsGlow', [[0, '#fffbd8', .95], [.5, '#fffbd8', .4], [1, '#fffbd8', 0]])}${lgrad('fsMist', [[0, '#f4fbe0', 0], [.55, '#f4fbe0', .5], [1, '#f4fbe0', 0]])}${lgrad('fsRay', [[0, '#fffbd0', 1], [.7, '#fffbd0', .55], [1, '#fffbd0', 0]])}${lgrad('fsG1', [[0, '#7fb56a'], [.5, '#3f7d4c']])}${lgrad('fsG2', [[0, '#5c9a52'], [.5, '#255a3a']])}${lgrad('fsDark', [[0, '#0d2418', 0], [1, '#0d2418', .72]])}</defs>`;
+        s += `<rect x="-100" y="-100" width="2120" height="1300" fill="url(#fsSky)"/><circle cx="1150" cy="250" r="720" fill="url(#fsGlow)"/>`;
+        // 遠景: かすんだ影絵の木立を2枚
+        let d = ''; for (let x = -60; x < 1990; x += 50 + r() * 50) d += firD(x, 612, 44 + r() * 26, 360 + r() * 190);
+        s += `<path d="${d}" fill="#bcdcab"/>`;
+        d = ''; for (let x = -80; x < 2000; x += 70 + r() * 60) { const h = 270 + r() * 150; d += r() < .5 ? firD(x, 640, 56 + r() * 28, h) : `M${N1(x - 9)} 640V${N1(640 - h * .7)}h18V640Z` + circ(x, 640 - h * .72, h * .26) + circ(x - h * .17, 640 - h * .6, h * .19) + circ(x + h * .18, 640 - h * .62, h * .2); }
+        s += `<path d="${d}" fill="#97c794"/><rect x="-100" y="430" width="2120" height="300" fill="url(#fsMist)"/><path d="${wavePath(618, 12, 520, 31)}" fill="url(#fsG1)"/>`;
+        // 中景: 奥と手前の2列。3本に1本は針葉樹
+        [[12, 640, 30, .6, ['#6aa870', '#93c886', '#4f8c5e'], '#84705a', '#a8946e'], [9, 725, 45, .92, ['#438a54', '#72b565', '#2f6e46'], '#59432f', '#8a6a44']].forEach(([n, y0, yv, k, col, tk, tkHi], L) => {
+          if (L) { s += `<rect x="-100" y="560" width="2120" height="220" fill="url(#fsMist)" opacity=".6"/><path d="${wavePath(700, 18, 640, 32)}" fill="url(#fsG2)"/>`; for (let i = 0; i < 8; i++) s += `<ellipse class="dp" data-p="${N1(r() * 6.3)}" cx="${N1(r() * 1920)}" cy="${N1(745 + r() * 110)}" rx="${N1(70 + r() * 90)}" ry="${N1(12 + r() * 12)}" fill="#e6f29c" opacity=".2"/>`; }
+          for (let i = 0; i < n; i++) {
+            const x = (i + .15 + r() * .7) * (2100 / n) - 90, y = y0 + r() * yv, h = (230 + r() * 120) * k, w = (26 + r() * 14) * k, cs = (122 + r() * 40) * k;
+            s += `<ellipse cx="${N1(x - 34 * k)}" cy="${N1(y + 5)}" rx="${N1(84 * k)}" ry="${N1(10 * k)}" fill="#143524" opacity=".28"/><g class="tk" data-x="${N1(x)}" data-y="${N1(y)}" data-p="${N1(r() * 6.3)}" data-a="${N1(1.3 - L * .4)}">`;
+            if (i % 3 === 1) { const H = (h + cs) * 1.22, W = cs * .78; s += `<rect x="${N1(-W * .09)}" y="${N1(-H * .22)}" width="${N1(W * .18)}" height="${N1(H * .22 + 6)}" fill="${tk}"/><path d="${firD(0, 0, W, H, 0)}" fill="${col[2]}"/><path d="${firHi(W, H)}" fill="${col[0]}"/>`; }
+            else s += trunk(w, h, tk, tkHi) + crown(0, -h - cs * .35, cs, col);
+            s += `</g>`;
+          }
+        });
+        // 木もれ日の筋(上が明るく、下へ消える)
+        [[330, 250, .75], [760, 170, .5], [1180, 320, .7], [1560, 150, .45], [1900, 260, .6]].forEach(([x, w, a], i) => s += `<path class="ry" data-p="${N1(i * 1.7)}" data-o="${a}" d="M${x} -80H${x + w}L${x + w * 1.5 - 520} 1000H${x - 560}Z" fill="url(#fsRay)" opacity="${a}"/>`);
+        // 近景: 画面の端を縁どる太い幹、上からかぶさる枝葉、足もとの茂み
+        s += `<path d="${wavePath(880, 26, 700, 33)}" fill="#1f5236"/>`;
+        [[470, 46, 1], [1460, 50, -1], [215, 76, -2], [1705, 84, 2], [-40, 130, 3], [1965, 140, -3]].forEach(([x, w, ln]) => { const tx = x + ln * 14; s += `<path d="M${N1(x - w * 1.3)} 1200Q${N1(x - w * .55)} 1010 ${N1(x - w * .5)} 800L${N1(tx - w * .36)} -80H${N1(tx + w * .36)}L${N1(x + w * .5)} 800Q${N1(x + w * .55)} 1010 ${N1(x + w * 1.3)} 1200Z" fill="#33261c"/><path d="M${N1(tx + w * .16)} -80H${N1(tx + w * .36)}L${N1(x + w * .5)} 800Q${N1(x + w * .55)} 1010 ${N1(x + w * 1.3)} 1200H${N1(x + w * .8)}Q${N1(x + w * .3)} 1000 ${N1(x + w * .26)} 800Z" fill="#8a6a44" opacity=".5"/>`; });
+        [[60, 70, 215], [340, 10, 170], [170, 190, 150], [1610, 20, 185], [1870, 90, 225], [1750, 205, 150], [880, -80, 190], [1260, -95, 170]].forEach(([x, y, k], i) => s += `<g class="tk" data-x="${x}" data-y="-400" data-p="${N1(i * 1.9)}" data-a=".8">${crown(0, 400 + y, k, ['#2f7046', '#55a05c', '#1c4a30'])}</g>`);
+        for (let i = 0; i < 12; i++) s += crown(i * 175 - 20 + r() * 80, 1035 + r() * 50, 85 + r() * 60, ['#256039', '#3c8250', '#143826']);
+        for (let i = 0; i < 16; i++) { const x = r() * 620 + (i % 2 ? 1300 : 0); s += `<circle cx="${N1(x)}" cy="${N1(960 + r() * 90)}" r="${N1(6 + r() * 4)}" fill="${['#fff6e0', '#ffd76a', '#ffb0c8'][i % 3]}" opacity=".85"/>`; }
+        s += `<rect x="-100" y="700" width="2120" height="400" fill="url(#fsDark)"/>`;
+        for (let i = 0; i < 18; i++) s += `<path class="lf" data-x="${N1(r() * 1920)}" data-y="${N1(r() * 1100)}" data-p="${N1(r() * 6.3)}" data-v="${N1(24 + r() * 26)}" d="M-15 0Q0 -10 15 0Q0 10 -15 0Z" fill="${['#e6c84a', '#b9d66a', '#e89a4a'][i % 3]}"/>`;
+        for (let i = 0; i < 14; i++) s += `<circle class="mt" data-x="${N1(r() * 1920)}" data-y="${N1(r() * 900)}" data-p="${N1(r() * 6.3)}" data-v="${N1(5 + r() * 9)}" r="${N1(3 + r() * 3)}" fill="#fffbd0"/>`;
         return s;
       },
       anim: (t, el, q) => {
         each(el, q, '.tk', e => e.setAttribute('transform', `translate(${e.dataset.x} ${e.dataset.y}) rotate(${N1(+e.dataset.a * Math.sin(t * .7 + +e.dataset.p))})`));
-        each(el, q, '.ry', e => e.setAttribute('transform', `translate(${N1(30 * Math.sin(t * .2 + +e.dataset.p))} 0)`));
+        each(el, q, '.ry', e => { const p = +e.dataset.p; e.setAttribute('transform', `translate(${N1(30 * Math.sin(t * .2 + p))} 0)`); e.setAttribute('opacity', (+e.dataset.o * (.72 + .28 * Math.sin(t * .33 + p * 2))).toFixed(2)); });
+        each(el, q, '.dp', e => e.setAttribute('opacity', (.14 + .12 * Math.sin(t * .45 + +e.dataset.p)).toFixed(2)));
         each(el, q, '.lf', e => { const p = +e.dataset.p, v = +e.dataset.v; tr(e, wrap(+e.dataset.x + 60 * Math.sin(t * .8 + p) + t * 6, -40, 1960), wrap(+e.dataset.y + t * v, -40, 1120), ` rotate(${N1(t * 70 + p * 60)})`); });
+        each(el, q, '.mt', e => { const p = +e.dataset.p, v = +e.dataset.v; tr(e, wrap(+e.dataset.x + 26 * Math.sin(t * .35 + p) + t * 3, -20, 1940), wrap(+e.dataset.y - t * v, -20, 920)); e.setAttribute('opacity', (.2 + .7 * Math.abs(Math.sin(t * .9 + p))).toFixed(2)); });
       },
       room: ['#9cc98a', '#4f8f5a', '#1f4a30'], light: '250,255,214', blur: 5,
     },
-    // 市街: 夕方前の空、奥行き3層の建物とまたたく窓、高架を走る電車、のぼる気球
+    // 市街: 夕方前の空、かすむ遠くの塔と家並み、屋根の形がいろいろの建物とまたたく窓、アーチの高架を走る電車、煙突のけむり、気球
+    // 奥ほど淡く青く・手前ほど濃くして奥行きを出す。日は左の低いところ(建物の右側を少し暗く)
     town: {
       svg: () => {
-        let s = skyGrad('scD', '#8fc4ee', '#fde6c8', 620) + sCloud(260, 130, 1.1, '#fffaf2') + sCloud(980, 90, .8, '#fffaf2') + sCloud(1560, 190, 1, '#fffaf2');
-        s += `<g class="bl" data-x="1380" data-y="330"><ellipse cx="0" cy="0" rx="44" ry="54" fill="#e8607a"/><path d="M-44 0A44 54 0 0 0 44 0Z" fill="#f3c64f"/><path d="M-16 50L-8 78H8L16 50Z" fill="#8a5a33"/></g>`;
-        const r = R(17), win = (x, y, w, h, c) => { let o = ''; for (let yy = y + 26; yy < y + h - 30; yy += 46) for (let xx = x + 18; xx < x + w - 30; xx += 40) o += `<rect class="${r() > .72 ? 'wn' : ''}" data-p="${N1(r() * 6.3)}" x="${N1(xx)}" y="${N1(yy)}" width="20" height="26" fill="${c}"/>`; return o; };
-        [[520, 200, 150, ['#b9c6dc', '#c6d0e2', '#aebdd6'], '#e8eef8', 0], [640, 280, 190, ['#e9c9a8', '#d9b08c', '#f0d8bc', '#c9a58a'], '#fff3c8', 1], [800, 300, 230, ['#b8684e', '#8f7a9c', '#6f8fae', '#c98a5a'], '#ffe9a8', 2]].forEach(([base, hmax, wmax, cols, wc, L]) => {
-          for (let x = -60; x < 1980;) { const w = wmax * (.55 + r() * .5), h = hmax * (.45 + r() * .6), c = cols[Math.floor(r() * cols.length)]; s += `<rect x="${N1(x)}" y="${N1(base - h)}" width="${N1(w)}" height="${N1(h + 500)}" fill="${c}"/>` + (r() > .5 ? `<path d="M${N1(x - 6)} ${N1(base - h)}L${N1(x + w / 2)} ${N1(base - h - 40 - L * 14)}L${N1(x + w + 6)} ${N1(base - h)}Z" fill="${['#8a5a52', '#6a7a9a', '#a85a48'][L]}"/>` : '') + win(x, base - h, w, Math.min(h + 60, 300), wc); x += w + (L ? 0 : 14); }
-          if (L === 1) s += `<rect x="-100" y="${base + 26}" width="2120" height="16" fill="#8a94a8"/>` + Array.from({ length: 14 }, (_, i) => `<rect x="${i * 150 - 20}" y="${base + 40}" width="16" height="120" fill="#8a94a8"/>`).join('') + `<g class="tn" data-x="200" data-y="${base + 26}">${[0, 1, 2].map(i => `<rect x="${i * 128}" y="-46" width="120" height="46" rx="10" fill="${i ? '#f6f1e6' : '#e85b4f'}"/><rect x="${i * 128 + 12}" y="-36" width="96" height="16" fill="#7fb3c9"/>`).join('')}</g>`;
+        const r = R(17), pick = a => a[Math.floor(r() * a.length)], smk = []; let twn = 34;
+        const cloud = (x, y, k) => sCloud(x, y + 10 * k, k, '#f1d6c2') + sCloud(x, y, k, '#fffaf2');
+        const balloon = (x, y, k, c1, c2, p) => `<g class="bl" data-x="${x}" data-y="${y}" data-p="${p}"><g transform="scale(${k})"><path d="M-30 40L-12 74M30 40L12 74" stroke="#7a5a3a" stroke-width="2.5" fill="none"/><ellipse rx="46" ry="54" fill="${c1}"/><ellipse rx="30" ry="54" fill="${c2}"/><ellipse rx="13" ry="54" fill="${c1}"/><path d="M-46 4Q-40 50 0 54Q40 50 46 4Q30 34 0 36Q-30 34 -46 4Z" fill="#3a2030" opacity=".16"/><rect x="-13" y="72" width="26" height="19" rx="3" fill="#8a5a33"/></g></g>`;
+        // 建物1棟: 屋根(切妻・マンサード・階段・陸屋根)、壁、窓。窓は幅に合わせて等間隔に並べ、暗い窓・明るい窓をそれぞれ1本のパスにまとめる
+        const bld = (x, w, h, Y, L) => {
+          const k = Y.k, top = Y.base - h, c = pick(Y.body), rc = pick(Y.roof), cx = x + w / 2, ww = 20 * k, wh = 28 * k, cols = Math.max(1, Math.floor((w - 14 * k) / (ww + 16 * k))), gap = (w - cols * ww) / (cols + 1), arch = r() > .65, rt = r();
+          let o = '';
+          const chimney = (hx, y0, y1) => { o += `<rect x="${N1(hx)}" y="${N1(y0)}" width="${N1(14 * k)}" height="${N1(y1 - y0)}" fill="${Y.chim}"/><rect x="${N1(hx - 2 * k)}" y="${N1(y0 - 4 * k)}" width="${N1(18 * k)}" height="${N1(6 * k)}" fill="${rc}"/>`; if (L && hx > 60 && hx < 1860) smk.push([hx + 7 * k, y0 - 8 * k, L]); };
+          if (!L && rt < .2) { const tw = w * .42, th = 50 + r() * 50, sp = 60 + r() * 50; o += `<rect x="${N1(cx - tw / 2)}" y="${N1(top - th)}" width="${N1(tw)}" height="${N1(th + 2)}" fill="${c}"/><path d="M${N1(cx - tw / 2 - 4)} ${N1(top - th)}L${N1(cx)} ${N1(top - th - sp)}L${N1(cx + tw / 2 + 4)} ${N1(top - th)}Z" fill="${rc}"/><circle cx="${N1(cx)}" cy="${N1(top - th * .6)}" r="${N1(tw * .26)}" fill="${Y.lit}"/>`; }
+          else if (rt < .42) { const rh = (30 + r() * 34) * k; if (r() < .7) chimney(x + w * (r() < .5 ? .2 : .68), top - rh * .4 - 30 * k, top); o += `<path d="M${N1(x - 6 * k)} ${N1(top + 1)}L${N1(cx)} ${N1(top - rh)}L${N1(x + w + 6 * k)} ${N1(top + 1)}Z" fill="${rc}"/><path d="M${N1(cx)} ${N1(top - rh)}L${N1(x + w + 6 * k)} ${N1(top + 1)}H${N1(cx)}Z" fill="#1f1530" opacity=".16"/>` + (rh > 44 * k ? `<circle cx="${N1(cx)}" cy="${N1(top - rh * .36)}" r="${N1(6 * k)}" fill="${Y.dark}"/>` : ''); }
+          else if (rt < .62) { const rh = (30 + r() * 16) * k; if (r() < .5) chimney(x + w * .12, top - rh - 16 * k, top); o += `<path d="M${N1(x - 4 * k)} ${N1(top + 1)}L${N1(x + 8 * k)} ${N1(top - rh)}H${N1(x + w - 8 * k)}L${N1(x + w + 4 * k)} ${N1(top + 1)}Z" fill="${rc}"/>`; for (let i = 0; i < (cols > 2 ? 2 : 1); i++) { const dx = cols > 2 ? x + w * (.3 + i * .4) : cx; o += `<path d="M${N1(dx - 10 * k)} ${N1(top - rh * .2)}V${N1(top - rh * .78)}L${N1(dx)} ${N1(top - rh * 1.08)}L${N1(dx + 10 * k)} ${N1(top - rh * .78)}V${N1(top - rh * .2)}Z" fill="${c}"/><rect x="${N1(dx - 5 * k)}" y="${N1(top - rh * .74)}" width="${N1(10 * k)}" height="${N1(rh * .46)}" fill="${r() < .5 ? Y.lit : Y.dark}"/>`; } }
+          else if (rt < .78) { const sw = w / 7, sh = 15 * k; let d = `M${N1(x)} ${N1(top + 1)}`; for (let i = 1; i <= 3; i++) d += `V${N1(top - i * sh)}H${N1(x + i * sw)}`; d += `H${N1(x + w - 3 * sw)}`; for (let i = 2; i >= 0; i--) d += `V${N1(top - i * sh)}H${N1(x + w - i * sw)}`; o += `<path d="${d}V${N1(top + 1)}Z" fill="${c}"/><path d="M${N1(x + 3 * sw)} ${N1(top - 3 * sh)}h${N1(sw)}v${N1(-5 * k)}h${N1(-sw)}Z" fill="${rc}"/><circle cx="${N1(cx)}" cy="${N1(top - sh * .9)}" r="${N1(7 * k)}" fill="${Y.dark}"/>`; }
+          else { const it = r(), tx = x + w * (.15 + r() * .4);
+            if (it < .35) o += `<path d="M${N1(tx + 4 * k)} ${N1(top - 12 * k)}V${N1(top)}M${N1(tx + 26 * k)} ${N1(top - 12 * k)}V${N1(top)}" stroke="#6a5a4a" stroke-width="${N1(3 * k)}"/><rect x="${N1(tx)}" y="${N1(top - 38 * k)}" width="${N1(30 * k)}" height="${N1(27 * k)}" rx="3" fill="#a8845c"/><path d="M${N1(tx - 3 * k)} ${N1(top - 37 * k)}L${N1(tx + 15 * k)} ${N1(top - 52 * k)}L${N1(tx + 33 * k)} ${N1(top - 37 * k)}Z" fill="${rc}"/>`;
+            else if (it < .7) o += [0, 1, 2].map(i => `<circle cx="${N1(tx + i * 20 * k)}" cy="${N1(top - (10 + (i % 2) * 6) * k)}" r="${N1((13 + (i % 2) * 4) * k)}" fill="${i % 2 ? '#8fc084' : '#6fa672'}"/>`).join('');
+            else chimney(tx, top - 30 * k, top);
+            o += `<rect x="${N1(x - 4 * k)}" y="${N1(top - 9 * k)}" width="${N1(w + 8 * k)}" height="${N1(11 * k)}" fill="${rc}"/>`; }
+          o += `<rect x="${N1(x)}" y="${N1(top)}" width="${N1(w)}" height="${N1(Y.yMax - top + 80)}" fill="${c}"/><rect x="${N1(x + w * .8)}" y="${N1(top)}" width="${N1(w * .2)}" height="${N1(Y.yMax - top + 80)}" fill="#241a38" opacity=".13"/><rect x="${N1(x)}" y="${N1(top)}" width="${N1(w * .07)}" height="${N1(Y.yMax - top + 80)}" fill="#fff" opacity=".14"/>`;
+          let dk = '', lt = '';
+          for (let yy = top + 20 * k; yy < Y.yMax; yy += wh + 18 * k) for (let i = 0; i < cols; i++) { const xx = x + gap + i * (ww + gap), lit = r() < Y.pLit, d = `M${N1(xx)} ${N1(yy + wh)}V${N1(yy + (arch ? ww / 2 : 0))}${arch ? `a${N1(ww / 2)} ${N1(ww / 2)} 0 0 1 ${N1(ww)} 0` : `h${N1(ww)}`}V${N1(yy + wh)}Z`; if (lit && L && r() > .82 && twn-- > 0) o += `<path class="wn" data-p="${N1(r() * 6.3)}" d="${d}" fill="${Y.lit}"/>`; else if (lit) lt += d; else dk += d; }
+          return o + `<path d="${dk}" fill="${Y.dark}"/><path d="${lt}" fill="${Y.lit}"/>`;
+        };
+        let s = `<defs>${lgrad('twSky', [[0, '#6fb0e6'], [.55, '#cfe6f4'], [1, '#ffe3bd']])}${rgrad('twSun', [[0, '#fff6d6', .95], [.35, '#fff0c4', .5], [1, '#fff0c0', 0]])}${lgrad('twHz', [[0, '#ffeeda', 0], [1, '#ffeeda', .7]])}${lgrad('twDark', [[0, '#241a30', 0], [1, '#241a30', .62]])}</defs>`;
+        s += `<rect x="-100" y="-100" width="2120" height="900" fill="url(#twSky)"/><circle cx="330" cy="540" r="560" fill="url(#twSun)"/>`;
+        s += cloud(240, 130, 1.15) + cloud(960, 90, .8) + cloud(1540, 200, 1) + cloud(1880, 80, .6);
+        [{ base: 500, hmax: 230, wmax: 130, k: .6, yMax: 520, gap: 10, pLit: .25, body: ['#b9c5dc', '#c7cfe3', '#aebbd6', '#c2c0dc'], roof: ['#97a5c6', '#a39cc4', '#8ea6c2'], lit: '#f1eede', dark: '#98a9c8', chim: '#9aa6c2' },
+          { base: 640, hmax: 280, wmax: 180, k: .85, yMax: 720, gap: 0, pLit: .4, body: ['#f1dcc0', '#e8c7a6', '#f3e6d0', '#dfb9a0', '#e6d2ba', '#d9c3b6'], roof: ['#b5654e', '#8a6f8f', '#6f86a6', '#a4553f'], lit: '#fff0b8', dark: '#8fa3bd', chim: '#b08a78' },
+          { base: 930, hmax: 250, wmax: 230, k: 1.15, yMax: 1080, gap: 0, pLit: .45, body: ['#c9785a', '#d99a6c', '#8f7fa6', '#6f8fae', '#b86a5a', '#7fa08c', '#deb06e'], roof: ['#7a3f38', '#4f5f80', '#5a4660', '#8a4a3a'], lit: '#ffe59a', dark: '#4a5f7c', chim: '#8a5a4c' }].forEach((Y, L) => {
+          for (let x = -60; x < 1980;) { const w = Y.wmax * (.55 + r() * .5); s += bld(x, w, Y.hmax * (.45 + r() * .6), Y, L); x += w + Y.gap; }
+          if (L === 0) s += `<rect x="-100" y="280" width="2120" height="260" fill="url(#twHz)"/>` + balloon(300, 170, .55, '#5f9fd0', '#f6efe0', 2.4) + balloon(1400, 250, 1, '#e8607a', '#f3c64f', 0);
+          if (L === 1) { // 街路樹、アーチの高架、電車
+            s += `<rect x="-100" y="440" width="2120" height="300" fill="url(#twHz)" opacity=".6"/>`;
+            for (let i = 0; i < 16; i++) { const x = r() * 1920, y = 676 + r() * 14, q = 26 + r() * 16; s += `<circle cx="${N1(x)}" cy="${N1(y)}" r="${N1(q)}" fill="#7dab78"/><circle cx="${N1(x + q * .7)}" cy="${N1(y + 6)}" r="${N1(q * .75)}" fill="#6b9c6e"/><circle cx="${N1(x - q * .2)}" cy="${N1(y - q * .4)}" r="${N1(q * .6)}" fill="#93bf86"/>`; }
+            s += `<path fill-rule="evenodd" d="M-100 640H2020V860H-100Z${Array.from({ length: 15 }, (_, i) => `M${i * 146 - 90} 860V718a52 52 0 0 1 104 0V860Z`).join('')}" fill="#b29c8e"/><rect x="-100" y="652" width="2120" height="9" fill="#241a38" opacity=".14"/><rect x="-100" y="634" width="2120" height="12" fill="#8c7a70"/>`;
+            s += `<g class="tn" data-x="200" data-y="634">${[0, 1, 2, 3].map(i => `<rect x="${i * 138}" y="-46" width="132" height="46" rx="${i === 3 ? 16 : 9}" fill="${i === 3 ? '#d9534a' : '#f6efe0'}"/><rect x="${i * 138}" y="-17" width="132" height="8" fill="${i === 3 ? '#f6efe0' : '#d9534a'}"/><rect x="${i * 138 + 6}" y="-50" width="120" height="7" rx="3" fill="#b9b0a4"/>` + [0, 1, 2, 3].map(j => `<rect x="${i * 138 + 12 + j * 28}" y="-38" width="22" height="16" rx="2" fill="#6fa6c4"/>`).join('')).join('')}</g>`;
+          }
         });
-        return s + sBird(360, 240, 22, 0) + sBird(1100, 280, -20, 2);
+        smk.sort((a, b) => b[2] - a[2]).slice(0, 4).forEach(([x, y], j) => { for (let i = 0; i < 3; i++) s += `<circle class="sm" data-x="${N1(x)}" data-y="${N1(y)}" data-p="${N1(j * 1.3 + i / 3)}" r="14" fill="#fffaf2" opacity="0"/>`; });
+        s += `<rect x="-100" y="760" width="2120" height="340" fill="url(#twDark)"/>`;
+        return s + sBird(360, 240, 22, 0) + sBird(430, 275, 22, 1.4) + sBird(1100, 280, -20, 2);
       },
       anim: (t, el, q) => {
         moveClouds(t, el, q); moveBirds(t, el, q);
-        each(el, q, '.tn', e => tr(e, wrap(+e.dataset.x + t * 90, -500, 2100), +e.dataset.y));
-        each(el, q, '.bl', e => tr(e, +e.dataset.x + 40 * Math.sin(t * .15), +e.dataset.y + 26 * Math.sin(t * .23), ` rotate(${N1(3 * Math.sin(t * .4))})`));
+        each(el, q, '.tn', e => tr(e, wrap(+e.dataset.x + t * 90, -700, 2100), +e.dataset.y));
+        each(el, q, '.bl', e => { const p = +e.dataset.p; tr(e, +e.dataset.x + 40 * Math.sin(t * .15 + p), +e.dataset.y + 26 * Math.sin(t * .23 + p), ` rotate(${N1(3 * Math.sin(t * .4 + p))})`); });
         each(el, q, '.wn', e => e.setAttribute('opacity', Math.sin(t * .5 + +e.dataset.p) > .2 ? '1' : '.35'));
+        each(el, q, '.sm', e => { const p = +e.dataset.p, u = (((t * .14 + p) % 1) + 1) % 1; tr(e, +e.dataset.x + u * 36 + 8 * Math.sin(u * 7 + p * 5), +e.dataset.y - u * 110, ` scale(${(.6 + u * 1.3).toFixed(2)})`); e.setAttribute('opacity', (.75 * (1 - u) * Math.min(1, u * 6)).toFixed(2)); });
       },
       room: ['#f3dcc0', '#b89a8a', '#4f4a5c'], light: '255,238,206', blur: 5,
     },
@@ -102,8 +178,7 @@
       kirigami: { label: '切り紙', filter: edge(3.5, '#fff9ea') + grain(.3, .79) + tex() + `<feMerge><feMergeNode in="edge"/><feMergeNode in="tex"/></feMerge>`, grain: .5, shadow: 1 },
       flat: { label: 'フラット', filter: `<feMerge><feMergeNode in="SourceGraphic"/></feMerge>`, grain: .12, shadow: .75 },
       crayon: { label: 'クレヨン', filter: `<feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="7" result="w"/><feDisplacementMap in="SourceGraphic" in2="w" scale="7" xChannelSelector="R" yChannelSelector="G" result="s"/>` + grain(.62, .56, 1.1) + tex('s', 's'), grain: .75, shadow: .7 },
-      vintage: { label: 'レトロ絵本', filter: edge(3, '#f1e3be') + `<feColorMatrix in="SourceGraphic" type="matrix" values=".66 .26 .08 0 .03  .2 .68 .1 0 .02  .16 .26 .46 0 .02  0 0 0 1 0" result="c"/>` + grain(.36, .72) + tex('c') + `<feMerge><feMergeNode in="edge"/><feMergeNode in="tex"/></feMerge>`, pageFilter: 'sepia(.4) saturate(.78)', grain: .7, shadow: 1 },
-      silhouette: { label: '影絵', filter: `<feColorMatrix in="SourceGraphic" type="matrix" values=".1 .2 .04 0 .04  .1 .2 .04 0 .04  .16 .32 .06 0 .1  0 0 0 1 0"/>`, pageFilter: 'grayscale(1) sepia(.8) saturate(1.7) brightness(1.06)', grain: .45, shadow: 1.3 },
+      vintage: { label: 'レトロ', filter: edge(3, '#f1e3be') + `<feColorMatrix in="SourceGraphic" type="matrix" values=".66 .26 .08 0 .03  .2 .68 .1 0 .02  .16 .26 .46 0 .02  0 0 0 1 0" result="c"/>` + grain(.36, .72) + tex('c') + `<feMerge><feMergeNode in="edge"/><feMergeNode in="tex"/></feMerge>`, pageFilter: 'sepia(.4) saturate(.78)', grain: .7, shadow: 1 },
     },
 
     // ---- 机・背景(theme.desk)---- background は机の面の CSS、room はまわりの部屋の色3つ、light は光の色。scene を持つものは「動く背景」
@@ -114,7 +189,7 @@
       felt: { label: 'フェルト(緑)', background: () => `${noise(.85, .85, '0 0 0 0 .08  0 0 0 0 .2  0 0 0 0 .12  0 0 0 .55 0')}, linear-gradient(90deg,#34724f,#245639)`, room: ['#2f4a3a', '#16261d', '#0a120e'], light: '236,244,210' },
       marble: { label: '大理石', background: () => `${noise(.016, .028, '0 0 0 0 .36  0 0 0 0 .37  0 0 0 0 .42  2.4 0 0 0 -1.1', 1500)} 0 0/6000px 6000px, linear-gradient(120deg,#ebe8e2,#cdc9c2)`, room: ['#5b5a60', '#2c2b30', '#131316'], light: '238,242,255' },
       grass: { label: '芝生', background: () => `${noise(.9, .9, '0 0 0 0 .12  0 0 0 0 .3  0 0 0 0 .08  0 0 0 .5 0')}, ${noise(.02, .02, '0 0 0 0 .2  0 0 0 0 .42  0 0 0 0 .12  1.4 0 0 0 -.5')}, linear-gradient(90deg,#84bd5e,#629e46)`, room: ['#7fb2d6', '#44779c', '#1f4162'], light: '255,250,224' },
-      night: { label: '星空', background: () => `radial-gradient(circle, rgba(255,255,232,.95) 0 2px, rgba(0,0,0,0) 3px) 0 0/190px 170px, radial-gradient(circle, rgba(204,222,255,.8) 0 1.5px, rgba(0,0,0,0) 2.4px) 70px 90px/130px 210px, ${noise(.014, .014, '0 0 0 0 .3  0 0 0 0 .22  0 0 0 0 .55  1.5 0 0 0 -.6', 1500)} 0 0/6000px 6000px, linear-gradient(90deg,#1d2452,#111635)`, room: ['#232a5c', '#10143a', '#060818'], light: '176,194,255' },
+      night: { label: '星空', background: () => `${stars()}, ${noise(.014, .014, '0 0 0 0 .3  0 0 0 0 .22  0 0 0 0 .55  1.5 0 0 0 -.6', 1500)} 0 0/6000px 6000px, linear-gradient(90deg,#1d2452,#111635)`, room: ['#232a5c', '#10143a', '#060818'], light: '176,194,255' },
       sky: { label: '青空', background: () => `${noise(.012, .02, '0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  2.6 0 0 0 -1.25', 1500)} 0 0/6000px 6000px, linear-gradient(180deg,#5aa6e6,#9ed0f5)`, room: ['#bfe2fb', '#7fbcee', '#4a8fd0'], light: '255,255,244' },
       mat: { label: 'カッティングマット', background: () => `${grid('rgba(255,255,255,.3)', 100, 2)}, ${grid('rgba(255,255,255,.1)', 20, 1)}, linear-gradient(90deg,#30795e,#25634d)`, room: ['#33503f', '#18281f', '#0b130e'], light: '240,246,220' },
       // 動く背景(机の面はなく、本の後ろに軽くぼかした景色が広がる)。中身は上の SCENES

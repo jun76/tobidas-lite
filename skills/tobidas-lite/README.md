@@ -6,14 +6,14 @@
 
 - 見本: [`themes/storybook/examples/jack/index.html`](themes/storybook/examples/jack/index.html)(ジャックと豆の木、7見開き)と [`themes/storybook/examples/urashima/index.html`](themes/storybook/examples/urashima/index.html)(Urashima Taro、英語、8見開き、海辺の動く背景)をブラウザで開く
 - 作例追加: [はなさかじいさん](themes/storybook/examples/hanasaka-jiisan/index.html)(日本語、6見開き、切り紙、見開きごとに書き下ろした背景・和風BGM)。制作: **GPT-6 Astra medium**。桜が枝ごとに咲く仕掛けを収録しています。
-- 操作: ホイール=進む/戻る、←→=見開き単位、左下の▶ボタンか Space=音つきの自動再生(どの位置からでも再生できる)、M=音のオン/オフ、D=デバッグ表示
+- 操作: ホイール=進む/戻る、←→=見開き単位、左下の▶ボタンか Space=音つきの自動再生(どの位置からでも再生できる)、M=音のオン/オフ、D=デバッグ表示、左下のプルダウン=画風の切り替え
 - 音: BGMと効果音を、作品定義からブラウザ内で合成します(音声ファイルなし)
 
 ## テーマ
 
 見た目と音の素材は「テーマ」というフォルダ単位でまとまっていて、差し替えられます。同梱しているのは `storybook`(童話の絵本)です。
 
-- `storybook`: 画風5種・机9種と動く背景4種(海辺・草原・森・市街)・曲集4種を内蔵。聞き取りで、内蔵から選ぶか作品ごとに書き下ろすかを決めます(見本画像: `themes/storybook/previews/`)
+- `storybook`: 画風4種・机9種と動く背景4種(海辺・草原・森・市街)・曲集4種を内蔵。聞き取りで、内蔵から選ぶか作品ごとに書き下ろすかを決めます(見本画像: `themes/storybook/previews/`)
 
 テーマの書式は `references/theme-format.md` にあります。
 

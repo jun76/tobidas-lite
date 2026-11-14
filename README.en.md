@@ -37,8 +37,8 @@ Six finished books are included, all made with this skill. The model used for ea
 |---|---|---|---|---|---|
 | [`examples/jack`](skills/tobidas-lite/themes/storybook/examples/jack/) — Jack and the Beanstalk | Japanese | 7 | Paper-cut style, wooden desk | Claude Fable5.2 medium | Minor adjustments over a few turns |
 | [`examples/urashima`](skills/tobidas-lite/themes/storybook/examples/urashima/) — Urashima Taro | English | 8 | Crayon style, moving seaside, Japanese-style music | Claude Fable5.2 medium | Minor adjustments over a few turns |
-| [`examples/alice`](skills/tobidas-lite/themes/storybook/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Vintage picture-book style, a different background for each spread | GPT6.1-Sol medium | Created in one turn |
-| [`examples/le-petit-prince`](skills/tobidas-lite/themes/storybook/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Vintage picture-book style, a different background for each spread | Claude Opus 5.5 medium | Created in one turn |
+| [`examples/alice`](skills/tobidas-lite/themes/storybook/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Retro style, a different background for each spread | GPT6.1-Sol medium | Created in one turn |
+| [`examples/le-petit-prince`](skills/tobidas-lite/themes/storybook/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Retro style, a different background for each spread | Claude Opus 5.5 medium | Created in one turn |
 | [`examples/momotaro`](skills/tobidas-lite/themes/storybook/examples/momotaro/) — Momotaro | English | 6 | Paper-cut style, a different background for each spread | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) | Created in one turn |
 | [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/storybook/examples/hanasaka-jiisan/) — Hanasaka Jiisan | Japanese | 6 | Paper-cut style, original backgrounds for each spread and original Japanese-style BGM | GPT-6 Astra medium | Created in one turn |
 
@@ -53,6 +53,7 @@ The examples are under `skills/tobidas-lite/themes/storybook/`.
 | ▶ button (bottom left) or Space | Autoplay with sound, from the current position |
 | M | Sound on / off |
 | D | Debug display |
+| Dropdown (bottom left) | Switch the art style (reloads and returns to the same position) |
 
 ## Getting started
 
@@ -100,7 +101,7 @@ The look and sound live in a folder called a theme, which can be swapped. One th
 
 | Item | Built-in choices |
 |---|---|
-| Art style | 5: paper-cut, flat, crayon, vintage picture book, silhouette |
+| Art style | 4: paper-cut, flat, crayon, retro |
 | Desk | 9: wood, light wood, linen, felt, marble, grass, sky, night sky, cutting mat |
 | Moving background | 4: seaside, meadow, forest, town |
 | Music set | 4: music box, march, lullaby, Japanese style |
