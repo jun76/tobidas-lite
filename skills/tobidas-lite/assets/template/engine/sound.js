@@ -1,6 +1,6 @@
 // tobidas sound — BGMと効果音を、作品定義からブラウザ内で合成する音源。曲と効果音の定義はテーマが持つ。作品ごとに編集しない。
-//   音声ファイルは使わない。全体を1本の波形として作っておくので、どの時刻からでも再生できる(player.js が自動再生中に鳴らす)。
-//   作品側の書き方はテーマの資料(storybook なら themes/storybook/sound.md)。  見開きの music: '気分' / sfx: [[tl, '名前', {…}]]、全体の sound: { off, auto, moods, tunes, extra }
+//   音声ファイルも混ぜられる(sound.files と、sfx の名前にファイルのパス)。全体を1本の波形として作っておくので、どの時刻からでも再生できる(player.js が自動再生中に鳴らす)。
+//   作品側の書き方はテーマの資料(storybook なら themes/storybook/sound.md)。  見開きの music: '気分' / sfx: [[tl, '名前', {…}]]、全体の sound: { off, auto, music, files, moods, tunes, extra }
 (function () {
   const SR = 44100, PI = Math.PI, hz = m => 440 * Math.pow(2, (m - 69) / 12);
   // ---- 曲の素材(3拍子・8小節)。chords は CH の名前、mel は小節ごとの [拍, MIDI音程] ----
@@ -19,7 +19,7 @@
     const warn = m => { if (!T.warnings.includes(m)) T.warnings.push(m); };
     let seed = 12345; const rand = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
     const put = (i, v, pan, rev) => { if (i < 0 || i >= N) return; L[i] += v * (1 - pan); R[i] += v * (1 + pan); REV[i] += v * rev; };
-    const jobs = [];
+    const jobs = [], clips = [], isFile = s => typeof s === 'string' && /[\/.]/.test(s);   // clips = 混ぜる音声ファイル { src, t, end, vol, from, loop, fadeIn, fadeOut }
     // --- 音源(重い処理は jobs に積んで後でまとめて実行) ---
     // 減衰する正弦波を足し込む(毎サンプル sin/exp を呼ばず、回転と減衰の掛け算だけで進める。合成時間の大半がここ)
     const ring = (i0, f, amp, tau, pan, rev, n, att) => {
@@ -96,7 +96,7 @@
       }
       // --- BGM: 見開きの music をつなぐ。同じ気分が続く見開きは、めくりをまたいで1つの流れにする ---
       const segs = [];
-      sp.forEach((sd, i) => {
+      if (cfg.music !== false) sp.forEach((sd, i) => {   // sound: { music: false } で合成のBGMを止める(音声ファイルのBGMに任せるとき)
         const m = sd.music ?? 'bright', list = Array.isArray(m) && Array.isArray(m[0]) ? m : [[0, m]];
         list.forEach(([tl, mood]) => segs.push({ t: tl <= 0 ? TL.open(i + 1) - .45 : TL.open(i + 1) + tl, mood, key: typeof mood === 'string' ? mood : JSON.stringify(mood) }));
       });
@@ -109,7 +109,9 @@
         phrase(s.t, (runs[i + 1] ? runs[i + 1].t : TL.tc) - .2, ph, o);
       });
       // --- 効果音 ---
-      sp.forEach((sd, i) => (sd.sfx || []).forEach(([tl, what, o]) => { const t = TL.open(i + 1) + tl; if (typeof what === 'function') what(S, t); else S.sfx(what, t, o); }));
+      sp.forEach((sd, i) => (sd.sfx || []).forEach(([tl, what, o]) => { const t = TL.open(i + 1) + tl; if (typeof what === 'function') what(S, t); else if (isFile(what)) clips.push(Object.assign({ src: what, t, end: Infinity, fadeOut: .03 }, o)); else S.sfx(what, t, o); }));
+      // --- 音声ファイル(BGMなど): sound.files。始まりは at(秒)か spread+tl、省略なら最初の見開きから。終わりは end(秒)か endSpread、省略なら本をとじる所まで ---
+      (cfg.files || []).forEach(f => { if (typeof f === 'string') f = { src: f }; const t = f.at ?? (f.spread ? TL.open(f.spread) + (f.tl || 0) : TL.open(1) - .45); clips.push(Object.assign({ fadeIn: .6, fadeOut: 2.5 }, f, { t, end: f.end ?? (f.endSpread ? TL.until(f.endSpread) : TL.tc + .8) })); });
       if (cfg.extra) cfg.extra(S);
     }
 
@@ -130,6 +132,20 @@
     for (let i = N - 1; i >= 0; i--) { const d = i >= 613 ? wet[i - 613] : 0; L[i] = L[i] * .5 + wet[i] * .55; R[i] = R[i] * .5 + d * .55; peak = Math.max(peak, Math.abs(L[i]), Math.abs(R[i])); }
     const g = .89 / Math.max(peak, .05), th = Math.tanh(1.15);
     for (let i = 0; i < N; i++) { const f = Math.min(1, i / (SR * .5)) * Math.min(1, (N - i) / (SR * 1.2)) * .98 / th; L[i] = Math.tanh(L[i] * g * 1.15) * f; R[i] = Math.tanh(R[i] * g * 1.15) * f; if ((i & 65535) === 0) await breathe(); }
+    // --- 音声ファイルを混ぜる(仕上げのあとに、残響なしで足す)---
+    if (clips.length) {
+      const AC = window.OfflineAudioContext || window.webkitOfflineAudioContext, bufs = {};
+      const load = src => bufs[src] || (bufs[src] = (async () => { const u = T.assets[src] || (location.protocol === 'file:' ? null : src); if (!u) throw new Error('file'); const r = await fetch(u); if (!r.ok) throw new Error(r.status); return new AC(2, 1, SR).decodeAudioData(await r.arrayBuffer()); })());
+      for (const c of clips) {
+        let buf; try { buf = await load(c.src); } catch (e) { warn(`音: 音声ファイル '${c.src}' を読み込めません(${e.message === 'file' ? 'file:// では直接読めないので、node scripts/embed-audio.mjs <作品フォルダ> で埋め込む' : 'パスは index.html から見て書く。作品の assets/ に置く'})`); continue; }
+        const a = buf.getChannelData(0), b = buf.numberOfChannels > 1 ? buf.getChannelData(1) : a, from = Math.round((c.from || 0) * SR), avail = a.length - from, i0 = Math.round(c.t * SR), vol = c.vol ?? 1;
+        if (avail <= 0) continue;
+        const n = Math.max(0, Math.min(c.loop ? Infinity : avail, Math.round((c.end - c.t) * SR), N - i0)), fi = Math.max(1, (c.fadeIn ?? .01) * SR), fo = Math.max(1, (c.fadeOut ?? .03) * SR);
+        for (let j = Math.max(0, -i0); j < n; j++) { const k = from + (c.loop ? j % avail : j), f = Math.min(1, j / fi, (n - j) / fo) * vol; L[i0 + j] += a[k] * f; R[i0 + j] += b[k] * f; if ((j & 65535) === 0) await breathe(); }
+      }
+      let pk = 0; for (let i = 0; i < N; i++) pk = Math.max(pk, Math.abs(L[i]), Math.abs(R[i]));
+      if (pk > .98) { const k = .98 / pk; for (let i = 0; i < N; i++) { L[i] *= k; R[i] *= k; } }
+    }
     mc.port1.close();
     snd.ready = true;
     return { L, R, N, SR, dur, peak, notes: jobs.length };

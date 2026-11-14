@@ -9,6 +9,15 @@ const lerp = (a, b, u) => a + (b - a) * u;
 const sin = Math.sin, cos = Math.cos, abs = Math.abs, PI = Math.PI;
 const rnd = seed => { let s = (seed * 9301 + 49297) >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }; // 再現可能な乱数
 const F = n => n.toFixed(1);
+// 画像ファイルの絵: w×h の箱に画像を置く SVG 片を返す。src は index.html から見たパス(作品の assets/ に置く)。
+//   fit: 'meet' 全体が入るように(既定。下端・中央ぞろえ) / 'slice' 箱を埋めて余りを切る / 'fill' 縦横比を変えて箱いっぱい
+//   crop: [x, y, 幅, 高さ] と size: [画像の幅, 高さ] を書くと、1枚の画像(アトラス)の一部だけを切り出す
+const img = (src, w, h, o = {}) => {
+  const par = { meet: 'xMidYMax meet', slice: 'xMidYMid slice', fill: 'none' }[o.fit || 'meet'] || o.fit;
+  if (!o.crop) return `<image href="${src}" width="${w}" height="${h}" preserveAspectRatio="${par}"/>`;
+  const [cx, cy, cw, ch] = o.crop, [sw, sh] = o.size || [cx + cw, cy + ch];
+  return `<svg width="${w}" height="${h}" viewBox="${cx} ${cy} ${cw} ${ch}" preserveAspectRatio="${par}" overflow="hidden"><image href="${src}" width="${sw}" height="${sh}" preserveAspectRatio="none"/></svg>`;
+};
 const qs = (el, q, sel) => q[sel] || (q[sel] = el.querySelector(sel));       // anim 内でのキャッシュ付き querySelector
 const qa = (el, q, sel) => q[sel] || (q[sel] = [...el.querySelectorAll(sel)]);
 const rot = (n, a, x, y) => n && n.setAttribute('transform', `rotate(${a.toFixed(2)} ${x} ${y})`);
@@ -58,6 +67,8 @@ const Tobidas = (function () {
   const planks = (line, mat, c) => `repeating-linear-gradient(0deg, ${line} 0 5px, rgba(0,0,0,0) 5px 620px), ${noise(.003, .09, mat)}, linear-gradient(90deg,${c[0]},${c[1]})`;
   const grid = (c, step, w) => `repeating-linear-gradient(0deg, ${c} 0 ${w}px, rgba(0,0,0,0) ${w}px ${step}px), repeating-linear-gradient(90deg, ${c} 0 ${w}px, rgba(0,0,0,0) ${w}px ${step}px)`;
   T.fx = { grain: fGrain, edge: fEdge, tex: fTex, noise, planks, grid };
+  // 埋め込んだファイル(パス → データURL)。file:// では音声ファイルを読めないので、scripts/embed-audio.mjs が assets/audio.js に埋め込んで登録する
+  T.assets = {}; T.asset = (src, dataUrl) => { T.assets[src] = dataUrl; };
   T.VERSION = 1;
   // テーマが読み込まれていないときの控え(仕上げなし・無地の机)
   T.STYLES = { plain: { label: '仕上げなし', filter: `<feMerge><feMergeNode in="SourceGraphic"/></feMerge>`, grain: .2, shadow: 1 } };
@@ -218,9 +229,11 @@ const Tobidas = (function () {
     // --- ほこり ---
     dctx = $('tb-dust').getContext('2d');
     { const r = rnd(77); motes = Array.from({ length: 70 }, () => ({ x: r() * 1920, y: r() * 1080, vx: 6 + r() * 14, vy: -3 - r() * 6, r: 1.5 + r() * 4.5, f: .3 + r() * .9, ph: r() * 6.28, a: .12 + r() * .3 })); }
-    T.warnings.forEach(w => console.warn('[tobidas]', w));
-    T.ready = true; T.render(0);
-    document.dispatchEvent(new CustomEvent('tobidas:ready'));
+    // 画像ファイルを使う作品は、全部読み終えてから始める(まだ開いていない見開きの画像が、静止画チェックや動画化で抜けないように)。画像がなければ今までどおり即座に始まる
+    const go = () => { T.warnings.forEach(w => console.warn('[tobidas]', w)); T.ready = true; T.render(0); document.dispatchEvent(new CustomEvent('tobidas:ready')); };
+    const urls = [...new Set([...root.querySelectorAll('image, img')].map(e => e.getAttribute('href') || e.getAttribute('xlink:href') || e.getAttribute('src')).filter(u => u && !u.startsWith('data:')))];
+    if (!urls.length) return go();
+    Promise.race([Promise.all(urls.map(u => new Promise(res => { const im = new Image(); im.onload = () => (im.decode ? im.decode().catch(() => { }) : Promise.resolve()).then(res); im.onerror = () => { T.warnings.push(`画像 '${u}' を読み込めません(パスは index.html から見て書く。作品の assets/ に置く)`); res(); }; im.src = u; }))), new Promise(res => setTimeout(res, 15000))]).then(go);
   }
 
   function updSpread(s, p, tl, phi) {

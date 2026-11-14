@@ -17,6 +17,7 @@ fs.cpSync(path.join(skill, 'assets', 'template'), dest, { recursive: true });
 // テーマのうち、作品が実行時に読むもの(スクリプトと assets/)だけを theme/ に入れる。資料・見本・書き出しは入れない
 fs.mkdirSync(path.join(dest, 'theme'));
 for (const f of fs.readdirSync(themeDir)) { const src = path.join(themeDir, f); if (/\.(js|css)$/.test(f) || f === 'assets') fs.cpSync(src, path.join(dest, 'theme', f), { recursive: true }); }
+fs.mkdirSync(path.join(dest, 'assets'), { recursive: true });   // 画像・音声ファイルを使う作品は、ここに置く(使わなければ空のまま)
 const starter = path.join(themeDir, 'starter', 'book');
 if (fs.existsSync(starter)) fs.cpSync(starter, path.join(dest, 'book'), { recursive: true }); else fs.mkdirSync(path.join(dest, 'book'));
-console.log(`作品フォルダを作りました: ${dest}\n  テーマ: ${path.basename(themeDir)}(資料は ${themeDir})\n  書くのは book/art.js と book/book.js。index.html は <title> と lang だけ直す。`);
+console.log(`作品フォルダを作りました: ${dest}\n  テーマ: ${path.basename(themeDir)}(資料は ${themeDir})\n  書くのは book/art.js と book/book.js。画像・音声ファイルを使うなら assets/ に置く。index.html は <title> と lang だけ直す。`);

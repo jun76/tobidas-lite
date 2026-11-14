@@ -13,7 +13,7 @@ Tobidas.book({
   cover: A.cover(),                        // 表紙の絵。738×948 のSVGの中身(紙の縁取りなし)
   end: { title: 'おしまい', sub: 'ももたろう' },
   tableDeco: (i, r) => `<circle r="8" fill="#f4b"/>`,   // 省略可。机に散らす小物(原点まわりに描く。i=番号, r()=乱数)
-  sound: { set: 'musicbox' },              // 曲集(themes/<テーマ>/presets.md)。ほかの設定は themes/<テーマ>/sound.md。false で音なし
+  sound: { set: 'musicbox' },              // 曲集(themes/<テーマ>/presets.md)。ほかの設定は themes/<テーマ>/sound.md。false で音なし。音声ファイルを混ぜるなら files(references/assets.md)
   spreads: [ { ... }, { ... } ],           // 見開きを順に
 });
 ```
@@ -93,6 +93,7 @@ pc(X, Y, w0, h0, art, options)
 | `sh` | true | 影を落とすか。背景の丘や浮いている小物は `false` |
 | `shOp` | 1 | 影の濃さの倍率 |
 | `flt` | true | 紙の縁取りと質感を付けるか。光の粒など紙でない物は `false` |
+| (絵) | — | 絵には画像ファイルも使える: `img('assets/hero.png', w, h)`(`references/assets.md`) |
 | `glow` | なし | 光らせる(ぼかし半径 px、30 まで。それより大きい値は 30 として扱う)。色は `glowC`。もっと広く光らせたいときは、絵の側に半透明の大きな円を重ねる |
 | `nosplit` | false | 背をまたいでも左右に切り分けない(下記) |
 | `fold` | 自動 | 背をまたぐパーツを背で折る角度(度)と向き(符号)。下記。左右とも 200 以上張り出すパネルは ±12、ほかは 0(折らない) |

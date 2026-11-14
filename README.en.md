@@ -18,14 +18,15 @@ tobidas-lite is derived from [tobidas](https://github.com/jun76/tobidas).
 | | tobidas | tobidas-lite |
 |---|---|---|
 | Form | Web app | Skill for an agent |
-| Material | Images, audio, video, narration | Only SVG pictures and sound synthesized in the browser |
-| Preparation | Assets must be prepared in advance | None |
+| Material | Images, audio, video, narration | SVG pictures and sound synthesized in the browser (your own image and audio files can also be used) |
+| Preparation | Assets must be prepared in advance | None (prepare assets only if you want to use them) |
 
 The goal of tobidas-lite is that **you give an agent the URL of this repository and the story you want, and a finished book comes out**. To make that possible, pictures and sound are limited to what an agent can write as code.
 
 ## Features
 
-- No images, audio files or external libraries. Pictures are SVG, the 3D is CSS 3D transforms, and the music and sound effects are synthesized in the browser.
+- No assets are needed. Pictures are SVG, the 3D is CSS 3D transforms, the music and sound effects are synthesized in the browser, and no external libraries are used.
+- You can optionally use your own image and audio files. Put them in the book's `assets/` folder and they are built in as characters, backgrounds, music or sound effects.
 - The output is a single book folder. `index.html` opens without a server.
 - The text inside the book (title, captions, signs) can be in the language you choose.
 
@@ -138,7 +139,7 @@ Exports a video with sound. This one also needs ffmpeg.
 | `skills/tobidas-lite/assets/template/` | Template for a book: `index.html` and `engine/` (book mechanics, controls, sound engine; shared by all themes) |
 | `skills/tobidas-lite/themes/<theme>/` | Theme pack: styles, desks, music, sound effects, drawing parts, guides, previews, starter, examples |
 | `skills/tobidas-lite/references/` | Guides shared by all themes (book definition API, pitfalls, theme format) |
-| `skills/tobidas-lite/scripts/` | `new-book.mjs`, `check.mjs`, `gallery.mjs`, `render-video.mjs` |
+| `skills/tobidas-lite/scripts/` | `new-book.mjs`, `check.mjs`, `gallery.mjs`, `embed-audio.mjs`, `render-video.mjs` |
 
 A book folder consists of `index.html`, `engine/`, `theme/` (a copy of the chosen theme) and `book/` (the pictures and definitions for that book).
 
@@ -151,13 +152,13 @@ A book is deterministic: given a time `t`, it draws one frame. Wheel scrolling, 
 ## Notes
 
 - The skill provides the procedure and the routine processing (scripts) an agent needs to make a book. The quality of the book finally depends on the ability of the agent that uses it.
-- You can also ask for an art style the skill does not expect, or for external assets such as image and audio files. The quality in those cases has not been evaluated.
+- You can also ask for an art style the skill does not expect. The quality in that case has not been evaluated.
 - The skill instructs the agent to report any defects or improvements it found in the skill itself when the book is finished. If you are happy to have your local copy of the skill tuned, approve the proposals as they are.
 
 The following are outside the scope of the skill.
 
-- Narration (voice) and playback of recorded audio files. A `tobidas:time` event reports the current time so you can add these yourself.
-- Parts that use image files such as photos.
+- Video files.
+- Generating narration (voice). Voice audio files you provide can be played. A `tobidas:time` event also reports the current time so you can add your own playback.
 
 ## License
 
