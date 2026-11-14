@@ -227,17 +227,23 @@
         lullA: { chords: ['C', 'G', 'Am', 'F', 'C', 'G', 'F', 'C'], mel: B([76, 0, 79], [74, 0, 79], [72, 76, 81], [81, 77, 72], [76, 0, 79], [83, 79, 74], [77, 81, 84], [84, 0, 72]) },
         lullB: { chords: ['F', 'C', 'F', 'G', 'Am', 'F', 'G7', 'C'], mel: B([81, 84, 81], [79, 0, 76], [77, 81, 84], [86, 0, 83], [84, 81, 76], [77, 81, 77], [74, 77, 83], [84]) },
         lullM: { chords: ['Am', 'Dm', 'Am', 'E', 'Am', 'Dm', 'E', 'Am'], mel: B([81, 0, 84], [86, 89, 86], [84, 81, 76], [80, 0, 83], [81, 0, 84], [89, 86, 81], [83, 80, 76], [81]) },
+        // チップチューン(4拍子・ゲームの冒険)
+        chipA: { beats: 4, chords: ['C', 'G', 'Am', 'F', 'C', 'G', 'F', 'C'], mel: B([76, 79, 84, 79], [74, 79, 83, 79], [76, 81, 84, 81], [77, 81, 84, 81], [79, 84, 88, 84], [79, 83, 86, 83], [81, 84, 81, 77], [76, 74, 72]) },
+        chipB: { beats: 4, chords: ['F', 'G', 'C', 'Am', 'F', 'G', 'C', 'C'], mel: B([81, 84, 81, 77], [83, 86, 83, 79], [84, 88, 84, 79], [81, 84, 88, 84], [77, 81, 84, 89], [79, 83, 86, 91], [88, 86, 84, 79], [84, 0, 84]) },
+        chipM: { beats: 4, chords: ['Am', 'F', 'G', 'E', 'Am', 'F', 'E', 'Am'], mel: B([81, 84, 88, 84], [77, 81, 84, 81], [79, 83, 86, 83], [76, 80, 83, 80], [88, 84, 81, 84], [89, 84, 81, 84], [88, 83, 80, 76], [81, 0, 81]) },
         // 和風(4拍子・五音音階)
         wafuA: { beats: 4, chords: ['C', 'Am', 'C', 'G', 'C', 'Am', 'G', 'C'], mel: B([76, 79, 81, 79], [81, 84, 81, 79], [76, 79, 76, 74], [74, 79, 74], [76, 79, 81, 84], [88, 84, 81, 84], [86, 84, 81, 79], [84]) },
         wafuB: { beats: 4, chords: ['Am', 'C', 'G', 'C', 'Am', 'C', 'G', 'C'], mel: B([81, 84, 86, 84], [88, 86, 84, 79], [86, 79, 86, 91], [88, 84, 79], [81, 84, 88, 91], [93, 91, 88, 84], [86, 84, 81, 79], [84, 79, 84]) },
         wafuM: { beats: 4, chords: ['Am', 'Am', 'Dm', 'Am', 'Am', 'F', 'E', 'Am'], mel: B([81, 83, 84, 83], [81, 77, 76], [86, 84, 81, 77], [76, 81, 76], [81, 83, 84, 88], [89, 88, 84, 81], [83, 80, 76, 80], [81]) },
       },
       // ---- 曲集(sound.set)---- main=明るい主題, sub=もうひとつの明るい曲, minor=短調。tr=移調(半音), tempo=速さの倍率(大きいほど遅い)
+      // inst = 音色: mel(旋律)box/harp/koto/fife/flute/pulse、comp(伴奏)box/arp/pizz/koto/chip/none、pad(弦を伸ばす)true、bass(低音)soft/koto/tri、perc(打楽器)drum/taiko/tsuzumi/chip、fx(効果音と本の音の音色)harp/pizz/koto/fife/flute/pulse、noise: 'coarse'(雑音を粗くする)。書かなければ全部オルゴール
       sets: {
         musicbox: { label: 'オルゴール(3拍子・むかし話)', main: 'majA', sub: 'majB', minor: 'minA', tr: 0, tempo: 1 },
-        march: { label: '行進曲(4拍子・元気な冒険)', main: 'marchA', sub: 'marchB', minor: 'marchM', tr: 2, tempo: .78 },
-        lullaby: { label: '子守歌(3拍子・やさしく静か)', main: 'lullA', sub: 'lullB', minor: 'lullM', tr: 5, tempo: 1.22 },
-        wafu: { label: '和風(4拍子・日本の昔話)', main: 'wafuA', sub: 'wafuB', minor: 'wafuM', tr: 0, tempo: .86 },
+        march: { label: '鼓笛隊(4拍子・元気な冒険)', main: 'marchA', sub: 'marchB', minor: 'marchM', tr: 2, tempo: .78, inst: { mel: 'fife', comp: 'none', perc: 'drum', fx: 'fife' } },
+        lullaby: { label: 'ハープ(3拍子・やさしく静か)', main: 'lullA', sub: 'lullB', minor: 'lullM', tr: 5, tempo: 1.22, inst: { mel: 'harp', comp: 'arp', fx: 'harp' } },
+        wafu: { label: '和笛(4拍子・日本の昔話)', main: 'wafuA', sub: 'wafuB', minor: 'wafuM', tr: 0, tempo: .86, inst: { mel: 'flute', comp: 'pizz', pad: true, perc: 'taiko', fx: 'pizz' } },
+        chip: { label: 'チップチューン(4拍子・ゲームの冒険)', main: 'chipA', sub: 'chipB', minor: 'chipM', tr: 0, tempo: .74, inst: { mel: 'pulse', comp: 'chip', bass: 'tri', perc: 'chip', fx: 'pulse', noise: 'coarse' } },
       },
       // ---- 気分(見開きの music)---- beat=1拍の秒数, tr=移調, oct=旋律のオクターブ, stac=歯切れよく, dbl=旋律を重ねる
       moods: {

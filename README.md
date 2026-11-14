@@ -105,7 +105,7 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 | 画風 | 10種: 切り紙、フラット、クレヨン、レトロ、ネオン、リソグラフ、ポップアート、モノクロ、黒板、ドット絵 |
 | 机 | 10種: 板張り、白木、麻布、フェルト、大理石、芝生、青空、星空、カッティングマット、鉄板 |
 | 動く背景 | 4種: 海辺、草原、森、市街 |
-| 曲集 | 4種: オルゴール、行進曲、子守歌、和風 |
+| 曲集 | 5種: オルゴール、鼓笛隊、ハープ、和笛、チップチューン |
 
 机・背景と曲は、内蔵から選ぶか、その作品のためにエージェントに書き下ろしてもらうかを決められます。画風は内蔵から選びます。見本画像は [`themes/storybook/previews/`](skills/tobidas-lite/themes/storybook/previews/) に、テーマの書式は [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) にあります。
 

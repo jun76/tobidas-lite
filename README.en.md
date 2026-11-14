@@ -105,7 +105,7 @@ The look and sound live in a folder called a theme, which can be swapped. One th
 | Art style | 10: paper-cut, flat, crayon, retro, neon, risograph, pop art, monochrome, chalkboard, pixel art |
 | Desk | 10: wood, light wood, linen, felt, marble, grass, sky, night sky, cutting mat, steel plate |
 | Moving background | 4: seaside, meadow, forest, town |
-| Music set | 4: music box, march, lullaby, Japanese style |
+| Music set | 5: music box, fife and drum, harp, Japanese flute, chiptune |
 
 For the desk or background and the music, you either pick a built-in choice or have the agent write a new one for that book. The art style is picked from the built-in choices. Preview images are in [`themes/storybook/previews/`](skills/tobidas-lite/themes/storybook/previews/). The theme format is described in [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) (in Japanese).
 
