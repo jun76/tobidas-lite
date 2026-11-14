@@ -54,7 +54,7 @@ const Tobidas = (function () {
   const back = x => { x = cl(x); const c = 1.4; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
   const $ = id => document.getElementById(id);
   const div = (cls, parent) => { const e = document.createElement('div'); e.className = cls; if (parent) parent.appendChild(e); return e; };
-  const svgWrap = (w, h, inner, flt = true, vb) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb || `0 0 ${w} ${h}`}" width="${w}" height="${h}" style="overflow:visible;display:block">${flt ? `<g filter="url(#paper)">${inner}</g>` : inner}</svg>`;
+  const svgWrap = (w, h, inner, flt = true, vb) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb || `0 0 ${w} ${h}`}" width="${w}" height="${h}" style="overflow:visible;display:block">${flt ? `<g filter="url(#paper)"><rect width="${w}" height="${h}" fill="none"/>${inner}</g>` : inner}</svg>`;   // 透明な四角は、フィルタのかかる範囲を「絵の箱」に固定するため。これがないと範囲が絵の形(腕の動きなど)で変わり、ます目を敷く画風(ドット絵・網点)でパーツが消えたり現れたりする
   const noise = (fx, fy, mat, sz = 800) => `url('data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${sz}' height='${sz}'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='${fx} ${fy}' numOctaves='3' seed='8' stitchTiles='stitch'/><feColorMatrix type='matrix' values='${mat}'/></filter><rect width='${sz}' height='${sz}' filter='url(#n)'/></svg>`).replace(/'/g, '%27')}')`;
   // カメラの基本姿勢。d=引き(大きいほど遠い) tilt=見下ろし角 yaw=机上での回転 cx,cy,cz=注視点
   T.pose = o => Object.assign({ d: 330, tilt: 52, yaw: 0, cx: 0, cy: -30, cz: 150 }, o);
