@@ -102,8 +102,8 @@ The look and sound live in a folder called a theme, which can be swapped. One th
 
 | Item | Built-in choices |
 |---|---|
-| Art style | 4: paper-cut, flat, crayon, retro |
-| Desk | 9: wood, light wood, linen, felt, marble, grass, sky, night sky, cutting mat |
+| Art style | 10: paper-cut, flat, crayon, retro, neon, risograph, pop art, monochrome, chalkboard, pixel art |
+| Desk | 10: wood, light wood, linen, felt, marble, grass, sky, night sky, cutting mat, steel plate |
 | Moving background | 4: seaside, meadow, forest, town |
 | Music set | 4: music box, march, lullaby, Japanese style |
 

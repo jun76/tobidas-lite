@@ -143,7 +143,7 @@ const Tobidas = (function () {
       leaves.push(L);
     }
     { const b = div('block', world); b.style.top = '-464px'; b.style.transform = 'translateZ(-.4px)'; }
-    const printPage = (L, k, inner, vb) => { const p = L[k + 'Paper']; p.innerHTML = svgWrap(W, H, inner, false, vb) + grain + `<div class="gut"></div><div class="shade"></div>`; L[k + 'Shade'] = p.querySelector('.shade'); };
+    const printPage = (L, k, inner, vb) => { const p = L[k + 'Paper']; p.innerHTML = svgWrap(W, H, inner, false, vb) + grain + `<div class="gut"></div><div class="shade"></div>`; L[k + 'Shade'] = p.querySelector('.shade'); if (ST.pageFilter) p.firstElementChild.style.filter = ST.pageFilter; };   // 画風の pageFilter は、ページに印刷された地面の絵だけにかける
     { const p = leaves[0].frontPaper; p.style.cssText = `left:0;top:-14px;width:738px;height:948px;right:auto;bottom:auto;border-radius:0 14px 14px 0;background:${th.board}`;
       p.innerHTML = svgWrap(738, 948, def.cover || '', false) + grain.replace('class="grain"', 'class="grain" data-c') + `<div class="sheen"></div><div class="shade"></div>`;
       p.querySelector('.grain').style.opacity = .35; leaves[0].frontShade = p.querySelector('.shade'); leaves[0].sheen = p.querySelector('.sheen'); }
