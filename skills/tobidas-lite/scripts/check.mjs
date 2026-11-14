@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // 作品の静止画チェック。代表的な時刻のフレームを撮り、一覧画像(sheet.jpg)にまとめ、エラーと警告を報告する。
+// 警告には、エンジンが出すもののほか、音の名前の間違いと、切り分けられる板で絵が箱の上へはみ出して切れる箇所を含む。
 //   node check.mjs <作品フォルダ>                 全体(表紙・各見開きのめくり途中/開いた直後/中盤/終盤・とじる・おしまい)
 //   node check.mjs <作品フォルダ> --spread 3      見開き3だけを細かく(仕掛けの確認用。--n 12 で枚数)
 //   node check.mjs <作品フォルダ> --times 31.5,36 指定した時刻だけ
@@ -37,6 +38,18 @@ await page.evaluate(() => document.fonts.ready);
 const snd = await page.evaluate(async () => (typeof Tobidas.sound === 'undefined' || Tobidas.def.sound === false || Tobidas.def.sound?.off) ? null : { lv: await Tobidas.sound.levels() }).catch(e => { errors.push('音の合成に失敗: ' + e.message); return null; });
 const info = await page.evaluate(() => ({ TL: { ...Tobidas.TL, open: undefined, until: undefined }, opens: Tobidas.def.spreads.map((_, i) => Tobidas.TL.open(i + 1)), untils: Tobidas.def.spreads.map((_, i) => Tobidas.TL.until(i + 1)), warnings: Tobidas.warnings, pieces: Tobidas.def.spreads.map(s => (s.pieces || []).length) }));
 const { TL, opens, untils } = info;
+// はみ出し: 背をまたいで左右に切り分けられる板は、絵を「絵の箱」(w×h)の中に閉じて描くので、箱の上へ出た分は描かれない(references/pitfalls.md)。
+// 切り分けられるパーツの絵を実際に測り、上へ 2px を超えて出ていたら警告する(左右は、帯の端を隠すためにわざと広く描くことがあるので見ない)
+info.warnings.push(...await page.evaluate(() => {
+  const out = [], host = document.createElement('div'); host.style.cssText = 'position:fixed;left:0;top:0;visibility:hidden'; document.body.append(host);
+  Tobidas.def.spreads.forEach((sd, si) => (sd.pieces || []).forEach((sp, idx) => {
+    if (sp.deck || sp.nosplit || sp.yaw || typeof sp.art !== 'string' || !(sp.X - sp.w / 2 < 0 && sp.X + sp.w / 2 > 0)) return;
+    host.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${sp.w} ${sp.h}" width="${sp.w}" height="${sp.h}" style="overflow:visible">${sp.art}</svg>`;
+    let bb; try { bb = host.firstChild.getBBox(); } catch { return; }
+    const over = Math.ceil(-bb.y); if (over > 2) out.push(`見開き${si + 1} パーツ#${idx}: 背をまたいで切り分けられる板で、絵が箱の上へ ${over} はみ出していて、その分が描かれない(絵を箱の中に収める。箱の高さを ${Math.ceil(sp.h + over)} 以上に取って絵を下げるか、絵を縮める。片ページに収めるか nosplit: true なら切れない)`);
+  }));
+  host.remove(); return out;
+}));
 
 let times = [];
 if (opt.times) times = String(opt.times).split(',').map(Number);
