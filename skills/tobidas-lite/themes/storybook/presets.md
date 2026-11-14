@@ -3,7 +3,7 @@
 机・曲はそれぞれ **内蔵から選ぶ** か **その作品のために書き下ろす** かを、最初の聞き取りでユーザーが決める。画風は内蔵から選び、書き下ろしは聞き取りでは持ちかけない(ユーザーが自分から頼んだときだけ行う)。書き下ろしはユーザーが選んだときだけ行い、選ばれなかった項目は必ず内蔵を使う(内蔵は見え方・聞こえ方を確認済みで、誰が作っても同じ結果になるため)。
 
 見本画像: `themes/storybook/previews/styles.jpg`(画風)、`themes/storybook/previews/desks.jpg`(机)。作り直すには `node scripts/gallery.mjs themes/storybook/examples/jack --out themes/storybook/previews`。
-作品を開いたまま試すには、URL に `?style=crayon&desk=felt&set=march` を付ける(作品定義より優先される)。画風は再生ボタンの横のプルダウンでも切り替えられる。
+作品を開いたまま試すには、URL に `?style=crayon&desk=felt&set=march` を付ける(作品定義より優先される)。画面左上のプルダウンでも、画風・背景・曲を切り替えられる。
 
 ## 画風 `theme.style`
 

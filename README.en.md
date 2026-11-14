@@ -54,7 +54,7 @@ The examples are under `skills/tobidas-lite/themes/storybook/`.
 | ▶ button (bottom left) or Space | Autoplay with sound, from the current position |
 | M | Sound on / off |
 | D | Debug display |
-| Dropdown (bottom left) | Switch the art style (reloads and returns to the same position) |
+| Dropdowns (top left) | Switch the art style, backdrop and music (reloads and returns to the same position) |
 
 ## Getting started
 

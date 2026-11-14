@@ -111,7 +111,7 @@ const Tobidas = (function () {
     world = $('tb-world');
     // 机: background は机の面(3D の板)の CSS。scene があれば、机の代わりに「動く背景」を本の後ろ(画面いっぱい)に置き、軽くぼかす
     // 見開きに scene を書くと、その見開きのあいだだけ背景が切り替わる(めくりに合わせてなめらかに入れ替わる)。表紙と結びは机の scene、なければ最初と最後の見開きの scene
-    const SCN = DK.scene || null, perSpread = def.spreads.some(sd => sd.scene), hasTable = !!DK.background && !perSpread;
+    const SCN = DK.scene || null, perSpread = !qp.get('desk') && def.spreads.some(sd => sd.scene),   /* ?desk= で内蔵を選んだら、作品が見開きごとに書いた背景は使わない */ hasTable = !!DK.background && !perSpread;
     $('tb-table').style.background = hasTable ? (typeof DK.background === 'function' ? DK.background(th) : DK.background) : 'none';
     T.scenes = null;
     if (SCN || perSpread) {
@@ -119,7 +119,7 @@ const Tobidas = (function () {
       const se = $('tb-scene'), first = SCN || def.spreads.find(sd => sd.scene).scene, blur = first.blur ?? 5;
       const mk = sc => { const d = div('tb-sc', se); d.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">${typeof sc.svg === 'function' ? sc.svg(th) : sc.svg}</svg>`; return { sc, el: d, svg: d.firstChild, q: {}, on: true }; };
       se.style.filter = blur > 0 ? `blur(${blur}px)` : '';
-      const base = SCN ? mk(SCN) : null, per = def.spreads.map(sd => sd.scene ? mk(sd.scene) : null), ix = per.map((L, i) => L ? i : -1).filter(i => i >= 0);
+      const base = SCN ? mk(SCN) : null, per = def.spreads.map(sd => perSpread && sd.scene ? mk(sd.scene) : null), ix = per.map((L, i) => L ? i : -1).filter(i => i >= 0);
       T.scenes = { base, per, first: base ? -1 : ix[0], last: base ? -1 : ix[ix.length - 1], shadow: first.shadow ?? .4 };
       $('tb-shadowR').style.opacity = T.scenes.shadow;
       if (!base && ix.length < def.spreads.length) T.warnings.push('背景(scene)のない見開きがあります。見開きごとに背景を書くなら全部の見開きに書くか、theme.desk に全体の背景を指定する');

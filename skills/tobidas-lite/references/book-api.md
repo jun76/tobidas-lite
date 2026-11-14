@@ -8,7 +8,7 @@
 Tobidas.book({
   title: 'ももたろう とびだすえほん',      // ブラウザのタブ名
   lang: 'ja',                              // 'ja' 以外なら操作ヒントが英語になる
-  theme: { board: '#7a2f2f', spine: '#5a1f1f', style: 'kirigami', desk: 'wood' },   // 装丁の色と、画風・机(themes/<テーマ>/presets.md)。ほかに stylePicker: false(左下の画風プルダウンを出さない)、paper, font(字幕・結びの文字のフォント。日本語以外の作品は欧文フォントを指定する)
+  theme: { board: '#7a2f2f', spine: '#5a1f1f', style: 'kirigami', desk: 'wood' },   // 装丁の色と、画風・机(themes/<テーマ>/presets.md)。ほかに pickers: false(左上の画風・背景・曲のプルダウンを出さない。stylePicker: false なら画風だけ)、paper, font(字幕・結びの文字のフォント。日本語以外の作品は欧文フォントを指定する)
   timing: { intro: 5.2, turn: 2.4, close: 2.8, outro: 3.8 },   // 省略可(この値が既定)
   cover: A.cover(),                        // 表紙の絵。738×948 のSVGの中身(紙の縁取りなし)
   end: { title: 'おしまい', sub: 'ももたろう' },

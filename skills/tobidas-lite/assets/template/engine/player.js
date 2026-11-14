@@ -1,6 +1,6 @@
 // tobidas player — ホイール/キー/タッチで作品の時刻を進めたり戻したりする。作品ごとに編集しない。
 //   ホイール・↑↓ … 進む/戻る   ←→・PageUp/Down … 前後の見開きへ   ▶ボタン・Space … 自動再生(音つき)   M … 音のオン/オフ   Home/End … 最初/最後   D … デバッグ表示
-//   左下のプルダウン … 画風の切り替え(?style= を付けて読み直し、見ていた位置へ戻る。作品の theme.stylePicker: false で出さない)
+//   左上のプルダウン … 画風・背景・曲の切り替え(?style= ?desk= ?set= を付けて読み直し、見ていた位置へ戻る。作品の theme.pickers: false で3つとも、theme.stylePicker: false で画風だけ出さない)
 //   音は自動再生中だけ鳴る。どの位置から再生しても、その時刻の音から始まる(engine/sound.js が全体を合成しておく)。
 //   URL: ?t=12.5 … その時刻の静止画だけ描く(チェック・動画化用。HUDなし)   ?autoplay … 自動再生で開始   ?debug … デバッグ表示   ?at=12.5 / ?at=open … その時刻 / 最初の見開きの中ほど(字幕が出そろった所)から始める   ?embed … 操作の案内と画風のプルダウンを出さない(聞き取りページの見本用)
 //   ほかのページに埋め込まれているときは、いまの時刻を親へ postMessage で知らせる(聞き取りページが、画風を替えても同じ位置を見せるために使う)
@@ -31,13 +31,24 @@
     const bPlay = mkBtn('play'), bSnd = mkBtn('snd');
     const hasSound = !!Tobidas.sound && Tobidas.def.sound !== false && !(Tobidas.def.sound && Tobidas.def.sound.off);
     if (!hasSound) bSnd.style.display = 'none';
-    // --- 画風のプルダウン(画風は起動時に組み立てるので、?style= を付けて読み直す)---
-    const styles = Object.entries(Tobidas.STYLES);
-    if (styles.length > 1 && (Tobidas.def.theme || {}).stylePicker !== false && !q.has('embed')) {
-      const sel = document.createElement('select'); sel.className = 'sty'; sel.tabIndex = -1; sel.title = ja ? '画風' : 'Art style';
-      for (const [k, v] of styles) { const o = document.createElement('option'); o.value = k; o.textContent = v.label || k; o.selected = k === Tobidas.style.name; sel.append(o); }
-      sel.addEventListener('change', () => { try { sessionStorage.setItem('tobidas-resume', P.target.toFixed(2)); } catch { } const u = new URLSearchParams(location.search); u.set('style', sel.value); u.delete('autoplay'); u.delete('at'); location.search = u.toString(); });
-      ctl.append(sel);
+    // --- 画風・背景・曲のプルダウン(どれも起動時に組み立てるので、?style= ?desk= ?set= を付けて読み直す。見ていた位置へ戻る)---
+    // 作品が書き下ろした背景や曲は内蔵の一覧にないので、先頭に「この作品の…」を置いて戻れるようにする
+    const dth = Tobidas.def.theme || {}, dsd = Tobidas.def.sound, lib = Tobidas.sound ? Tobidas.sound.lib() : {}, tdf = (Tobidas.themeDef && Tobidas.themeDef.defaults) || {}, short = s => String(s).replace(/\s*[((].*$/, '');
+    const pk = document.createElement('div'); pk.id = 'tb-pick';
+    const picker = (param, title, list, cur, own) => {
+      if (list.length + (own ? 1 : 0) < 2) return;
+      const sel = document.createElement('select'); sel.className = 'sty'; sel.tabIndex = -1; sel.title = title;
+      const add = (v, label) => { const o = document.createElement('option'); o.value = v; o.textContent = label; o.selected = v === (q.get(param) || cur || ''); sel.append(o); };
+      if (own) add('', own); for (const [k, v] of list) add(k, short(v.label || k));
+      sel.addEventListener('change', () => { try { sessionStorage.setItem('tobidas-resume', P.target.toFixed(2)); } catch { } const u = new URLSearchParams(location.search); if (sel.value) u.set(param, sel.value); else u.delete(param); u.delete('autoplay'); u.delete('at'); location.search = u.toString(); });
+      pk.append(sel);
+    };
+    if (dth.pickers !== false && !q.has('embed')) {
+      if (dth.stylePicker !== false) picker('style', ja ? '画風' : 'Art style', Object.entries(Tobidas.STYLES), typeof dth.style === 'string' ? dth.style : dth.style ? '' : tdf.style, dth.style && typeof dth.style === 'object' ? (ja ? 'この作品の画風' : 'This book’s style') : '');
+      const ownDesk = (dth.desk && typeof dth.desk === 'object') || Tobidas.def.spreads.some(sd => sd.scene);
+      picker('desk', ja ? '背景' : 'Backdrop', Object.entries(Tobidas.DESKS), ownDesk ? '' : dth.desk || tdf.desk, ownDesk ? (ja ? 'この作品の背景' : 'This book’s backdrop') : '');
+      const ownSet = dsd && typeof dsd === 'object' && dsd.set && typeof dsd.set === 'object';
+      if (hasSound) picker('set', ja ? '曲' : 'Music', Object.entries(lib.sets || {}), ownSet ? '' : (dsd && dsd.set) || tdf.set, ownSet ? (ja ? 'この作品の曲' : 'This book’s music') : '');
     }
     const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { } } };
     const AU = P.audio = { ctx: null, pcm: null, buf: null, src: null, gain: null, t0: 0, c0: 0, muted: store.get('tobidas-muted') === '1' };
@@ -59,13 +70,13 @@
       const k = `${P.auto}|${AU.muted}|${!!AU.pcm}`; if (k === uiKey) return; uiKey = k;
       bPlay.innerHTML = `<svg viewBox="0 0 24 24">${P.auto ? IC.pause : IC.play}</svg>`; bPlay.title = P.auto ? (ja ? '止める (Space)' : 'Pause (Space)') : (ja ? '再生 (Space)' : 'Play (Space)');
       bSnd.innerHTML = `<svg viewBox="0 0 24 24">${AU.muted ? IC.off : IC.on}</svg>`; bSnd.title = AU.muted ? (ja ? '音を出す (M)' : 'Unmute (M)') : (ja ? '音を消す (M)' : 'Mute (M)');
-      bSnd.classList.toggle('wait', hasSound && !AU.pcm); ctl.classList.toggle('playing', P.auto);
+      bSnd.classList.toggle('wait', hasSound && !AU.pcm); ctl.classList.toggle('playing', P.auto); pk.classList.toggle('playing', P.auto);
     };
     const toggle = () => { wake(); P.auto = !P.auto; if (AU.src) audioStop(); if (P.auto) { if (P.target >= TL.END - .1) P.target = P.t = T0; else P.target = P.t; } input(); };
     const mute = () => { wake(); AU.muted = !AU.muted; store.set('tobidas-muted', AU.muted ? '1' : '0'); };
     bPlay.addEventListener('click', toggle); bSnd.addEventListener('click', mute);
     addEventListener('pointerdown', wake, true); addEventListener('keydown', wake, true);
-    document.body.append(hud, ctl, hint, dbg);
+    document.body.append(hud, ctl, pk, hint, dbg);
     const fill = hud.querySelector('.fill');
     let lastInput = performance.now(), touched = false;
     const input = () => { lastInput = performance.now(); if (!touched) { touched = true; setTimeout(() => hint.style.opacity = 0, 2500); } };
