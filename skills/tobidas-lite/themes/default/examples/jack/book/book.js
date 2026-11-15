@@ -1,229 +1,350 @@
-// ジャックと豆の木 — 作品定義(tobidas の完成見本)。
-// 座標は見開き座標: X∈[-720,720](0=本の背)、Y∈[0,920](大きいほど手前)。tl は「その見開きが開ききってからの秒数」。
-const SC = [null];
+// 作品定義「ジャックと豆の木」。書き方は references/book-api.md。
+// 座標: X∈[-720,720](0=本の背)、Y∈[0,920](大きいほど手前)。tl = 見開きが開ききってからの秒数。
 
-// ============ 1. むかしむかし ============
-SC[1] = {
+const JK = 1, AD = 1.12;                          // ジャックと大人の大きさ(絵本らしく大きめ)
+const farHills = (seed, c = '#a5d3e2', c2 = '#8cc6cf') => pc(0, 100, 1400, 250, A.hills(1400, 250, c, c2, seed, 1.2, hillTrees(9, seed + 1, 50, true)), { sh: false, sway: 0 });
+const nearHills = (seed, c = '#7cbf66', c2 = '#94d078') => pc(0, 230, 1420, 210, A.hills(1420, 210, c, c2, seed, 1.0, hillTrees(8, seed + 2, 70)), { sh: false, sway: 0 });
+const jump = (amp, sp, ph = 0) => tl => ({ lift: amp * abs(sin(tl * sp + ph)) });
+// 豆の木は、鉛直軸のまわりに ±45 度回した2枚を X 字に組む(正面からも斜めからも、板の面が見える)
+const XYAW = [45, -45];
+// X 字に組んだ板を、まとめて右(+X)へ phi 度たおすための dyn の値。
+// エンジンは板を rotateZ(yaw) rotateX(-ang) rotateZ(rzBase) の順に回すので、「右へたおす回転 × もとの向き」をこの3つの角に分解する
+const fallX = (yaw0, phi) => {
+  const R = PI / 180, f = phi * R, y = yaw0 * R, cf = cos(f), sf = sin(f), cy = cos(y), sy = sin(y);
+  // M = Ry(f) · Rz(y) · Rx(-90°)
+  const m13 = -cf * sy, m23 = cy, m31 = -sf * cy, m32 = -cf, m33 = sf * sy;
+  const b = -Math.acos(cl(m33, -1, 1));                       // rotateX の角(= -ang)
+  const a = Math.atan2(-m13, m23), c = Math.atan2(-m31, -m32);
+  return { yaw: a / R - yaw0, lean: 90 + b / R, rzBase: c / R };
+};
+// 表情を途中で切り替える人物: t0 より前は artA、あとは artB(同じ場所に2枚置いて、片方だけ見せる)
+const swapFace = (t0, X, Y, artA, artB, o) => [
+  pc(X, Y, 120, 226, artA, Object.assign({}, o, { dyn: tl => Object.assign({}, o.dyn ? o.dyn(tl) : {}, { op: tl < t0 ? 1 : 0 }) })),
+  pc(X, Y + 1, 120, 226, artB, Object.assign({}, o, { dyn: tl => Object.assign({}, o.dyn ? o.dyn(tl) : {}, { op: tl < t0 ? 0 : 1 }) })),
+];
+
+// ===== 1. まずしい親子 =====
+const spread1 = {
+  hold: 7.5,
+  music: 'bright',                              // 見開き2と同じ気分にして、1本の曲としてつなげる
   ground: A.gMeadow({ seed: 5 }),
+  caption: ['むかし、ジャックは おかあさんと ふたりで くらしていました。', 'ある日、牛を 売りに 行くことに なりました。'],
   pieces: [
-    pc(0, 100, 1400, 250, A.hills(1400, 250, '#a5d3e2', '#8cc6cf', 2, 1.2, hillTrees(9, 3, 50, true)), { sh: false, sway: 0 }),
-    pc(-440, 120, 200, 200, A.sun(200), { lift: 330, glow: 36, sh: false, anim: aSun(200), sway: 2 }),
-    pc(150, 130, 270, 110, A.cloud(270, 110, 2), { lift: 380, sh: false, dyn: tl => ({ dx: 40 * sin(tl * .3) }) }),
-    pc(520, 150, 200, 86, A.cloud(200, 86, 5), { lift: 300, sh: false, dyn: tl => ({ dx: -30 * sin(tl * .25 + 1) }) }),
-    pc(-180, 140, 170, 74, A.cloud(170, 74, 8), { lift: 250, sh: false, dyn: tl => ({ dx: 24 * sin(tl * .35 + 2) }) }),
-    pc(0, 230, 1420, 210, A.hills(1420, 210, '#7cbf66', '#94d078', 7, 1.0, hillTrees(8, 5, 70)), { sh: false, sway: 0 }),
-    pc(-350, 440, 420, 380, A.cottage(), { k: 1.2, anim: aSmoke, sway: .3 }),
-    pc(390, 410, 300, 430, A.tree(300, 430, { fruit: '#e2574c' }), { sway: 1.4 }),
-    pc(360, 545, 440, 90, A.fence(440, 90), { sway: .3 }),
-    pc(-150, 610, 120, 226, A.mother({ armR: -24 }), { k: .9, anim: aArm('.aR', tl => -40 + 16 * sin(tl * 2)) }),
-    pc(330, 690, 300, 210, A.cow(), { k: .9, anim: aCow }),
-    pc(70, 720, 120, 226, A.jack({ armR: -150 }), { k: .82, anim: aArm('.aR', tl => -150 + 20 * sin(tl * 7)), dyn: tl => ({ lift: 10 * abs(sin(tl * 3.5)) }) }),
-    pc(-560, 770, 280, 120, A.bush(280, 120)),
-    pc(590, 810, 240, 90, A.grass(240, 90, undefined, undefined, GR)),
-    pc(-230, 830, 220, 70, A.grass(220, 70, undefined, undefined, GR)),
-    bird(-300, 300, 420, 34, 0), bird(-380, 340, 470, 30, 2),
-    fly(200, 800, '#ff9ecb', 0), fly(-420, 700, '#ffe27a', 2),
-  ]
+    farHills(2), nearHills(7),
+    put('sky.sun', -470, 120, { lift: 330, glow: 30 }),
+    put('cloud.puff', 180, 130, { dyn: tl => ({ dx: 40 * sin(tl * .3) }) }),
+    put('cloud.puff', 520, 150, { lift: 300, k: .8, art: { seed: 4 }, dyn: tl => ({ dx: -30 * sin(tl * .25) }) }),
+    pc(-370, 440, 420, 380, A.poorHouse(), { k: 1.15, anim: aSmoke, sway: .3 }),
+    put('tree.fruit', 520, 400, { sway: 1.4, art: { fruit: '#e2574c' } }),
+    put('conifer.fir', -640, 470, { k: .8, sway: 1.2, art: { c: '#4f8f5a' } }),
+    put('fence.wood', 330, 540, { art: { w: 420 } }),
+    put('farm.cow', 300, 680, { k: 1.2, flip: true }),
+    pc(-70, 700, 120, 226, A.jack({ armR: -70 }), { k: JK, anim: aArm('.aR', tl => -70 + 12 * sin(tl * 2.2)), dyn: tl => ({ lift: 6 * abs(sin(tl * 2.4)) }) }),
+    pc(-230, 670, 120, 226, A.mother({ armL: 10, armR: -40, mouth: 'flat' }), { k: AD, anim: aArm('.aR', tl => -40 + 8 * sin(tl * 1.6)) }),
+    put('bush.flower', -560, 790, {}),
+    put('grass.short', 150, 840, { art: { w: 260 } }),
+    put('flower.wild', 560, 820, {}),
+    bird(-300, 300, 420, 34, 0), bird(-420, 260, 470, 30, 2, '#6a7fb0'), fly(180, 800, '#ff9ecb', 0),
+  ],
 };
 
-// ============ 2. まほうの豆 ============
-const beanU = tl => sm((tl - 3.4) / 1.4);
-SC[2] = {
-  ground: A.gMeadow({ seed: 8, pond: null, path: 'M0 600C300 560 500 690 760 650S1200 590 1440 650L1440 790C1200 730 1000 810 740 800S300 720 0 750Z' }) +
-    `<path d="M770 265L1130 340V560H800Z" fill="#f2d566"/>` + Array.from({ length: 9 }, (_, i) => `<path d="M${786 + i * 41} ${F(278 + i * 8.5)}L${812 + i * 38} 552" stroke="#d9b440" stroke-width="5"/>`).join('') +
-    `<path d="M290 343L670 265L650 540H310Z" fill="#8fc45c"/>` + Array.from({ length: 20 }, (_, i) => { const c = i % 5, r = Math.floor(i / 5), cx = 336 + c * 70 + (r % 2) * 12, top = 343 - (cx - 290) * .205; return `<circle cx="${cx}" cy="${F(top + 30 + r * (486 - top) / 3)}" r="13" fill="#6aa84f"/>`; }).join(''),
+// ===== 2. 牛と豆をとりかえる =====
+const GIVE = 2.6, GOT = 3.7, WALK = 4.6;           // 豆を渡しはじめる/受け取る/牛が歩きだす
+const giveU = tl => sm((tl - GIVE) / (GOT - GIVE));
+const spread2 = {
+  hold: 8.5,
+  music: 'bright',
+  sfx: [[GIVE, 'sparkle', { len: 1.1 }], [GOT, 'pop'], [GOT + .5, 'chime']],
+  ground: A.gMeadow({ seed: 9, pond: null, path: 'M0 600C260 560 520 640 760 610S1240 560 1440 620L1440 760C1200 700 980 760 740 750S260 700 0 740Z' }),
+  caption: ['とちゅうで 会った おじいさんが いいました。', '「その牛を、まほうの豆と とりかえよう。」'],
   pieces: [
-    pc(0, 90, 1400, 240, A.hills(1400, 240, '#b5c9e8', '#9db7dc', 11, .9), { sh: false, sway: 0 }),
-    pc(470, 110, 190, 190, A.sun(190), { lift: 360, glow: 36, sh: false, anim: aSun(190), sway: 2 }),
-    pc(-260, 120, 250, 104, A.cloud(250, 104, 4), { lift: 380, sh: false, dyn: tl => ({ dx: 36 * sin(tl * .3) }) }),
-    pc(120, 150, 760, 230, A.village(760, 230), { sway: .2, shOp: .6 }),
-    pc(0, 200, 1420, 190, A.hills(1420, 190, '#86c56c', '#9bd47c', 13, 1.3, hillTrees(7, 9, 64)), { sh: false, sway: 0 }),
-    pc(-540, 430, 270, 400, A.tree(270, 400), { sway: 1.4 }),
-    pc(560, 440, 260, 300, A.pine(60, 300, 190) + A.pine(150, 300, 240, '#4a8f66') + A.pine(220, 300, 170), { sway: 1 }),
-    pc(-270, 560, 150, 260, A.sign(), { sway: .6 }),
-    pc(240, 566, 370, 110, A.grass(370, 110, '#e3bd45', '#f2d566'), { sway: 1.6 }),
-    pc(-440, 720, 300, 210, A.cow(), { k: .9, anim: aCow }),
-    pc(-130, 730, 120, 226, A.jack({ armR: -70 }), { k: .82, anim: aArm('.aR', tl => -64 - 40 * beanU(tl) + 4 * sin(tl * 3)), dyn: tl => ({ lift: tl > 5 ? 26 * abs(sin((tl - 5) * 5)) : 0 }) }),
-    pc(190, 735, 120, 240, A.oldman({ armR: -60, flip: true }), { k: 1.02, anim: aArm('.aR', tl => -70 + 30 * beanU(tl) + 3 * sin(tl * 2)) }),
-    pc(96, 728, 150, 150, A.glow(150), { k: .8, sh: false, glow: 26, nosplit: true, side: 'R', sway: 0, delay: .35, anim: aSun(150), dyn: tl => { const u = beanU(tl); return { dx: -150 * u, lift: 118 + 70 * sin(u * PI) + 6 * sin(tl * 3), sc: .85 + .15 * sin(tl * 5) }; } }),
-    twinkle(30, 730, 210, 0, 13), twinkle(150, 732, 200, 2, 10), twinkle(-40, 734, 150, 4, 9),
-    pc(-570, 850, 260, 90, A.grass(260, 90, undefined, undefined, GR)),
-    pc(540, 860, 300, 100, A.bush(300, 100, '#5aa64e', '#7cc463', '#fff3b0')),
-    fly(380, 800, '#9ed0ff', 1), fly(-300, 840, '#ff9ecb', 3), bird(-500, 300, 440, 40, 1),
-  ]
+    farHills(11, '#b5c9e8', '#9db7dc'), nearHills(4, '#86c46e', '#9ed684'),
+    put('cloud.puff', -380, 130, { art: { seed: 3 }, dyn: tl => ({ dx: 36 * sin(tl * .3) }) }),
+    put('tree.round', -560, 400, { sway: 1.4, art: { c: '#4f9a50', c2: '#6fb65c', c3: '#8fce74' } }),
+    put('tree.autumn', 570, 380, { sway: 1.4, k: .95 }),
+    put('conifer.cedar', 330, 330, { k: .8, sway: 1.2 }),
+    put('out.signpost', -230, 430, { k: 1 }),
+    put('rock.moss', 560, 560, { k: .6 }),
+    // 牛: ジャックのうしろから、おじいさんの側へ歩いていく
+    put('farm.cow', -480, 560, { k: 1.15, nosplit: true, side: 'L', dyn: tl => { const u = sm((tl - WALK) / 3.2); return { dx: 800 * u, lift: u > 0 && u < 1 ? 8 * abs(sin(tl * 5)) : 0 }; } }),
+    pc(-110, 700, 120, 226, A.jack({ armR: -20 }), { k: JK,
+      anim: many(aArm('.aR', tl => -20 - 60 * giveU(tl) + (tl > GOT ? 8 * sin(tl * 6) : 0)), aArm('.aL', tl => tl > GOT + .2 ? 130 + 14 * sin(tl * 6) : 14, 40)),
+      dyn: tl => ({ lift: tl > GOT ? 26 * abs(sin((tl - GOT) * 4)) * (1 - sm((tl - GOT - 2.5) / 1)) : 0 }) }),
+    pc(120, 700, 120, 226, A.oldman({ armL: 20, mouth: 'smile' }), { k: AD, anim: aArm('.aL', tl => 20 + 55 * sm((tl - GIVE + .8) / .8) - 40 * sm((tl - GOT) / .8), 40) }),
+    // 豆: おじいさんの手からジャックの手へ、山なりに
+    pc(56, 702, 60, 50, A.beans(), { k: .75, nosplit: true, sh: false, glow: 14, glowC: '#d8ff9a', side: 'R',
+      dyn: tl => { const u = giveU(tl); return { dx: -118 * u, lift: 150 + 70 * sin(u * PI) + (tl > GOT ? 26 * abs(sin((tl - GOT) * 4)) * (1 - sm((tl - GOT - 2.5) / 1)) : 0), op: tl > GIVE - .9 ? 1 : 0, sc: pop(tl, GIVE - .9) }; } }),
+    
+    put('bush.berry', -560, 800, {}),
+    put('grass.flowers', 520, 830, {}),
+    fly(-300, 820, '#ffd24d', 1),
+  ],
 };
 
-// ============ 3. 一晩でのびた豆の木 ============
-const G0 = 2.7, GD = 4.5, growU = tl => { const u = cl((tl - G0) / GD); return u < .5 ? 2 * u * u : 1 - 2 * (1 - u) * (1 - u); };
-const stalkDyn = tl => { const g = growU(tl); return { clip: 1 - g, op: g > 0 ? 1 : 0, rz: g < 1 ? 1.2 * sin(tl * 9) * (1 - g) : 0 }; };
-const thrown = i => pc(-300, 470, 40, 28, A.bean('#9be36a'), { sh: false, nosplit: true, glow: 10, sway: 0, delay: .3, dyn: tl => { const u = cl((tl - .7 - i * .14) / 1.0); return { dx: 300 * u + i * 24, dy: 130 * u, lift: 200 * (1 - u) + 520 * u * (1 - u), rz: tl * 500, op: u > 0 && tl < 3 ? 1 : 0 }; } });
-SC[3] = {
-  ground: A.gMeadow({ seed: 5, night: true }),
+// ===== 3. 豆の木が伸びる(夜から朝へ) =====
+const THROW = .7, GROW = 2.7, GROWN = 7.2, DAWN = 4.6;
+const growU = tl => sm((tl - GROW) / (GROWN - GROW));
+const dayU = tl => sm((tl - DAWN) / 2.6);
+// 豆の木は上下2枚に分けて置く(高さ 1000 を超える1枚板は、カメラが近いと下のほうが描かれない)。下の板が伸びきってから上の板が伸びる
+const SPLIT = 860, LOW = (1300 - SPLIT) / 1300;
+const lowG = tl => growU(tl) / LOW, upG = tl => (growU(tl) - LOW) / (1 - LOW);
+const stalkLow = o => Object.assign({ nosplit: true, side: 'R', delay: 0, sway: 0, anim: aStalkGrow(SPLIT, 1300, lowG), dyn: tl => ({ op: lowG(tl) > 0 ? 1 : 0 }) }, o);
+const stalkUp = o => Object.assign({ nosplit: true, side: 'R', delay: 0, sway: 0, sh: false, lift: 1300 - SPLIT, anim: aStalkGrow(0, SPLIT, upG), dyn: tl => ({ op: upG(tl) > 0 ? 1 : 0 }) }, o);
+const spread3 = {
+  hold: 10.5,
+  music: [[0, 'night'], [GROW - .3, 'none'], [GROWN + .5, 'airy']],
+  sfx: [[THROW, 'whoosh', { len: .7 }], [THROW + 1.0, 'drop'], [GROW, 'rise', { len: GROWN - GROW }], [GROWN - 1.4, 'pop'], [GROWN - 1.1, 'pop'], [GROWN + .1, 'sparkle', { len: 1.4 }]],
+  ground: A.gMeadow({ seed: 14, pond: null, path: null }) + A.dirt(930, 610, 90, 34),
+  grade: tl => ['#3d52a8', .56 * (1 - dayU(tl))],
+  caption: ['おこった おかあさんは、豆を まどから すてて しまいました。', [GROWN - 1.2, 'つぎの朝、豆の木が 雲の上まで のびていました。']],
+  cam: { start: { d: 380, cx: -40 }, keys: [[2.4, { d: 250, cx: 60, cz: 150 }], [GROWN + .2, { d: 1300, tilt: 72, cy: 60, cz: 600 }]], end: { d: 1240, tilt: 72, cy: 60, cz: 620 } },
   pieces: [
-    pc(0, 100, 1400, 250, A.hills(1400, 250, '#2f4d74', '#284466', 2, 1.2, hillTrees(9, 3, 50, true)), { sh: false, sway: 0 }),
-    pc(420, 120, 180, 180, A.moon(180), { lift: 420, glow: 60, sh: false, sway: 1.5 }),
-    ...[[-560, 110, 520], [-420, 120, 380], [-250, 100, 560], [-90, 130, 430], [120, 110, 540], [260, 130, 330], [600, 100, 300], [640, 140, 560], [-640, 150, 300], [30, 150, 300]].map(([x, y, l], i) => twinkle(x, y, l, i * 1.3, 10 + (i % 3) * 5, '#fff3c0')),
-    pc(0, 230, 1420, 210, A.hills(1420, 210, '#2c5a52', '#346a58', 7, 1.0, hillTrees(8, 5, 70)), { sh: false, sway: 0 }),
-    pc(-380, 450, 420, 380, A.cottage({ night: true }), { k: 1.2, anim: aSmoke, sway: .3, glow: 14, glowC: 'rgba(255,215,106,.5)' }),
-    pc(500, 420, 300, 430, A.tree(300, 430, { c: '#2f6a58', c2: '#3a7a62', c3: '#4a8f70' }), { sway: 1.4 }),
-    thrown(0), thrown(1), thrown(2),
-    pc(30, 604, 120, 120, A.glow(120), { sh: false, glow: 30, nosplit: true, sway: 0, delay: .3, anim: aSun(120), dyn: tl => ({ lift: 6, sc: 1.1 * sm((tl - 1.7) / .4) * (1 - sm((tl - 3.0) / .8)), op: tl > 1.7 && tl < 3.8 ? 1 : 0 }) }),
-    pc(30, 600, 260, 1300, A.stalk(260, 1300), { nosplit: true, side: 'R', delay: 0, sway: .5, yaw: 45, dyn: stalkDyn }),   // 2枚を X 字に組む(見開き6と同じ向き)
-    pc(30, 600, 260, 1300, A.stalk(260, 1300), { nosplit: true, side: 'R', delay: 0, sway: .5, yaw: -45, dyn: stalkDyn, shOp: .5 }),
-    pc(-190, 560, 380, 140, A.cloud(380, 140, 3), { sh: false, nosplit: true, sway: 0, dyn: tl => ({ lift: 1060, sc: pop(tl, 6.1, .8), op: tl > 6.1 ? 1 : 0, dx: 20 * sin(tl * .5) }) }),
-    pc(260, 640, 320, 120, A.cloud(320, 120, 6), { sh: false, nosplit: true, sway: 0, dyn: tl => ({ lift: 1140, sc: pop(tl, 6.5, .8), op: tl > 6.5 ? 1 : 0, dx: -20 * sin(tl * .4) }) }),
-    pc(60, 700, 300, 110, A.cloud(300, 110, 9), { sh: false, nosplit: true, sway: 0, dyn: tl => ({ lift: 950, sc: pop(tl, 6.9, .8), op: tl > 6.9 ? 1 : 0, dx: 16 * sin(tl * .6 + 1) }) }),
-    pc(-150, 720, 120, 226, A.jack({ armL: 150, armR: -150, look: 'up', mouth: 'o' }), { k: .82, nosplit: true, dyn: tl => ({ sc: pop(tl, 7.0), op: tl > 7.0 ? 1 : 0, lift: tl > 7.6 ? 18 * abs(sin((tl - 7.6) * 5)) : 0 }) }),
-    pc(-270, 700, 120, 226, A.mother({ armL: 130, armR: -130, look: 'up', mouth: 'o' }), { k: .9, dyn: tl => ({ sc: pop(tl, 7.5), op: tl > 7.5 ? 1 : 0 }) }),
-    pc(-570, 800, 280, 110, A.bush(280, 110, '#2f6a58', '#3a7a62', '#b9a6d6')),
-    pc(560, 820, 260, 90, A.grass(260, 90, '#2f6a58', '#3a7a62')),
-  ]
+    farHills(5, '#9bbfd6', '#86b0c8'), nearHills(9, '#6fae62', '#86c070'),
+    put('sky.moon', -480, 120, { lift: 360, dyn: tl => ({ op: 1 - dayU(tl), lift: 360 - 120 * dayU(tl) }) }),
+    put('sky.stars', -150, 110, { lift: 400, dyn: tl => ({ op: 1 - dayU(tl) }) }),
+    put('sky.stars', 420, 130, { lift: 380, art: { seed: 7 }, dyn: tl => ({ op: 1 - dayU(tl) }) }),
+    put('sky.sun', 560, 380, { lift: 300, glow: 30, dyn: tl => ({ op: dayU(tl), lift: 180 + 150 * dayU(tl) }) }),
+    pc(-380, 440, 420, 380, A.poorHouse(), { k: 1.15, anim: aSmoke, sway: .3 }),
+    put('tree.round', -660, 520, { k: .8, sway: 1.2 }),
+    put('fence.wood', 500, 470, { art: { w: 380 } }),
+    // すてられた豆(窓から庭へ)
+    pc(-250, 600, 60, 50, A.beans(), { nosplit: true, sh: false, side: 'L', k: .8, glow: 10, glowC: '#d8ff9a',
+      dyn: tl => { const u = cl((tl - THROW) / 1.0); return { dx: 460 * u, lift: 170 * (1 - u) + 260 * u * (1 - u), rz: tl * 420, op: u > 0 && tl < GROW + .2 ? 1 : 0 }; } }),
+    pc(210, 602, 80, 70, A.sprout(), { nosplit: true, dyn: tl => ({ sc: pop(tl, GROW - .6), op: tl > GROW - .6 ? 1 - cl((tl - GROW - .05) / .25) : 0 }) }),   // 幹が出はじめたら、入れ替わりにすぐ消す
+    // 豆の木(X 字に組んだ2枚。それぞれ上下に分けてある)
+    pc(210, 600, 260, 1300 - SPLIT, A.stalkPart(260, 1300, SPLIT, 1300), stalkLow({ yaw: XYAW[0] })),
+    pc(210, 600, 260, SPLIT, A.stalkPart(260, 1300, 0, SPLIT), stalkUp({ yaw: XYAW[0] })),
+    pc(210, 634, 260, 70, A.stalkKnot(), { nosplit: true, side: 'R', sh: false, sway: 0, lift: 1300 - SPLIT - 40, dyn: tl => ({ sc: pop(tl, GROW + 1.85, .4), op: tl > GROW + 1.85 ? 1 : 0 }) }),
+    pc(210, 600, 260, 1300 - SPLIT, A.stalkPart(260, 1300, SPLIT, 1300, 8), stalkLow({ yaw: XYAW[1] })),
+    pc(210, 600, 260, SPLIT, A.stalkPart(260, 1300, 0, SPLIT, 8), stalkUp({ yaw: XYAW[1] })),
+    put('cloud.puff', 100, 590, { lift: 1150, art: { w: 340, h: 130, seed: 2 }, nosplit: true, dyn: tl => ({ sc: pop(tl, GROWN - .5), op: tl > GROWN - .5 ? 1 : 0, dx: 20 * sin(tl * .5) }) }),
+    put('cloud.puff', 350, 610, { lift: 1060, art: { w: 300, h: 120, seed: 5 }, nosplit: true, dyn: tl => ({ sc: pop(tl, GROWN - .2), op: tl > GROWN - .2 ? 1 : 0, dx: -20 * sin(tl * .5) }) }),
+    // 朝、外へ出てきて見上げるジャック
+    pc(-130, 700, 120, 226, A.jack({ armL: 150, armR: -150, mouth: 'o', look: 'up' }), { k: JK,
+      anim: many(aArm('.aR', tl => -150 + 10 * sin(tl * 6)), aArm('.aL', tl => 150 + 10 * sin(tl * 6 + 1), 40)),
+      dyn: tl => ({ sc: pop(tl, GROWN - 1.4), op: tl > GROWN - 1.4 ? 1 : 0, lift: 14 * abs(sin(tl * 4)) }) }),
+    // となりで おどろく お母さん
+    pc(-280, 690, 120, 226, A.mother({ armL: 150, armR: -150, mouth: 'o', look: 'up' }), { k: AD,
+      anim: many(aArm('.aR', tl => -150 + 9 * sin(tl * 5 + 2)), aArm('.aL', tl => 150 + 9 * sin(tl * 5), 40)),
+      dyn: tl => ({ sc: pop(tl, GROWN - 1.1), op: tl > GROWN - 1.1 ? 1 : 0, lift: 10 * abs(sin(tl * 3.4 + 1)) }) }),
+    put('bush.round', -560, 800, {}),
+    put('grass.short', 560, 830, {}),
+  ],
 };
 
-// ============ 4. 雲の上のお城 ============
-const J4 = tl => { const a = sm((tl - .2) / 2.2), b = sm((tl - 2.5) / .7), c = sm((tl - 3.3) / 3.6); return { lift: -200 + 330 * a - 130 * b + (c > 0 && c < 1 ? 14 * abs(sin(tl * 7)) : 0) + (a < 1 ? 5 * sin(tl * 12) : 0), dx: 110 * b + 230 * c, dy: 30 * b, rz: a < 1 ? 5 * sin(tl * 6) : 0 }; };
-SC[4] = {
-  ground: A.gSky(),
+// ===== 4. 雲の上へ =====
+const CLIMB = 2.6;                                 // 登りきる時刻
+const spread4 = {
+  hold: 7.5,
+  music: 'airy',
+  sfx: [[.4, 'wind', { len: 3 }], [CLIMB, 'pop'], [4.6, 'chime']],
+  ground: A.gSky() + A.hole(410, 650),
+  caption: ['ジャックは 豆の木を ぐんぐん のぼりました。', '雲の上には、大きな おしろが ありました。'],
+  cam: { start: { d: 420, cx: -120 }, end: { d: 330, cx: 60, cz: 190 } },
   pieces: [
-    pc(0, 100, 1420, 150, A.cloudBank(1420, 150, 2, '#eaf5fd', '#c4dcf2'), { sh: false, sway: 0 }),
-    pc(-470, 120, 200, 200, A.sun(200), { lift: 400, glow: 40, sh: false, anim: aSun(200), sway: 2 }),
-    pc(-130, 180, 260, 104, A.cloud(260, 104, 4), { lift: 300, sh: false, dyn: tl => ({ dx: 50 * sin(tl * .3) }) }),
-    pc(320, 345, 520, 560, A.castle(), { sway: .3, anim: aFlag }),
-    twinkle(140, 430, 520, 0, 14, '#fff3a0'), twinkle(520, 430, 600, 2, 12, '#fff3a0'), twinkle(300, 450, 700, 4, 16, '#fff3a0'),
-    pc(0, 480, 1420, 110, A.cloudBank(1420, 110, 6), { sh: false, sway: 0 }),
-    pc(620, 540, 240, 100, A.cloud(240, 100, 7), { lift: 420, sh: false, dyn: tl => ({ dx: -40 * sin(tl * .28) }) }),
-    pc(-420, 650, 260, 330, A.stalk(260, 330), { sway: 1.2, nosplit: true }),
-    pc(-420, 656, 120, 226, A.jack({ armL: 150, armR: -150 }), { k: .82, nosplit: true, sway: 0, dyn: J4, anim: many(aArm('.aR', tl => tl < 2.4 ? -150 + 30 * sin(tl * 6) : -20 + 30 * sin(tl * 7)), aArm('.aL', tl => tl < 2.4 ? 150 + 30 * sin(tl * 6) : 20 + 30 * sin(tl * 7), 40)) }),
-    pc(-400, 690, 420, 120, A.cloud(420, 120, 8), { sh: false, sway: .4 }),
-    pc(160, 720, 300, 100, A.cloud(300, 100, 11), { sh: false, nosplit: true, sway: .4, dyn: tl => ({ dx: 20 * sin(tl * .5) }) }),
-    pc(0, 860, 1420, 84, A.cloudBank(1420, 84, 12), { sh: false, sway: 0 }),
-    bird(-200, 400, 520, 46, 0, '#5a6a8a'), bird(-280, 440, 470, 40, 2, '#5a6a8a'), bird(100, 300, 620, -30, 4, '#5a6a8a'),
-  ]
+    pc(0, 110, 1420, 130, A.cloudBank(1420, 130, 3), { sh: false, sway: 0 }),
+    put('castle.west', 340, 400, { k: 1.0, sway: .2 }),
+    put('cloud.tower', -520, 330, { lift: 0, k: 1.1, sway: .4 }),
+    put('cloud.puff', 620, 470, { lift: 0, art: { w: 200, h: 90, seed: 6 } }),
+    put('cloud.puff', 110, 470, { lift: 0, art: { w: 190, h: 80, seed: 9 } }),
+    put('cloud.puff', -200, 180, { lift: 430, dyn: tl => ({ dx: 50 * sin(tl * .3) }) }),
+    put('cloud.haze', 380, 200, { lift: 520, art: { w: 420, h: 80 }, dyn: tl => ({ dx: -40 * sin(tl * .25) }) }),
+    // 雲の穴から出ている豆の木の先
+    pc(-310, 640, 260, 330, A.stalk(260, 330, 4), { sway: 1.0 }),
+    // ジャック: 穴から登ってきて、お城のほうへ歩く
+    pc(-310, 668, 120, 226, A.jack({ armL: 150, armR: -150, mouth: 'o', look: 'up' }), { k: JK, nosplit: true, side: 'L',
+      anim: many(aArm('.aR', tl => tl < CLIMB ? -150 + 24 * sin(tl * 7) : -60 + 10 * sin(tl * 3)), aArm('.aL', tl => tl < CLIMB ? 150 + 24 * sin(tl * 7 + PI) : 14, 40)),
+      dyn: tl => { const c = sm(tl / CLIMB), w = sm((tl - CLIMB - .4) / 3.2); return { lift: -250 * (1 - c) + (w > 0 && w < 1 ? 9 * abs(sin(tl * 5)) : 0), dx: 190 * w, dy: 20 * w }; } }),
+    put('cloud.puff', -330, 760, { lift: 0, art: { w: 380, h: 130, seed: 2 } }),
+    put('cloud.puff', 420, 800, { lift: 0, art: { w: 300, h: 110, seed: 5 } }),
+    twinkle(200, 420, 520, 0, 16), twinkle(480, 420, 600, 2, 13), twinkle(340, 420, 680, 4, 12),
+    bird(-640, 300, 330, 40, 0, '#fff'), bird(-700, 520, 260, 34, 2, '#f6efe0'),
+  ],
 };
 
-// ============ 5. 大男のお城 ============
-const pillar = `<rect x="14" y="40" width="82" height="560" fill="#a79cc4"/><rect x="30" y="40" width="16" height="560" fill="#bdb3d6"/><rect x="74" y="40" width="22" height="560" fill="#9186b0"/><rect x="0" y="0" width="110" height="46" rx="6" fill="#7f74a0"/><rect x="0" y="590" width="110" height="30" rx="6" fill="#7f74a0"/>`;
-const zz = (i) => pc(-150, 425, 60, 60, A.zzz(56), { sh: false, flt: true, nosplit: true, sway: 0, delay: .3, dyn: tl => { const u = (((tl * .4 + i / 3) % 1) + 1) % 1; return { lift: 520 + u * 230, dx: u * 120 + 16 * sin(u * 8), sc: .4 + u * 1.0, op: sin(u * PI) }; } });
-SC[5] = {
+// ===== 5. 大男の部屋 =====
+const EGG = 3.6;                                   // 金のたまごをうむ時刻
+const snoreU = tl => (((tl - .6) / 3.9 % 1) + 1) % 1;      // いびきの1回(0→1)
+const zz = i => pc(520 + i * 6, 474 - i * 2, 70, 70, A.zzz(), { sh: false, nosplit: true, sway: 0,
+  dyn: tl => { const u = (((tl * .34 + i / 3) % 1) + 1) % 1; return { lift: 560 + u * 240, dx: u * 130, sc: .45 + u * .9, op: sin(u * PI), rz: 12 * sin(u * 6) }; } });
+const spread5 = {
+  hold: 8.5,
+  music: 'creepy',
+  sfx: [[.6, 'snore', { n: 2, period: 3.9 }], [EGG, 'pop'], [EGG + .3, 'sparkle', { len: 1.4 }], [6.2, 'tick']],
   ground: A.gFloor(),
+  grade: () => ['#b79ac6', .3],
+  caption: ['おしろには、おそろしい 大男が すんでいました。', '大男は 金のたまごを うむ めんどりを もっていました。'],
+  cam: { start: { d: 560, tilt: 60, cx: 40, cz: 250 }, end: { d: 470, tilt: 60, cx: 130, cz: 270 } },
   pieces: [
-    pc(0, 130, 1380, 520, A.wall(), { sh: false, sway: 0, anim: (tl, el, q) => qa(el, q, '.flame').forEach((f, i) => { const k = 1 + .14 * sin(tl * 13 + i * 2); f.setAttribute('transform', `translate(0 ${(238 * (1 - k)).toFixed(2)}) scale(1 ${k.toFixed(3)})`); }) }),
-    pc(-320, 400, 560, 560, A.giantSleep(), { k: 1.04, sway: .3, anim: (tl, el, q) => { rot(qs(el, q, '.ghead'), 8 + 3.5 * sin(tl * 1.6), 280, 330); const m = qs(el, q, '.gm'); m.setAttribute('ry', (20 + 12 * sin(tl * 1.6)).toFixed(1)); } }),
+    put('wall.stone', 0, 120, { sway: 0 }),
+    put('room.fireplace', -440, 330, { k: 1.5 }),
+    put('room.clock', -130, 300, { k: 1.25 }),
+    // 大男(食卓のむこうで いねむり)
+    pc(370, 470, 320, 460, A.giant({ eyes: 'closed', mouth: 'closed', brow: false, armL: 20, armR: -20 }), { k: 1.38, sway: .3,
+      anim: aGiant(tl => { const u = snoreU(tl); return { hd: 7 + 5 * sin(u * 2 * PI), mouth: u < .5 ? 'open' : 'closed' }; }) }),
+    put('table.dining', 372, 560, { k: 1.2, sway: .2, art: { c: '#fbf6ea', c2: '#7a6cc0' } }),
+    // 食卓の上: めんどり、金のたまご、金貨
+    pc(230, 554, 170, 160, A.hen(), { k: .95, lift: 240, sh: false, nosplit: true,
+      anim: (tl, el, q) => { rot(qs(el, q, '.hd'), 6 * sin(tl * 3), 120, 80); rot(qs(el, q, '.wg'), tl > EGG - .5 && tl < EGG + .4 ? 18 * sin(tl * 30) : 0, 60, 90); },
+      dyn: tl => ({ lift: 240 + 34 * sin(cl((tl - EGG + .35) / .7) * PI) }) }),
+    pc(352, 556, 70, 84, A.egg(), { k: .9, lift: 240, sh: false, nosplit: true, glow: 16, glowC: '#ffe07a', dyn: tl => ({ sc: pop(tl, EGG), op: tl > EGG ? 1 : 0 }) }),
+    twinkle(352, 558, 350, 0, 15), twinkle(410, 558, 300, 2.5, 11),
+    put('item.coins', 560, 554, { lift: 240, sh: false, art: { w: 200, h: 110 } }),
     zz(0), zz(1), zz(2),
-    pc(-345, 480, 660, 200, A.table(660, 200) + `<rect x="80" y="-30" width="70" height="60" rx="8" fill="#c9b08a"/><ellipse cx="530" cy="16" rx="80" ry="14" fill="#f4efe2"/><circle cx="530" cy="-6" r="26" fill="#d98f4a"/>`, { sway: .2 }),
-    pc(440, 450, 320, 170, A.coins(320, 170), { sway: .3 }),
-    twinkle(360, 452, 150, 0, 14, '#fff3a0'), twinkle(470, 453, 190, 2, 12, '#fff3a0'), twinkle(540, 451, 120, 4, 10, '#fff3a0'),
-    pc(590, 640, 160, 240, A.harp(), { sway: 1.2, glow: 12 }),
-    note(560, 642, 0), note(600, 643, .33), note(630, 644, .66),
-    pc(300, 690, 150, 150, `<path d="M20 150L34 96H116L130 150Z" fill="#7f74a0"/><ellipse cx="75" cy="96" rx="50" ry="12" fill="#b8433a"/><g transform="translate(22 -30) scale(.95)">${A.hen()}</g>`, { sway: .6, dyn: tl => ({ rz: 3 * sin(tl * 4) }) }),
-    pc(410, 700, 44, 54, A.egg(), { glow: 22, sway: 0, dyn: tl => ({ sc: pop(tl, 2.2) * (1 + .06 * sin(tl * 6)), op: tl > 2.2 ? 1 : 0 }) }),
-    pc(-90, 800, 120, 226, A.jack({ armR: -80, armL: 40 }), { k: .72, nosplit: true, side: 'L', dyn: tl => { const u = sm((tl - .8) / 5.2); return { dx: 330 * u, lift: u > 0 && u < 1 ? 9 * abs(sin(tl * 5)) : 0, rz: u > 0 && u < 1 ? 4 * sin(tl * 5) : 0 }; }, anim: aArm('.aR', tl => -80 - 20 * sm((tl - 5) / 1) + 5 * sin(tl * 4)) }),
-    pc(-650, 600, 110, 620, pillar, { sway: 0 }), pc(650, 600, 110, 620, pillar, { sway: 0 }),
-  ]
+    // かくれて のぞくジャック
+    pc(-300, 700, 120, 226, A.jack({ mouth: 'o', armL: 30, armR: -30 }), { k: JK, sh: false, dyn: tl => ({ lift: 112 + 40 * sin(tl * 1.5 - 1.2) }) }),
+    put('tool.barrel', -300, 730, { k: 1.3 }),
+    put('item.chest', -560, 650, { k: 1.2, art: { c: '#7a5236' } }),
+    put('light.lamp', -90, 760, { k: .8 }),
+  ],
 };
 
-// ============ 6. 豆の木を切りたおす ============
-const CH = [1.2, 2.0, 2.8, 3.6], FALL = 4.05, fallU = tl => Math.pow(cl((tl - FALL) / 1.45), 2.3);
-const chopA = tl => { let a = -150; for (const c of CH) { const u = (tl - c + .22) / .22; if (u > 0 && u < 1) a = -150 + 105 * u * u; else if (u >= 1 && u < 2.6) a = -45 - 105 * sm((u - 1) / 1.6); } return tl > FALL + 1.6 ? -150 + 14 * sin(tl * 8) : a; };
-// 豆の木は2枚を X 字(yaw ±45)に組む。正面向きと真横向きの十字だと、真横の板が手前の大男を突き抜けて見えるため。
-// X 字のまま右へ倒すには、板ごとに「面内の回転 rz」と「根元まわりの倒れ lean」を組み合わせる(幹の向きが2枚で一致する)
-const stalkFall = yaw => tl => { const f = fallU(tl) * 88 * PI / 180, c = cos(yaw * PI / 180), sn = sin(yaw * PI / 180), D = 180 / PI; return { rz: shakeS(tl) + Math.asin(sin(f) * c) * D, lean: Math.atan2(sin(f) * sn, cos(f)) * D }; };
-const shakeS = tl => { let s = 0; for (const c of CH) if (tl > c) s += 3 * Math.exp(-7 * (tl - c)) * sin((tl - c) * 50); return s; };
-const leafFall = (i) => pc(40 + (i % 3) * 30, 560, 50, 30, `<path d="M0 16Q20 -14 50 8Q30 34 0 16Z" fill="${['#5db04b', '#74c259', '#8fd46e'][i % 3]}"/>`, { sh: false, nosplit: true, side: 'R', sway: 0, delay: .3, dyn: tl => { const u = cl((tl - FALL - .1 - i * .12) / 3.2); return { lift: 760 * (1 - u) - 100 * i * (1 - u) + 200, dx: (i - 3) * 90 * u + 50 * sin(u * 9 + i), rz: 300 * u + i * 40, op: u > 0 && u < 1 ? 1 : 0 }; } });
-SC[6] = {
-  ground: A.gMeadow({ seed: 9, pond: [1180, 230], path: 'M230 440C300 620 620 600 800 720S1100 880 1160 920L990 920C940 860 800 800 640 760S220 660 170 440Z' }),
+// ===== 6. にげるジャック =====
+const STEP = PI / 3.4;                             // 大男の足が着く間隔
+const runU = tl => sm((tl - .5) / 5.8);
+const spread6 = {
+  hold: 7.5,
+  music: 'chase',
+  sfx: [[.3, 'steps', { n: 7, gap: STEP }], [1.2, 'whoosh', { len: 1 }], [4.4, 'whoosh', { len: 1 }]],
+  ground: A.gSky() + A.hole(1230, 620),
+  shake: tl => { const k = ((tl % STEP) + STEP) % STEP; return tl > 0 ? [0, 6 * Math.exp(-9 * k) * sin(k * 50)] : [0, 0]; },
+  caption: ['ジャックは めんどりを かかえて にげだしました。', [2.2, '「まてえ!」大男が おいかけてきます。']],
+  cam: { start: { d: 520, tilt: 58, cx: -160, cz: 230 }, end: { d: 460, tilt: 58, cx: 120, cz: 230 } },
   pieces: [
-    pc(0, 100, 1400, 250, A.hills(1400, 250, '#a5d3e2', '#8cc6cf', 4, 1.1, hillTrees(9, 6, 50, true)), { sh: false, sway: 0 }),
-    pc(0, 230, 1420, 210, A.hills(1420, 210, '#7cbf66', '#94d078', 15, 1.2, hillTrees(8, 2, 70)), { sh: false, sway: 0 }),
-    pc(-450, 440, 420, 380, A.cottage(), { k: 1.1, anim: aSmoke, sway: .3 }),
-    pc(540, 420, 290, 410, A.tree(290, 410), { sway: 1.4 }),
-    pc(30, 548, 160, 110, A.stump(), { nosplit: true, side: 'R', dyn: tl => ({ op: tl > FALL ? 1 : 0 }) }),
-    pc(30, 550, 260, 1300, A.stalk(260, 1300, false), { nosplit: true, side: 'R', delay: 0, sway: .5, yaw: 45, dyn: tl => Object.assign(stalkFall(45)(tl), { op: 1 - sm((tl - FALL - 2.0) / .8) }) }),
-    pc(30, 550, 260, 1300, A.stalk(260, 1300, false), { nosplit: true, side: 'R', delay: 0, sway: .5, yaw: -45, shOp: .5, dyn: tl => Object.assign(stalkFall(-45)(tl), { op: tl > FALL + .1 ? 0 : 1 }) }),
-    pc(30, 676, 460, 560, A.giantClimb(), { k: .9, nosplit: true, side: 'R', delay: 0, sway: 0, dyn: tl => { const f = fallU(tl), u = sm(tl / FALL); return { lift: 1000 - 300 * u + 8 * sin(tl * 9), rz: 4 * sin(tl * 4.5) + f * 120, rzBase: shakeS(tl) + 88 * f, op: 1 - sm((tl - FALL - 1.2) / .5) }; } }),
-    pc(190, 660, 120, 226, A.jack({ armR: -150, armL: 30, flip: true, mouth: 'big', holdR: `<path d="M80 146V236" stroke="#8a5a2b" stroke-width="7" stroke-linecap="round"/><path d="M84 200Q114 192 118 216Q112 240 84 232Z" fill="#c3cbd4"/>` }), { k: .86, nosplit: true, anim: aArm('.aR', chopA), dyn: tl => ({ lift: tl > FALL + 1.6 ? 34 * abs(sin((tl - FALL - 1.6) * 5)) : 0 }) }),
-    ...CH.map((c, i) => pc(110, 566, 60, 60, A.star(30, 30, 29, '#fff3a0'), { sh: false, flt: false, nosplit: true, side: 'R', sway: 0, delay: .3, glow: 14, dyn: tl => { const u = (tl - c) / .3; return { lift: 50, sc: u > 0 && u < 1 ? sin(u * PI) * 1.3 : 0, op: u > 0 && u < 1 ? 1 : 0, rz: i * 30 }; } })),
-    pc(-190, 670, 120, 226, A.mother({ armL: 140, armR: -140, mouth: 'o', look: 'up' }), { k: .9, dyn: tl => ({ lift: tl > FALL + 1.8 ? 22 * abs(sin((tl - FALL - 1.8) * 5 + 1)) : 0, rz: tl < FALL ? 3 * sin(tl * 9) : 0 }) }),
-    pc(380, 740, 120, 130, A.hen(), { k: .8, dyn: tl => ({ rz: 3 * sin(tl * 5) }) }),
-    pc(500, 730, 160, 240, A.harp(), { k: .6, glow: 10 }),
-    ...[0, 1, 2, 3, 4, 5, 6].map(leafFall),
-    pc(560, 600, 300, 150, A.puff(300, 150, 3), { sh: false, nosplit: true, sway: 0, delay: .3, dyn: tl => { const u = cl((tl - FALL - 1.35) / 1.8); return { sc: u > 0 ? .3 + 1.5 * Math.sqrt(u) : 0, op: u > 0 ? 1 - u * u : 0, lift: 60 * u }; } }),
-    pc(380, 620, 260, 130, A.puff(260, 130, 5), { sh: false, nosplit: true, sway: 0, delay: .3, dyn: tl => { const u = cl((tl - FALL - 1.3) / 1.6); return { sc: u > 0 ? .3 + 1.3 * Math.sqrt(u) : 0, op: u > 0 ? 1 - u * u : 0, lift: 50 * u }; } }),
-    pc(-560, 800, 280, 110, A.bush(280, 110)),
-    pc(580, 850, 260, 90, A.grass(260, 90, undefined, undefined, GR)),
-    pc(-240, 850, 220, 70, A.grass(220, 70, undefined, undefined, GR)),
-  ]
+    pc(0, 110, 1420, 130, A.cloudBank(1420, 130, 8), { sh: false, sway: 0 }),
+    put('castle.west', -440, 330, { k: .72, sway: .2 }),
+    put('cloud.tower', 620, 360, { lift: 0, k: .9, sway: .4 }),
+    put('cloud.puff', 200, 200, { lift: 460, dyn: tl => ({ dx: 50 * sin(tl * .3) }) }),
+    put('cloud.puff', 180, 420, { lift: 0, art: { w: 220, h: 90, seed: 4 } }),
+    pc(510, 610, 260, 330, A.stalk(260, 330, 4), { sway: 1.0 }),
+    // 大男: 腕を振り上げて追いかける
+    pc(-520, 630, 320, 460, A.giant({ mouth: 'open', armL: 150, armR: -150 }), { k: 1.3, nosplit: true, side: 'L',
+      anim: aGiant(tl => ({ aL: 140 + 22 * sin(tl * 6.8), aR: -140 + 22 * sin(tl * 6.8), lL: 16 * sin(tl * 3.4), lR: -16 * sin(tl * 3.4), hd: 4 * sin(tl * 3.4) })),
+      dyn: tl => ({ dx: 300 * runU(tl), lift: 20 * abs(sin(tl * 3.4)) }) }),
+    // ジャック: めんどりを抱えて、背をこえて豆の木へ走る
+    pc(-70, 705, 120, 226, A.jackHen(), { k: JK, nosplit: true, side: 'L',
+      anim: aArm('.aR', tl => -60 + 40 * sin(tl * 10)),
+      dyn: tl => { const u = runU(tl); return { dx: 420 * u, lift: u < 1 ? 16 * abs(sin(tl * 7)) : 0 }; } }),
+    put('cloud.puff', -420, 790, { lift: 0, art: { w: 360, h: 120, seed: 2 } }),
+    put('cloud.puff', 500, 740, { lift: 0, art: { w: 340, h: 120, seed: 7 } }),
+    put('fx.surprise', -70, 700, { lift: 250, nosplit: true, k: .7, dyn: tl => ({ dx: 420 * runU(tl), sc: pop(tl, .3), op: tl > .3 && tl < 2.2 ? 1 : 0 }) }),
+    bird(-700, 240, 420, 60, 1, '#fff'),
+  ],
 };
 
-// ============ 7. しあわせに ============
-const bunting = (w, h) => { let s = `<path d="M0 10Q${w / 2} ${h * 1.1} ${w} 10" stroke="#8a5a33" stroke-width="4" fill="none"/>`; for (let i = 1; i < 14; i++) { const u = i / 14, x = w * u, y = 10 + (h * 1.1 - 10) * 2 * u * (1 - u) * 1.0; s += `<path d="M${F(x - 18)} ${F(y)}L${F(x + 18)} ${F(y)}L${F(x)} ${F(y + 44)}Z" fill="${['#e2574c', '#f3c64f', '#58a6d6', '#6cc26a', '#ff9ecb'][i % 5]}"/>`; } return s; };
-const confetti = i => pc(-600 + i * 86 + (i % 3) * 20, 300 + (i * 97) % 500, 22, 14, `<rect width="22" height="14" rx="3" fill="${['#e2574c', '#f3c64f', '#58a6d6', '#6cc26a', '#ff9ecb', '#fff'][i % 6]}"/>`, { sh: false, flt: false, nosplit: true, sway: 0, delay: .3, dyn: tl => { const u = (((tl * .16 + i * .137) % 1) + 1) % 1; return { lift: 760 * (1 - u), dx: 40 * sin(u * 8 + i), rz: tl * 200 + i * 50, sc: .6 + .4 * abs(sin(tl * 4 + i)), op: cl(u * 8) * cl((1 - u) * 5) }; } });
-const eggPop = (X, t0) => pc(X, 762, 44, 54, A.egg(), { k: .8, glow: 18, sway: 0, dyn: tl => ({ sc: pop(tl, t0) * (1 + .05 * sin(tl * 6 + X)), op: tl > t0 ? 1 : 0 }) });
-SC[7] = {
-  ground: A.gMeadow({ seed: 14, pond: [1190, 260] }),
+// ===== 7. 見せ場: 豆の木を切りたおす =====
+const HIT = [1.2, 2.0, 2.8], FALL = 4.3, IMPACT = FALL + 1.45, CHEER = IMPACT + 1.0;
+// ヒュー(落ちてくる音)。曲集の音色(オルゴール)を使わず、1本の澄んだ音の高さを、上から下へなめらかにすべらせる
+// (S.tone のビブラートを、長さの4倍より少し長い周期・負の深さにすると、鳴っているあいだ音程が下がり続ける)
+const hyuu = len => (S, t) => {
+  S.tone(t, 100, .075, len - .08, -.25, { harm: [1, .1, .03], vib: -.8, vr: 1 / (4.2 * len), vd: 0, att: .07, rel: .1, rev: .45 });
+  S.noise(t, len, u => 5200 - 3800 * u, u => Math.min(1, u * 10) * (1 - u) * .012, 2, -.25, .3);   // 風を切る息の音をごく弱く
+};
+// ドシーン!(大男と木が地面に落ちる)。低い打撃に、枝が折れる雑音・地ひびき・はね返りを重ねる
+const dossin = (S, t) => {
+  const v = .75;   // 全体の音量(作品でいちばん大きい音になる。上げすぎると、ほかの音と BGM が相対的に小さくなる)
+  S.thud(t, .8 * v, 115, .45); S.thud(t + .03, .5 * v, 62, .9); S.thud(t + .1, .28 * v, 42, 1.2);                   // 本体(高めの芯+低い胴)
+  S.noise(t, .55, u => 2600 - 2000 * u, u => (1 - u) ** 2 * .6 * v, .8, 0, .5);                            // ばきばき(枝と葉)
+  S.noise(t, .12, () => 5200, u => (1 - u) ** 3 * .4 * v, .7, 0, .4, 'hp');                                // 当たった瞬間の鋭い音
+  S.noise(t, 2.2, u => 700 - 520 * u, u => (1 - u) ** 2 * .4 * v, .7, 0, .7, 'lp');                        // 地ひびき
+  S.thud(t + .42, .42 * v, 90, .3); S.thud(t + .7, .26 * v, 80, .25); S.thud(t + .92, .15 * v, 75, .2);              // はね返り(どん、どん…)
+  [.2, .34, .5, .63, .85].forEach((d, k) => S.noise(t + d, .08, () => 1500 + 700 * k, u => (1 - u) ** 2 * .22 * v, 1.5, k % 2 ? .5 : -.5, .4));   // ぱらぱら(落ちてくるかけら)
+};
+const fallU = tl => Math.pow(cl((tl - FALL) / 1.45), 2.3);
+const swing = tl => { let a = -150; for (const c of HIT) { const u = (tl - c + .22) / .22; if (u > 0 && u < 1) a = -150 + 105 * u * u; else if (u >= 1 && u < 2.6) a = -45 - 105 * sm((u - 1) / 1.6); } return a; };
+const hitShake = tl => { let a = 0; for (const c of HIT) if (tl > c) a += 3.2 * Math.exp(-5 * (tl - c)) * sin((tl - c) * 30); return a; };
+const fallDeg = tl => 88 * fallU(tl) + hitShake(tl);       // 豆の木の傾き(度)
+const goneOp = tl => 1 - sm((tl - IMPACT - .9) / .8);
+const dust = (X, Y, seed, t0) => put('fx.smoke', X, Y, { art: { w: 300, h: 130, seed }, sh: false, nosplit: true,
+  dyn: tl => { const u = cl((tl - t0) / 2.2); return { sc: .3 + 1.5 * sm(u * 1.6), lift: 50 * u, op: u > 0 ? 1 - sm((u - .35) / .65) : 0 }; } });
+const spread7 = {
+  hold: 10.5,
+  music: [[0, 'chase'], [HIT[0] - .4, 'none'], [CHEER, 'triumph']],
+  sfx: [[HIT[0], 'chop'], [HIT[1], 'chop'], [HIT[2], 'chop'], [FALL - .5, 'creak', { len: .7 }],
+    [FALL, hyuu(IMPACT - FALL)], [FALL + .15, 'whoosh', { len: 1.3 }],          // ヒュー(大男が木ごと落ちてくる)
+    [IMPACT, dossin],    // ドシーン!
+    [CHEER, 'fanfare']],
+  ground: A.gMeadow({ seed: 3, pond: null, path: 'M250 470C290 600 420 700 560 760S640 880 620 920L470 920C480 860 380 800 300 720S190 600 180 470Z' }) + A.dirt(570, 608, 100, 38),
+  shake: tl => { const k = tl - IMPACT; return k > 0 && k < 1.6 ? [26 * Math.exp(-3.4 * k) * sin(k * 47), 18 * Math.exp(-3.4 * k) * sin(k * 39)] : [0, 0]; },
+  caption: ['ジャックは おので 豆の木を 切りました。', [IMPACT - .3, 'どしーん! 大男は 木といっしょに おちて いきました。']],
+  cam: { start: { d: 330, cx: -230, cz: 170 }, keys: [[2.5, { d: 380, cx: -230, cz: 190 }], [FALL - .3, { d: 1320, tilt: 72, cy: 60, cx: -60, cz: 600 }], [IMPACT + .2, { d: 1050, tilt: 62, cx: 280, cz: 200 }], [CHEER + 1.6, { d: 330, cx: -220, cz: 160 }]], end: { d: 270, cx: -220, cz: 160 } },
   pieces: [
-    pc(0, 100, 1400, 250, A.hills(1400, 250, '#a5d3e2', '#8cc6cf', 6, 1.2, hillTrees(9, 8, 50, true)), { sh: false, sway: 0 }),
-    pc(0, 170, 1060, 500, A.rainbow(1060, 500), { sh: false, sway: 0, delay: .1 }),
-    pc(500, 130, 200, 200, A.sun(200), { lift: 430, glow: 40, sh: false, anim: aSun(200), sway: 2 }),
-    pc(-470, 150, 250, 104, A.cloud(250, 104, 3), { lift: 420, sh: false, dyn: tl => ({ dx: 30 * sin(tl * .3) }) }),
-    pc(0, 240, 1420, 210, A.hills(1420, 210, '#7cbf66', '#94d078', 17, 1.0, hillTrees(8, 4, 70)), { sh: false, sway: 0 }),
-    pc(-350, 440, 420, 380, A.cottage({ fancy: true }), { k: 1.25, anim: aSmoke, sway: .3 }),
-    pc(420, 420, 300, 430, A.tree(300, 430, { fruit: '#f6c843' }), { sway: 1.4 }),
-    pc(60, 450, 620, 110, bunting(620, 110), { lift: 300, sh: false, sway: 1.5, nosplit: true, side: 'R' }),
-    pc(40, 580, 160, 110, A.stump(), { nosplit: true, side: 'R' }),
-    pc(-500, 740, 300, 210, A.cow(), { k: .8, anim: aCow }),
-    pc(-190, 690, 120, 226, A.mother({ armL: 140, armR: -140, mouth: 'big' }), { k: .9, dyn: tl => ({ lift: 26 * abs(sin(tl * 4 + 1)) }) }),
-    pc(-70, 710, 120, 226, A.jack({ armL: 150, armR: -150, mouth: 'big' }), { k: .82, nosplit: true, dyn: tl => ({ lift: 40 * abs(sin(tl * 4)) }), anim: many(aArm('.aR', tl => -150 + 20 * sin(tl * 8)), aArm('.aL', tl => 150 - 20 * sin(tl * 8), 40)) }),
-    pc(200, 770, 120, 130, A.hen(), { k: .9, dyn: tl => ({ rz: 4 * sin(tl * 5), lift: 6 * abs(sin(tl * 5)) }) }),
-    eggPop(280, 1.2), eggPop(322, 2.6), eggPop(364, 4.0),
-    pc(520, 690, 160, 240, A.harp(), { k: .85, glow: 12, sway: 1.5 }),
-    note(500, 692, 0), note(530, 693, .33), note(560, 694, .66),
-    pc(600, 800, 220, 110, A.coins(220, 110), { sway: .3 }),
-    ...Array.from({ length: 15 }, (_, i) => confetti(i)),
-    pc(-580, 840, 260, 100, A.bush(260, 100)),
-    pc(350, 870, 300, 80, A.grass(300, 80, undefined, undefined, GR)),
-    pc(-260, 870, 220, 70, A.grass(220, 70, undefined, undefined, GR)),
-    fly(120, 840, '#ff9ecb', 0), fly(-380, 820, '#9ed0ff', 2), bird(-400, 300, 520, 40, 0), bird(-470, 340, 560, 36, 2),
-  ]
+    farHills(6), nearHills(13),
+    put('cloud.puff', 420, 130, { art: { seed: 3 }, dyn: tl => ({ dx: 40 * sin(tl * .3) }) }),
+    pc(-500, 410, 420, 380, A.poorHouse(), { k: 1.0, anim: aSmoke, sway: .3 }),
+    put('tree.fruit', 560, 380, { sway: 1.4, art: { fruit: '#f6c843' } }),
+    put('fence.wood', 420, 470, { art: { w: 400 } }),
+    put('out.well', 250, 430, { k: .9, art: { c: '#b8554a' } }),
+    // 切り株(倒れはじめてから見える)
+    pc(-150, 597, 200, 110, A.stump(), { dyn: tl => ({ op: tl > FALL + .25 ? 1 : 0 }) }),
+    // 豆の木: 見開き3と同じ X 字の2枚組(それぞれ上下に分けてある)。おのが当たるたびにゆれ、右へ倒れて消える
+    ...XYAW.flatMap((yw, i) => [
+      pc(-150, 600, 260, 1300 - SPLIT, A.stalkPart(260, 1300, SPLIT, 1300, i ? 8 : 3), { yaw: yw, nosplit: true, side: 'L', sway: 0, sh: i === 0, dyn: tl => Object.assign(fallX(yw, fallDeg(tl)), { op: goneOp(tl) }) }),
+      pc(-150, 600, 260, SPLIT, A.stalkPart(260, 1300, 0, SPLIT, i ? 8 : 3), { yaw: yw, nosplit: true, side: 'L', sway: 0, sh: false, lift: 1300 - SPLIT, dyn: tl => Object.assign(fallX(yw, fallDeg(tl)), { op: goneOp(tl) }) }),
+    ]),
+    pc(-150, 634, 260, 70, A.stalkKnot(), { nosplit: true, side: 'L', sh: false, sway: 0, lift: 400, dyn: tl => ({ rzBase: fallDeg(tl), op: goneOp(tl) }) }),
+    // 大男: 豆の木につかまって下りてくる → 木ごと振り回されて落ちる
+    pc(-150, 706, 320, 460, A.giant({ eyes: 'wide', mouth: 'open', armL: 150, armR: -150, brow: false }), { k: .9, nosplit: true, side: 'L', sh: false,
+      anim: aGiant(tl => { const f = tl > FALL ? 26 : 9, w = tl > FALL ? 22 : 7; return { aL: 150 + w * sin(tl * f), aR: -150 + w * sin(tl * f + 1), lL: 26 * sin(tl * f * .7), lR: -26 * sin(tl * f * .7 + .6), eyes: tl > HIT[0] ? 'wide' : 'open', mouth: tl > HIT[0] ? 'open' : 'closed' }; }),
+      dyn: tl => ({ lift: 880 - 300 * sm(tl / (FALL - .3)), rzBase: fallDeg(tl), op: goneOp(tl) }) }),
+    // おのの火花
+    pc(-232, 702, 90, 90, A.spark(), { lift: 70, sh: false, flt: false, nosplit: true, glow: 10, glowC: '#fff3a0',
+      dyn: tl => { let s = 0; for (const c of HIT) { const u = (tl - c) / .28; if (u > 0 && u < 1) s = sin(u * PI); } return { sc: .3 + s, op: s > 0 ? 1 : 0 }; } }),
+    // ジャック: おのを3回ふる → ばんざい。BGM が変わる CHEER で笑顔になる
+    ...swapFace(CHEER, -335, 700, A.jack({ armR: -150, holdR: A.axeHold, mouth: 'flat' }), A.jack({ armR: -150, holdR: A.axeHold, mouth: 'big' }), { k: JK,
+      anim: many(aArm('.aR', tl => tl < FALL ? swing(tl) : -150 + 12 * sin(tl * 7)), aArm('.aL', tl => tl > CHEER ? 150 + 12 * sin(tl * 7 + 1) : 20, 40)),
+      dyn: tl => ({ lift: tl > CHEER ? 34 * abs(sin((tl - CHEER) * 4)) : 0 }) }),
+    ...swapFace(CHEER, -560, 720, A.mother({ armL: 150, armR: -150, mouth: 'o' }), A.mother({ armL: 150, armR: -150, mouth: 'big' }), { k: AD,
+      anim: many(aArm('.aR', tl => -150 + 10 * sin(tl * 6)), aArm('.aL', tl => 150 + 10 * sin(tl * 6 + 1), 40)),
+      dyn: tl => ({ lift: tl > CHEER ? 24 * abs(sin((tl - CHEER) * 4 + 1)) : 0 }) }),
+    pc(-380, 820, 170, 160, A.hen(), { k: .9, anim: (tl, el, q) => rot(qs(el, q, '.hd'), 6 * sin(tl * 3), 120, 80) }),
+    dust(260, 612, 2, IMPACT - .1), dust(450, 620, 5, IMPACT), dust(620, 608, 8, IMPACT + .1),
+    put('bush.flower', 130, 800, { art: { w: 240 } }),
+    put('flower.wild', 520, 830, {}),
+  ],
 };
 
-// ---- 見開きごとの秒数・字幕・カメラ・色調・ゆれ ----
-const P = Tobidas.pose;
-// 音: music = BGMの気分(同じ気分が続く見開きはつながる)、sfx = [tl, 効果音, 設定]。書き方は references/sound.md
-Object.assign(SC[1], { hold: 7.2, music: 'bright', caption: ['むかし むかし、ジャックという 男の子が、', 'お母さんと 一頭の牛と くらしていました。'] });
-Object.assign(SC[2], { hold: 7.4, music: 'bright', sfx: [[3.4, 'sparkle', { len: 1.6, n: 14, vol: .5 }]],   // まほうの豆
-  caption: ['市場へ 牛を売りにいく とちゅう、ふしぎな おじいさんに出会い、', 'ジャックは 牛を 「まほうの豆」と とりかえました。'],
-  cam: { start: { d: 400, yaw: 3, cx: 60 }, end: { d: 200, yaw: -1, cx: 20, cz: 165 } } });
-Object.assign(SC[3], { hold: 10.0,
-  // 夜の曲 → 豆の木がのびるあいだは曲を止めて上昇音階 → 夜明けの曲
-  music: [[0, 'night'], [2.4, 'none'], [8.1, { tune: 'main', beat: .6, vol: .7, startBar: 4 }]], sfx: [[1.7, 'drop'], [2.7, 'rise', { len: 4.5 }]],
-  caption: ['おこった お母さんが、豆を まどから なげすてると……', '一晩で、雲まで とどく 豆の木が のびたのです!'],
-  // 豆が落ちる所に寄り、のびる豆の木に合わせて大きく引く
-  cam: { start: { d: 320, yaw: 2, cx: -120, cz: 170 }, keys: [[2.5, { d: 130, cx: -30, cz: 120, tilt: 50 }], [7.3, { d: 1150, tilt: 72, yaw: -4, cx: 0, cy: 60, cz: 560 }]], end: { d: 1250, tilt: 74, yaw: 4, cx: 0, cy: 60, cz: 600 } },
-  grade: tl => ['#3d52a8', .56 * (1 - sm((tl - 5.0) / 3.2))] });   // 夜 → 夜明け
-Object.assign(SC[4], { hold: 7.8, music: 'airy', caption: ['ジャックが 豆の木を ぐんぐん のぼっていくと、', '雲の上には 大きな お城が ありました。'],
-  cam: { start: { d: 320, yaw: -3, cx: -200, cz: 170 }, end: { d: 280, yaw: 3, cx: 160, cz: 230, tilt: 56 } } });
-Object.assign(SC[5], { hold: 8.0, music: 'creepy', sfx: [[.35, 'snore', { n: 2, pan: -.4 }], [2.2, 'sparkle', { len: 1, n: 6 }]],
-  caption: ['お城では おそろしい 大男が ぐうぐう おひるね。', '金のたまごを うむ にわとりと、歌うハープを 見つけます。'],
-  cam: { start: { d: 400, yaw: -2, cx: -120, cz: 230, tilt: 56 }, end: { d: 240, yaw: 3, cx: 130, cz: 170 } },
-  grade: () => ['#b79ac6', .36] });                                 // うす暗い城の中
-const IMPACT = FALL + 1.4;
-Object.assign(SC[6], { hold: 9.2,
-  music: [[0, 'chase'], [FALL, 'none'], [IMPACT + 1.6, 'triumph']],
-  sfx: [[.2, 'steps', { n: 9 }], ...CH.map(c => [c, 'chop']), [FALL, 'creak'], [FALL + .2, 'whoosh'], [FALL + .25, 'fall'], [IMPACT, 'crash'], [IMPACT + 1, 'fanfare']],
-  caption: ['「まてえ!」 目をさました 大男が 追いかけてきます。', 'ジャックは おので 豆の木を 切りたおしました!'],
-  cam: { start: { d: 1300, tilt: 73, yaw: 3, cx: 0, cy: 60, cz: 640 }, keys: [[FALL, { d: 1150, tilt: 71, yaw: -3, cx: 60, cy: 60, cz: 540 }], [FALL + 2.3, { d: 560, cx: 130, cz: 200, tilt: 56 }]], end: { d: 320, cx: 40 } },
-  shake: tl => { let x = 0, y = 0; const k = tl - IMPACT; if (k > 0 && k < 1.6) { const a = 26 * Math.exp(-3.4 * k); x += a * sin(k * 47); y += a * sin(k * 61 + 1); } for (const c of CH) { const u = tl - c; if (u > 0 && u < .4) y += 5 * Math.exp(-9 * u) * sin(u * 70); } return [x, y]; } });
-Object.assign(SC[7], { hold: 8.6, music: 'happy', sfx: [[.5, 'sparkle', { len: 7.4, n: 26, vol: .25, base: 91 }], [1.2, 'bell'], [2.6, 'bell'], [4.0, 'bell']],
-  caption: ['こうして ジャックと お母さんは、', 'いつまでも しあわせに くらしました。'],
-  cam: { start: { d: 460, yaw: -3, cz: 200 }, end: { d: 280, yaw: 2, cz: 190 } } });
+// ===== 8. めでたし =====
+const BOW = 1.6;                                   // 虹が出る時刻
+const spread8 = {
+  hold: 8,
+  music: 'happy',
+  sfx: [[BOW, 'magic'], [3.6, 'bell'], [5.2, 'sparkle', { len: 1.6 }]],
+  ground: A.gMeadow({ seed: 12 }),
+  caption: ['ジャックと おかあさんは、金のたまごの おかげで', 'いつまでも しあわせに くらしました。'],
+  cam: { start: { d: 440 }, end: { d: 300, cx: -40, cz: 170 } },
+  pieces: [
+    farHills(2), 
+    put('sky.rainbow', 0, 170, { art: { w: 1060, h: 500 }, dyn: tl => ({ sc: pop(tl, BOW, .9), op: tl > BOW ? 1 : 0 }) }),
+    put('sky.sun', -520, 300, { lift: 380, glow: 30 }),
+    put('cloud.puff', 480, 300, { lift: 420, dyn: tl => ({ dx: 40 * sin(tl * .3) }) }),
+    pc(-380, 450, 420, 380, A.poorHouse({ fancy: true }), { k: 1.15, anim: aSmoke, sway: .3 }),
+    put('tree.fruit', 560, 430, { sway: 1.4, art: { fruit: '#f6c843' } }),
+    put('flower.sunflower', -640, 560, { k: .8 }),
+    put('farm.cow', 420, 620, { k: 1.15, flip: true }),
+    pc(-240, 690, 120, 226, A.mother({ armL: 150, armR: -150, mouth: 'big' }), { k: AD,
+      anim: many(aArm('.aR', tl => -150 + 16 * sin(tl * 6)), aArm('.aL', tl => 150 + 16 * sin(tl * 6 + 1), 40)), dyn: jump(30, 3.6, 1) }),
+    pc(-90, 710, 120, 226, A.jack({ armL: 150, armR: -150, mouth: 'big' }), { k: JK,
+      anim: many(aArm('.aR', tl => -150 + 18 * sin(tl * 7)), aArm('.aL', tl => 150 + 18 * sin(tl * 7 + 1), 40)), dyn: jump(44, 4) }),
+    pc(130, 730, 170, 160, A.hen(), { k: .95, anim: (tl, el, q) => { rot(qs(el, q, '.hd'), 7 * sin(tl * 3), 120, 80); rot(qs(el, q, '.wg'), 10 * sin(tl * 9), 60, 90); }, dyn: jump(12, 5, 2) }),
+    put('tool.basket', 300, 770, { k: .85, art: { c: '#c9a35a' } }),
+    pc(272, 768, 70, 84, A.egg(), { k: .7, lift: 104, sh: false, glow: 14, glowC: '#ffe07a' }),
+    pc(326, 768, 70, 84, A.egg(), { k: .7, lift: 104, sh: false, glow: 14, glowC: '#ffe07a' }),
+    pc(299, 766, 70, 84, A.egg(), { k: .7, lift: 128, sh: false, glow: 14, glowC: '#ffe07a' }),
+    twinkle(300, 772, 250, 0, 16), twinkle(360, 772, 190, 2, 12), twinkle(240, 772, 200, 4, 12),
+    put('flower.tulip', -580, 800, { k: .7 }),
+    put('grass.flowers', 560, 830, {}),
+    put('bush.flower', -330, 840, { art: { w: 240, h: 100 } }),
+    fly(80, 840, '#ff9ecb', 0), fly(520, 760, '#ffd24d', 2), bird(-300, 300, 470, 34, 0),
+  ],
+};
 
 Tobidas.book({
   title: 'ジャックと豆の木 とびだすえほん',
   lang: 'ja',
-  theme: { board: '#174536', spine: '#123a2d' },
+  theme: { board: '#1f5a3e', spine: '#12392a', style: 'kirigami', desk: 'wood' },
+  sound: { set: 'musicbox' },
   cover: A.cover(),
   end: { title: 'おしまい', sub: 'ジャックと豆の木' },
-  tableDeco: i => i % 4 == 0 ? `<path d="M0 0Q20 -30 50 -8Q30 20 0 0Z" fill="#6aa84f"/><path d="M0 0Q26 -6 50 -8" stroke="#3f7a35" stroke-width="2" fill="none"/>` : A.bean(i % 3 ? '#d9c08a' : '#c9e08a'),
-  spreads: SC.slice(1),
+  spreads: [spread1, spread2, spread3, spread4, spread5, spread6, spread7, spread8],
 });

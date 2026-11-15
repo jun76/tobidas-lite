@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 作品の静止画チェック。代表的な時刻のフレームを撮り、一覧画像(sheet.jpg)にまとめ、エラーと警告を報告する。
-// 警告には、エンジンが出すもののほか、音の名前の間違いと、切り分けられる板で絵が箱の上へはみ出して切れる箇所を含む。
+// 警告には、エンジンが出すもののほか、音の名前の間違いと、切り分けられる板で絵が箱の上へはみ出して切れる箇所と、動き(anim)で動かす部分の名前が絵の中で重なっている箇所を含む。
 //   node check.mjs <作品フォルダ>                 全体(表紙・各見開きのめくり途中/開いた直後/中盤/終盤・とじる・おしまい)
 //   node check.mjs <作品フォルダ> --spread 3      見開き3だけを細かく(仕掛けの確認用。--n 12 で枚数)
 //   node check.mjs <作品フォルダ> --times 31.5,36 指定した時刻だけ
@@ -66,6 +66,8 @@ for (const t of times) {
   await page.screenshot({ path: path.join(out, name), type: 'jpeg', quality: 82 });
   shots.push({ name, label: `t=${t.toFixed(1)}  見開き${w.spread}  tl=${w.tl.toFixed(1)}` });
 }
+// 動きの中で出る警告(動かす部分の名前の重なりなど)は、フレームを撮ったあとに読み直す
+for (const w of await page.evaluate(() => Tobidas.warnings)) if (!info.warnings.includes(w)) info.warnings.push(w);
 // 一覧画像
 const sheet = await browser.newPage({ viewport: { width: 1940, height: 800 } });
 const sheetHtml = path.join(out, 'sheet.html');   // file:// の画像を読むため、いったんHTMLとして保存して開く

@@ -70,7 +70,7 @@
     const noise = (t, len, fc, amp, q = 1.2, pan = 0, rev = .3, mode = 'bp') => jobs.push(() => {
       const i0 = Math.round(t * SR), n = Math.round(len * SR); let lo = 0, bd = 0, xh = 0;
       for (let i = 0; i < n; i++) {
-        const u = i / n, f = 2 * Math.sin(PI * Math.min(fc(u), 9000) / SR), x = coarse && i % 6 ? xh : (xh = rand() * 2 - 1), hi = x - lo - bd / q;   // coarse = 粗い雑音(同じ値を数サンプル持つ。昔のゲーム機ふう) bd += f * hi; lo += f * bd;
+        const u = i / n, f = 2 * Math.sin(PI * Math.min(fc(u), 9000) / SR), x = coarse && i % 6 ? xh : (xh = rand() * 2 - 1), hi = x - lo - bd / q; bd += f * hi; lo += f * bd;   // coarse = 粗い雑音(同じ値を数サンプル持つ。昔のゲーム機ふう)
         put(i0 + i, (mode === 'lp' ? lo : mode === 'hp' ? hi : bd) * amp(u), typeof pan === 'function' ? pan(u) : pan, rev);
       }
     });

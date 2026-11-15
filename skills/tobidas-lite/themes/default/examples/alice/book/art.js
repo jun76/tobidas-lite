@@ -1,140 +1,35 @@
-// 『不思議な国のアリス』の切り紙。座標は各パーツの左上を原点とする。
-const ink = '#263044';
-const gold = '#e8bd70';
-const cream = '#fff0cf';
-const red = '#b84152';
-const heart = (x, y, s, color = red) => `<path fill="${color}" transform="translate(${x} ${y}) scale(${s / 100})" d="M0 47C-12 30-51 5-49-22C-47-47-16-52 0-28C16-52 47-47 49-22C51 5 12 30 0 47Z"/>`;
-const repeats = (count, draw) => Array.from({ length: count }, (_, i) => draw(i)).join('');
-
-A.alice = (options = {}) => A.person({
-  top: '#4b96bc', bottom: '#4b96bc', long: true,
-  hair: `<path d="M26 79C19 37 34 24 59 24S103 39 94 79L89 108L69 100L79 64Q56 61 46 45Q36 55 36 76L48 99L30 109Z" fill="#dca351"/>
-  <path d="M32 46Q57 21 88 42" fill="none" stroke="#213e58" stroke-width="6"/>
-  <path d="M66 30L57 18L74 20L88 16L83 33Z" fill="#213e58"/>`,
-  extra: `<path d="M49 96L70 96L77 130Q96 155 96 197Q59 214 24 197Q29 158 43 130Z" fill="#fff4db"/>
-  <path d="M39 132Q59 140 81 131M44 166L40 189M76 164L81 190" stroke="#d5dce0" stroke-width="4" fill="none"/>
-  <path d="M52 100L60 106L68 100" stroke="#7eabc0" stroke-width="4" fill="none"/>`,
-  ...options,
-});
-
-A.watch = () => `<circle cx="48" cy="12" r="9" fill="none" stroke="${gold}" stroke-width="6"/>
-  <circle cx="48" cy="57" r="42" fill="#af783f"/><circle cx="48" cy="53" r="37" fill="${gold}"/>
-  <circle cx="48" cy="53" r="28" fill="${cream}"/>
-  ${repeats(12, i => `<path d="M48 29V35" stroke="#916046" stroke-width="3" transform="rotate(${i * 30} 48 53)"/>`)}
-  <path d="M48 36V53L61 62" fill="none" stroke="${ink}" stroke-width="5" stroke-linecap="round"/>`;
-
-A.rabbit = (hare = false) => {
-  const fur = hare ? '#d9aa7c' : '#fff7e5';
-  const coat = hare ? '#616f93' : '#bd4552';
-  const lapel = hare ? '#9296b2' : '#e17571';
-  return `<ellipse cx="37" cy="167" rx="25" ry="19" fill="#ede4d1"/>
-  <ellipse cx="73" cy="211" rx="30" ry="9" fill="#e1d6c2"/><ellipse cx="124" cy="209" rx="35" ry="11" fill="${fur}"/>
-  <path d="M60 120Q98 103 129 126L144 192Q91 218 49 191Z" fill="${coat}"/>
-  <path d="M85 128L110 125L115 194L81 195Z" fill="${gold}"/>
-  <path d="M79 129L84 188L54 166L61 133ZM113 128L128 131L136 159L117 181Z" fill="${lapel}"/>
-  <ellipse cx="80" cy="45" rx="15" ry="45" transform="rotate(-15 80 45)" fill="${fur}"/>
-  <ellipse cx="117" cy="43" rx="13" ry="43" transform="rotate(11 117 43)" fill="${fur}"/>
-  <path d="M76 18L88 68M121 17L112 64" stroke="#e69a9a" stroke-width="9" stroke-linecap="round"/>
-  <path d="M62 90Q69 64 100 66Q130 66 140 92L157 109Q145 137 108 139Q66 136 62 111Z" fill="${fur}"/>
-  <ellipse cx="119" cy="96" rx="6" ry="8" fill="${ink}"/><circle cx="150" cy="106" r="7" fill="#d77983"/>
-  <path d="M135 120q-8 7-17 1" fill="none" stroke="#ad6a67" stroke-width="3"/>
-  <path d="M87 136L112 148L120 133L103 136L90 127Z" fill="#425970"/>
-  <path d="M124 151Q146 143 161 153" stroke="#f6ebd8" stroke-width="15" stroke-linecap="round"/>
-  ${hare ? '<path d="M90 68L98 49L103 66L111 51L116 71Z" fill="#e6be87"/>' : `<g transform="translate(137 146) scale(.42)">${A.watch()}</g>`}`;
+// Original artwork for this edition; supporting scenery uses the bundled library.
+const AC = { ink:'#49364c', gold:'#d6ad58', blue:'#278eab', cream:'#fff0d3', rose:'#c95363' };
+A.alice = () => `
+ <path d="M34 83Q14 133 29 183L124 183Q142 122 115 76" fill="#dca94a"/>
+ <path d="M48 231L47 270H64L69 229M86 230L89 270H106L103 229" fill="#fff0d3"/>
+ <path d="M43 263Q29 270 31 280H66V265M88 265V280H124Q124 270 105 263" fill="#49364c"/>
+ <path d="M49 113L104 113Q105 166 132 236Q77 254 19 236Q47 170 49 113" fill="#278eab"/>
+ <path d="M55 125L98 125L107 220Q77 232 44 220Z" fill="#fff4db"/>
+ <path d="M51 115L64 115L64 147H53ZM89 115H100V147H89Z" fill="#fff4db"/>
+ <g class="arm"><path d="M107 121Q124 127 125 147L138 179Q139 191 128 192Q119 190 117 180L102 148" fill="#f7cfaa"/><path d="M103 115Q125 117 127 141L107 148Z" fill="#53b1c7"/></g>
+ <path d="M46 120Q26 125 27 145L15 176Q12 188 24 190Q34 187 36 177L52 142" fill="#f7cfaa"/><path d="M48 115Q27 115 23 140L44 150Z" fill="#53b1c7"/>
+ <g class="head"><ellipse cx="76" cy="75" rx="44" ry="46" fill="#e5b14f"/><ellipse cx="76" cy="80" rx="34" ry="36" fill="#f7cfaa"/><path d="M40 69Q43 29 82 38Q111 34 114 73Q90 63 77 48Q67 68 40 69" fill="#e5b14f"/>
+ <path d="M39 53Q77 15 113 54" fill="none" stroke="#256a86" stroke-width="10"/><path d="M82 31L64 13L59 39L82 34L102 14L108 40Z" fill="#256a86"/>
+ <ellipse cx="64" cy="80" rx="4" ry="6" fill="#49364c"/><ellipse cx="90" cy="80" rx="4" ry="6" fill="#49364c"/><circle cx="54" cy="94" r="6" fill="#ec9c89"/><circle cx="101" cy="94" r="6" fill="#ec9c89"/><path d="M69 99Q77 106 85 98" fill="none" stroke="#8e5660" stroke-width="3" stroke-linecap="round"/></g>`;
+A.rabbit = (brown=false) => `<g class="ears"><ellipse cx="48" cy="43" rx="15" ry="40" fill="${brown?'#b28a66':'#fff1d8'}" transform="rotate(-15 48 43)"/><ellipse cx="84" cy="41" rx="14" ry="39" fill="${brown?'#b28a66':'#fff1d8'}" transform="rotate(12 84 41)"/><ellipse cx="49" cy="43" rx="6" ry="27" fill="#dfa19c"/><ellipse cx="84" cy="41" rx="6" ry="27" fill="#dfa19c"/></g><ellipse cx="69" cy="168" rx="42" ry="54" fill="${brown?'#a2765e':'#fff1d8'}"/><path d="M35 128L63 137L79 137L103 128L108 191H31Z" fill="${brown?'#598b79':'#c95562'}"/><path d="M62 137L70 154L80 137" fill="#e6b955"/><circle cx="69" cy="174" r="4" fill="#e6b955"/><ellipse cx="46" cy="229" rx="25" ry="11" fill="${brown?'#b28a66':'#fff1d8'}"/><ellipse cx="93" cy="229" rx="25" ry="11" fill="${brown?'#b28a66':'#fff1d8'}"/><ellipse cx="68" cy="96" rx="42" ry="38" fill="${brown?'#b28a66':'#fff1d8'}"/><ellipse cx="91" cy="112" rx="25" ry="17" fill="#fff1d8"/><circle cx="56" cy="91" r="5" fill="#49364c"/><circle cx="84" cy="88" r="5" fill="#49364c"/><path d="M84 104L96 103L91 111Z" fill="#cf7d85"/><path d="M87 119Q78 124 73 117" fill="none" stroke="#49364c" stroke-width="3"/><g class="watcharm"><path d="M99 147L120 158" stroke="#fff1d8" stroke-width="15" stroke-linecap="round"/><g transform="translate(101 145) scale(.32)">${lib('now.watch',{c:'#d6ad58'})}</g></g>`;
+A.cat = () => `<g class="catbody"><path class="tail" d="M193 151Q277 142 252 71Q238 35 221 53Q207 66 236 92" fill="none" stroke="#9970a4" stroke-width="27" stroke-linecap="round"/><ellipse cx="143" cy="167" rx="87" ry="43" fill="#9970a4"/><path d="M109 130L121 202M146 126L157 207M181 140L191 194" stroke="#664e7c" stroke-width="15"/><path d="M31 73L22 19L69 43L115 28L120 87" fill="#9970a4"/><ellipse cx="75" cy="93" rx="58" ry="49" fill="#9970a4"/><ellipse cx="52" cy="85" rx="15" ry="13" fill="#e7d677"/><ellipse cx="95" cy="85" rx="15" ry="13" fill="#e7d677"/><path d="M53 75V93M95 75V93" stroke="#49364c" stroke-width="5"/><path d="M64 100L85 100L75 109Z" fill="#c95f84"/></g><g class="grin"><path d="M36 112Q74 133 115 109Q104 155 68 145Q46 140 36 112" fill="#fff3d8"/><path d="M46 122L51 137M63 127L66 143M81 126L82 142M98 122L96 137" stroke="#795f87" stroke-width="3"/></g>`;
+A.hatter = () => `<path d="M32 217L28 275H55L66 220L81 275H110L101 211" fill="#694f67"/><path d="M28 265H56V280H13Q12 270 28 265M82 265H110Q124 272 120 280H82" fill="#49364c"/><path d="M36 125L99 125L117 226L20 226Z" fill="#4b887d"/><path d="M60 130L77 130L91 205H44Z" fill="#dca958"/><g class="hatarm"><path d="M100 139L126 174L146 160" fill="none" stroke="#4b887d" stroke-width="22" stroke-linecap="round"/><circle cx="146" cy="160" r="10" fill="#f7cfaa"/></g><ellipse cx="68" cy="95" rx="38" ry="37" fill="#f7cfaa"/><path d="M25 95Q14 72 33 68M102 72Q123 78 110 101" fill="none" stroke="#bb7652" stroke-width="17"/><path d="M24 71L16 64L23 52H37L29 7L100 7L108 52H126L131 67Z" fill="#406b67"/><path d="M36 41H105V57H36Z" fill="#dca958"/><rect x="64" y="18" width="30" height="34" rx="3" fill="#fff0d3" transform="rotate(-10 79 35)"/><text x="79" y="40" text-anchor="middle" font-size="20" fill="#49364c">帽</text><circle cx="54" cy="94" r="4" fill="#49364c"/><circle cx="80" cy="94" r="4" fill="#49364c"/><path d="M53 111Q68 122 85 108" fill="none" stroke="#8d5058" stroke-width="4"/><path d="M65 134L42 121V147L67 138L91 122V149Z" fill="#c95a67"/>`;
+A.queen = () => `<path d="M48 130L112 130L151 279H8Z" fill="#a93650"/><path d="M72 139L92 139L110 265H52Z" fill="#f2c15f"/><path d="M37 169L22 262M122 170L138 260" stroke="#df7a78" stroke-width="12"/><path d="M78 187C45 157 38 197 78 221C119 195 109 162 78 187" fill="#a93650"/><ellipse cx="79" cy="88" rx="48" ry="48" fill="#473949"/><ellipse cx="79" cy="96" rx="35" ry="36" fill="#f7cfaa"/><path d="M44 62L36 18L61 37L79 6L96 37L120 18L113 62Z" fill="#e1b654"/><circle cx="79" cy="42" r="8" fill="#b63c57"/><path d="M54 82L69 86M89 86L104 80" stroke="#49364c" stroke-width="5"/><circle cx="64" cy="94" r="4" fill="#49364c"/><circle cx="95" cy="94" r="4" fill="#49364c"/><path d="M68 117Q80 109 92 118" fill="none" stroke="#a64b57" stroke-width="4"/><g class="fan"><path d="M119 141L142 173" stroke="#f7cfaa" stroke-width="17"/><path d="M140 174L110 122Q145 99 173 126Z" fill="#f2c15f"/><path d="M140 174L139 118M140 174L122 121M140 174L161 124" stroke="#b75a61" stroke-width="3"/></g>`;
+A.card = (suit='♥',legs=false) => `${legs?'<path d="M27 136L22 158M68 136L77 158M8 60L0 94M88 60L99 94" stroke="#59445a" stroke-width="9" stroke-linecap="round"/>':''}<rect x="7" y="3" width="84" height="133" rx="9" fill="#fff0d3"/><rect x="14" y="10" width="70" height="119" rx="5" fill="none" stroke="#d3b780" stroke-width="3"/><text x="49" y="90" font-family="serif" font-size="66" text-anchor="middle" fill="${suit==='♥'||suit==='♦'?'#c64d61':'#4e4359'}">${suit}</text><text x="23" y="35" font-size="21" fill="#c64d61">${suit}</text>`;
+A.teaTable = () => `<path d="M33 53L25 175H47L65 53M425 53L448 175H470L459 53" fill="#725268"/><rect x="8" y="24" width="484" height="40" rx="14" fill="#e9cda8"/><path d="M13 31H487V77L452 61L419 78L385 61L351 78L318 61L285 78L251 61L218 78L185 61L151 78L118 61L85 78L50 61L13 77Z" fill="#f5e6c6"/><path d="M28 40H475" stroke="#c66778" stroke-width="7"/>`;
+A.teapot = () => `<path d="M26 48Q4 22 3 43Q5 69 32 70M75 44Q91 42 103 23L110 27Q102 59 79 67" fill="none" stroke="#76a5a6" stroke-width="10"/><ellipse cx="53" cy="59" rx="33" ry="29" fill="#9ac4be"/><ellipse cx="52" cy="31" rx="28" ry="7" fill="#639499"/><circle cx="52" cy="21" r="7" fill="#d7ac58"/><path d="M46 45L58 45L62 69H43Z" fill="#f9e7bd"/>`;
+A.sceneArt = (kind) => {
+ const palette={river:['#aac9c1','#6f987f','#385d58'],hall:['#63858a','#365e65','#263f50'],forest:['#a69bb6','#6d6689','#393c5b'],tea:['#d5a9a0','#8e817e','#455863'],garden:['#b9bd9d','#668373','#344f4b'],court:['#827184','#674956','#302c42']}[kind];
+ let s=`<rect width="1920" height="1080" fill="${palette[0]}"/><circle cx="1530" cy="175" r="100" fill="#eee0b6"/><path d="M0 510Q410 260 850 520Q1330 250 1920 470V1080H0Z" fill="${palette[1]}"/>`;
+ if(kind==='hall'||kind==='court') s+=Array.from({length:9},(_,i)=>`<path d="M${i*240+35} 780V240Q${i*240+120} 100 ${i*240+205} 240V780Z" fill="${palette[2]}"/><path d="M${i*240+50} 790V250Q${i*240+120} 130 ${i*240+190} 250" fill="none" stroke="#b49f83" stroke-width="9"/>`).join('');
+ else s+=Array.from({length:8},(_,i)=>`<path d="M${i*290-40} 900L${i*290-15} 190L${i*290+25} 190L${i*290+45} 900" fill="${palette[2]}"/><ellipse cx="${i*290}" cy="180" rx="160" ry="210" fill="${palette[1]}"/>`).join('');
+ if(kind==='river') s+='<path d="M0 690Q500 510 900 730T1920 690V1080H0Z" fill="#7da7a7"/><path d="M0 880Q480 730 930 900T1920 820V1080H0Z" fill="#426963"/>';
+ if(kind==='tea') s+='<path d="M0 60Q960 430 1920 60" stroke="#665365" stroke-width="9" fill="none"/>'+[180,470,760,1050,1340,1630].map((x,i)=>`<rect x="${x}" y="${130+Math.sin(i*.6)*100}" width="45" height="70" rx="15" fill="#eed09c"/>`).join('');
+ if(kind==='garden') s+=Array.from({length:18},(_,i)=>`<circle cx="${i*120}" cy="${480+(i%3)*60}" r="24" fill="#b76778"/>`).join('');
+ return s+`<path d="M0 890Q450 780 930 900T1920 840V1080H0Z" fill="${palette[2]}"/><g class="drift">${Array.from({length:12},(_,i)=>`<ellipse cx="${i*170+30}" cy="${170+(i*83)%580}" rx="5" ry="10" fill="#efdbac" opacity=".45"/>`).join('')}</g>`;
 };
-
-A.door = (color, open = false) => `<path d="M0 300V96C0-30 180-30 180 96V300Z" fill="#50445a"/>
-  <path d="M14 286V100C14-12 166-12 166 100V286Z" fill="${open ? '#f7d982' : color}"/>
-  <path d="M27 269V104C27 7 153 7 153 104V269Z" fill="none" stroke="${open ? '#fff0b0' : gold}" stroke-width="5"/>
-  ${open ? '<path d="M27 269V104Q27 40 85 38L62 238Z" fill="#4a857d"/><path d="M62 238L135 269H27Z" fill="#af8865"/>' : '<circle cx="130" cy="172" r="9" fill="#edc681"/><path d="M53 222H110M55 100H125" stroke="#fff0cf" stroke-opacity=".5" stroke-width="4"/>'}
-  <path d="M0 288H180V300H0Z" fill="#d4ab81"/>`;
-
-A.bottle = label => `<rect x="31" y="0" width="38" height="27" rx="5" fill="#a06b50"/>
-  <path d="M30 21H70V62Q96 82 96 107V142Q96 155 82 155H18Q4 155 4 142V107Q4 82 30 62Z" fill="#73b9ae"/>
-  <path d="M14 112Q46 124 87 105V139Q87 146 78 146H21Q14 146 14 139Z" fill="#458681"/>
-  <path d="M39 31V67L23 89" fill="none" stroke="#dbf2d9" stroke-width="7" stroke-linecap="round"/>
-  <rect x="9" y="86" width="82" height="40" rx="5" fill="${cream}"/>
-  <text x="50" y="113" text-anchor="middle" font-size="18" font-weight="bold" fill="${ink}">${label}</text>`;
-
-A.key = () => `<circle cx="29" cy="30" r="21" stroke="${gold}" stroke-width="12" fill="none"/>
-  <path d="M47 30H118M92 30V51M109 30V46" stroke="${gold}" stroke-width="12" stroke-linecap="round"/>`;
-A.cake = () => `<path d="M6 21H124L114 74H16Z" fill="#ad684c"/>
-  <path d="M6 29H124L119 45Q109 58 99 44Q88 35 76 47Q63 56 52 45Q39 34 28 47Q12 54 6 41Z" fill="#eb9eae"/>
-  <ellipse cx="65" cy="22" rx="61" ry="19" fill="#f7c0bc"/>${heart(66, 23, 29)}`;
-
-A.mushroom = (color, dot) => `<path d="M102 84Q127 133 88 229Q116 242 170 231Q142 176 160 84Z" fill="#e3c29c"/>
-  <path d="M126 106Q144 161 127 227" stroke="#f8deba" stroke-width="11" fill="none"/>
-  <path d="M5 97Q36 7 112 6Q201-5 245 96Q171 146 5 97Z" fill="${color}"/>
-  <path d="M7 97Q139 116 242 96Q175 143 7 97Z" fill="#70455e"/>
-  <ellipse cx="108" cy="44" rx="24" ry="13" fill="${dot}"/>
-  <ellipse cx="166" cy="62" rx="20" ry="10" fill="${dot}"/><ellipse cx="62" cy="72" rx="18" ry="9" fill="${dot}"/>`;
-
-A.grin = () => `<path d="M7 20Q111 79 213 20Q175 119 109 120Q45 119 7 20Z" fill="#603452"/>
-  <path d="M16 29Q111 79 204 29Q166 100 109 100Q54 98 16 29Z" fill="#fff1d5"/>
-  <path d="M56 47L50 77M90 59L87 96M127 59L132 97M164 47L171 77" stroke="#d4a6a5" stroke-width="4"/>`;
-A.cat = () => `<path d="M206 188Q318 204 301 123Q295 91 271 106" fill="none" stroke="#824b83" stroke-width="31" stroke-linecap="round"/>
-  <path d="M278 188L263 168M298 161L275 156M299 129L279 139" stroke="#d183a4" stroke-width="10"/>
-  <ellipse cx="162" cy="168" rx="97" ry="49" fill="#975992"/>
-  <path d="M143 146Q121 174 152 207M184 139Q158 179 192 210M220 145Q200 177 228 200" stroke="#c975a0" stroke-width="13" fill="none"/>
-  <path d="M17 88L12 7L82 46Q114 33 146 45L206 7L204 87Q229 137 183 155Q112 180 44 151Q3 135 17 88Z" fill="#a75e9d"/>
-  <path d="M27 31L34 66L66 51ZM190 30L158 50L188 68Z" fill="#efa6b0"/>
-  <path d="M48 83Q72 63 92 87Q71 108 48 83ZM128 87Q150 63 176 83Q150 108 128 87Z" fill="#f8d187"/>
-  <path d="M71 77V90M151 77V90" stroke="${ink}" stroke-width="6" stroke-linecap="round"/>
-  <path d="M98 96H122L110 108Z" fill="#70405f"/>`;
-
-A.hatter = () => A.person({
-  top: '#537c68', bottom: '#795471', armR: -65, mouth: 'big',
-  hair: `<path d="M30 61Q25 31 47 27H75Q97 31 94 66L82 54L77 43L38 47Z" fill="#d57f4d"/>
-  <path d="M28 36L16 -38Q57 -56 103 -38L92 36Z" fill="#426d61"/>
-  <path d="M27 12Q60 19 94 9L93 30Q61 42 29 30Z" fill="#ddb26b"/>
-  <path d="M68 16L87 13L86 -12L66 -8Z" fill="${cream}"/>
-  <text x="77" y="8" font-size="8" text-anchor="middle" fill="${ink}">10/6</text>
-  <ellipse cx="60" cy="36" rx="58" ry="9" fill="#35534b"/>`,
-  extra: '<path d="M38 92L60 100L85 90L80 114L60 106L43 115Z" fill="#d18993"/>',
-});
-
-A.teapot = () => `<path d="M115 42Q166 20 157 58Q153 82 120 82" fill="none" stroke="#447d82" stroke-width="11"/>
-  <path d="M37 55Q13 49 5 20L27 29L53 54Z" fill="#60999a"/>
-  <path d="M37 44Q82 24 128 44Q150 102 80 108Q24 108 37 44Z" fill="#81b5ae"/>
-  <path d="M39 44Q85 23 126 44Q91 56 39 44Z" fill="#447d82"/><circle cx="83" cy="30" r="9" fill="${gold}"/>
-  <path d="M42 80Q85 99 124 77" stroke="${cream}" fill="none" stroke-width="6"/>`;
-A.cup = color => `<path d="M67 18Q101 9 94 31Q90 46 69 43" stroke="${color}" fill="none" stroke-width="8"/>
-  <ellipse cx="47" cy="56" rx="46" ry="8" fill="#e6c895"/>
-  <path d="M10 12H80Q79 54 48 54Q15 54 10 12Z" fill="${color}"/>
-  <ellipse cx="45" cy="12" rx="35" ry="10" fill="${cream}"/><ellipse cx="45" cy="13" rx="26" ry="5" fill="#986445"/>`;
-
-A.queen = () => A.person({
-  top: '#a53349', bottom: '#962b42', long: true, mouth: 'o', armR: -103,
-  hair: `<path d="M30 60Q16 22 46 24L60 36Q79 13 90 31Q101 42 88 62Q80 49 60 43Q44 54 30 60Z" fill="${ink}"/>
-  <path d="M38 32L32 3L52 16L61 -6L70 16L88 3L82 32Z" fill="${gold}"/>`,
-  extra: `<path d="M37 92L31 72L60 91L89 72L83 92L69 109L90 201H30L52 109Z" fill="${cream}"/>${heart(60, 149, 27)}${heart(60, 178, 24)}`,
-});
-
-A.card = (suit, guard = false) => `<rect x="5" y="4" width="90" height="126" rx="8" fill="${cream}" stroke="#c59b7b" stroke-width="4"/>
-  <rect x="13" y="12" width="74" height="110" rx="4" fill="none" stroke="#dabb98" stroke-width="2"/>
-  ${suit === 'heart' ? heart(50, 72, 43) : `<path d="M50 45L73 73L50 101L27 73Z" fill="${suit === 'diamond' ? red : ink}"/>`}
-  ${guard ? '<circle cx="40" cy="34" r="4" fill="#263044"/><circle cx="60" cy="34" r="4" fill="#263044"/><path d="M22 129L14 144H34L40 129M60 129L66 144H86L78 129" fill="#614254"/>' : ''}`;
-
-A.rose = (color, h = 220) => `<path d="M50 ${h}Q29 ${h / 2} 51 47" stroke="#51795f" stroke-width="10" fill="none"/>
-  <path d="M45 ${h * .68}Q9 ${h * .48} 3 ${h * .65}Q9 ${h * .77} 45 ${h * .68}ZM43 ${h * .83}Q76 ${h * .6} 96 ${h * .71}Q85 ${h * .87} 43 ${h * .83}Z" fill="#719475"/>
-  <path d="M11 31Q7 14 29 13Q42-8 58 7Q79 0 88 19Q104 34 86 50Q74 70 54 63Q32 73 17 54Q3 46 11 31Z" fill="${color}"/>
-  <path d="M27 36Q50 12 71 27Q77 43 55 49Q43 49 43 39Q44 32 56 34" stroke="#d98c92" stroke-width="5" fill="none" stroke-linecap="round"/>`;
-
-A.coverAlice = () => `
-  <rect width="738" height="948" fill="#203d45"/><path d="M38 0H0V948H38Z" fill="#192c38"/>
-  <rect x="64" y="30" width="647" height="888" rx="14" fill="none" stroke="${gold}" stroke-width="4"/>
-  <rect x="76" y="42" width="623" height="864" rx="10" fill="none" stroke="#8b825d" stroke-width="2"/>
-  <path d="M103 825Q163 680 118 545M664 825Q604 680 649 545" fill="none" stroke="#6f9b83" stroke-width="5"/>
-  ${[0, 1].map(side => `<g transform="${side ? 'translate(767) scale(-1 1)' : ''}">${repeats(7, i => `<path d="M${118 + i * 3} ${588 + i * 32}q-44-6-37-39q31 6 37 39M${118 + i * 3} ${588 + i * 32}q44-15 39-42q-28 10-39 42" fill="${i % 2 ? '#6f9b83' : '#41716b'}"/>`)}</g>`).join('')}
-  <text x="384" y="169" text-anchor="middle" fill="${cream}" font-family="serif" font-weight="bold" font-size="63" letter-spacing="5">不思議な国の</text>
-  <text x="384" y="280" text-anchor="middle" fill="${gold}" font-family="serif" font-weight="bold" font-size="108" letter-spacing="12">アリス</text>
-  <path d="M256 331H345M423 331H512" stroke="#ab9163" stroke-width="2"/>${heart(384, 330, 25, gold)}
-  <path d="M217 781V537C217 330 551 330 551 537V781Z" fill="#162934" stroke="${gold}" stroke-width="5"/>
-  <path d="M232 764V537C232 351 536 351 536 537V764Z" fill="#527b76" stroke="#9cb59a" stroke-width="3"/>
-  <circle cx="386" cy="549" r="109" fill="#729a89"/>
-  ${[[276,499,14],[473,477,15],[469,618,12],[305,607,9],[382,430,13]].map(([x,y,r]) => A.star(x,y,r,gold)).join('')}
-  <g transform="translate(284 466) scale(1.2)">${A.alice({ armL: 30, look: 'up' })}</g>
-  <g transform="translate(386 582) scale(.74)">${A.rabbit()}</g>
-  <g transform="translate(155 738) rotate(-21) scale(.82)">${A.card('heart')}</g>
-  <g transform="translate(537 712) rotate(16) scale(.76)">${A.watch()}</g>
-  <text x="384" y="849" text-anchor="middle" fill="${cream}" font-family="serif" font-size="24" letter-spacing="4">ルイス・キャロル 原作</text>`;
+A.scene = kind => ({svg:A.sceneArt(kind),blur:4,anim:(t,el,q)=>{qs(el,q,'.drift')?.setAttribute('transform',`translate(${12*sin(t*.3)} ${7*sin(t*.5)})`);}});
+A.cover = () => `<defs><linearGradient id="aliceCover" x2="1" y2="1"><stop stop-color="#29565f"/><stop offset="1" stop-color="#142f44"/></linearGradient></defs><rect width="738" height="948" rx="14" fill="url(#aliceCover)"/><rect width="38" height="948" fill="#193945"/><rect x="66" y="34" width="640" height="880" rx="110" fill="none" stroke="#d6ad58" stroke-width="5"/><rect x="81" y="49" width="610" height="850" rx="100" fill="none" stroke="#a78548" stroke-width="2"/><text x="387" y="116" text-anchor="middle" font-family='${FONT}' fill="#e6c989" font-size="23" letter-spacing="8">とびだす えほん</text><text x="387" y="240" text-anchor="middle" font-family='${FONT}' fill="#f2d48b" font-size="68" font-weight="900">不思議な国の</text><text x="387" y="342" text-anchor="middle" font-family='${FONT}' fill="#f2d48b" font-size="98" font-weight="900">アリス</text><ellipse cx="387" cy="620" rx="204" ry="223" fill="#386776"/><path d="M185 760Q385 660 584 760" stroke="#b99350" stroke-width="3" fill="none"/><g transform="translate(285 417) scale(1.25)">${A.alice()}</g><g transform="translate(490 627) scale(.66)">${A.rabbit()}</g><g transform="translate(168 478) rotate(-17) scale(.65)">${A.card()}</g><g transform="translate(558 443) rotate(16) scale(.55)">${A.card('♠')}</g><text x="387" y="865" text-anchor="middle" font-family='${FONT}' font-size="22" fill="#e6c989">うさぎを おって、ゆめの なかへ</text>`;
+A.waking = () => `<path d="M197 78Q168 122 177 185L288 195Q307 126 269 77Z" fill="#78554e"/><path d="M197 108L253 105L285 199Q235 232 133 220L110 196L184 172Z" fill="#b47991"/><path d="M137 201Q190 181 248 203L279 249Q226 279 110 262L61 242Z" fill="#b47991"/><path d="M276 246L313 258Q323 270 306 276H257" fill="#58455c"/><ellipse cx="231" cy="66" rx="44" ry="50" fill="#8a6551"/><ellipse cx="231" cy="72" rx="34" ry="37" fill="#f7cfaa"/><path d="M195 63Q198 21 237 26Q267 31 268 66Q242 56 224 40Q217 57 195 63" fill="#8a6551"/><circle cx="219" cy="74" r="4" fill="#49364c"/><circle cx="244" cy="74" r="4" fill="#49364c"/><path d="M222 91Q233 100 244 89" fill="none" stroke="#995b66" stroke-width="3"/><path d="M200 117L167 162L128 172" fill="none" stroke="#f7cfaa" stroke-width="19" stroke-linecap="round"/>
+ <path d="M45 215L16 235L23 248L65 229" fill="#fff0d3"/><path d="M23 238L14 233Q0 241 5 252L27 256Z" fill="#49364c"/><path d="M135 168L165 200L58 240L33 215Z" fill="#278eab"/><path d="M131 181L142 199L66 229L54 215Z" fill="#fff2d7"/><ellipse cx="146" cy="155" rx="39" ry="41" fill="#e5b14f"/><ellipse cx="146" cy="159" rx="30" ry="31" fill="#f7cfaa"/><path d="M112 153Q111 117 148 116Q179 121 181 151Q162 140 150 131Q135 151 112 153Z" fill="#e5b14f"/><path d="M116 132Q146 105 176 136" stroke="#256a86" stroke-width="8" fill="none"/><g class="sleepEyes"><path d="M129 159Q135 163 141 157M150 157Q157 161 164 155" stroke="#49364c" stroke-width="3" fill="none"/></g><g class="wakeEyes"><ellipse cx="136" cy="159" rx="3" ry="5" fill="#49364c"/><ellipse cx="158" cy="156" rx="3" ry="5" fill="#49364c"/></g><path d="M140 176Q150 180 155 172" stroke="#995b66" stroke-width="3" fill="none"/><path d="M191 152Q178 183 164 185" fill="none" stroke="#f7cfaa" stroke-width="16" stroke-linecap="round"/>`;

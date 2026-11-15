@@ -18,7 +18,14 @@ const img = (src, w, h, o = {}) => {
   const [cx, cy, cw, ch] = o.crop, [sw, sh] = o.size || [cx + cw, cy + ch];
   return `<svg width="${w}" height="${h}" viewBox="${cx} ${cy} ${cw} ${ch}" preserveAspectRatio="${par}" overflow="hidden"><image href="${src}" width="${sw}" height="${sh}" preserveAspectRatio="none"/></svg>`;
 };
-const qs = (el, q, sel) => q[sel] || (q[sel] = el.querySelector(sel));       // anim 内でのキャッシュ付き querySelector
+// anim 内でのキャッシュ付き querySelector。最初に探すとき、同じ名前の部品が絵の中に2つ以上あれば警告する(最初の1つしか動かないため。
+// 人物と動物を1枚の絵に描くと、どちらも '.hd' を持っていて、動物の首振りが人物の頭を回してしまう、など)
+const QWHO = Symbol('who');
+const qs = (el, q, sel) => {
+  if (q[sel]) return q[sel];
+  if (!(sel in q) && q[QWHO]) { const n = el.querySelectorAll(sel).length; if (n > 1) Tobidas.warnings.push(`${q[QWHO]}: 動き(anim)で動かす部分 '${sel}' が絵の中に ${n} 個あり、最初の1つしか動かない(1枚の絵に人物と動物など2体以上を描くと起きやすい。片方の部品の名前を変える)`); }
+  return (q[sel] = el.querySelector(sel));
+};
 const qa = (el, q, sel) => q[sel] || (q[sel] = [...el.querySelectorAll(sel)]);
 const rot = (n, a, x, y) => n && n.setAttribute('transform', `rotate(${a.toFixed(2)} ${x} ${y})`);
 const many = (...fs) => (tl, el, q) => fs.forEach(f => f(tl, el, q));
@@ -117,7 +124,7 @@ const Tobidas = (function () {
     if (SCN || perSpread) {
       root.classList.add('has-scene');
       const se = $('tb-scene'), first = SCN || def.spreads.find(sd => sd.scene).scene, blur = first.blur ?? 5;
-      const mk = sc => { const d = div('tb-sc', se); d.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">${typeof sc.svg === 'function' ? sc.svg(th) : sc.svg}</svg>`; return { sc, el: d, svg: d.firstChild, q: {}, on: true }; };
+      const mk = sc => { const d = div('tb-sc', se); d.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">${typeof sc.svg === 'function' ? sc.svg(th) : sc.svg}</svg>`; return { sc, el: d, svg: d.firstChild, q: { [QWHO]: '背景(scene)' }, on: true }; };
       se.style.filter = blur > 0 ? `blur(${blur}px)` : '';
       const base = SCN ? mk(SCN) : null, per = def.spreads.map(sd => perSpread && sd.scene ? mk(sd.scene) : null), ix = per.map((L, i) => L ? i : -1).filter(i => i >= 0);
       T.scenes = { base, per, first: base ? -1 : ix[0], last: base ? -1 : ix[ix.length - 1], shadow: first.shadow ?? .4 };
@@ -183,7 +190,7 @@ const Tobidas = (function () {
           const sh = sp.sh !== false ? mk('sh') : null, el = mk('pc');
           if (cut && Math.abs(fold) >= 20 && side === 'L' && !sp.glow) el.style.filter = 'brightness(.82)';   // 深く折った板は、左の面を少し暗くして面の向きの違いを見せる
           if (sp.glow) el.style.filter = `drop-shadow(0 0 ${Math.min(sp.glow, 30)}px ${sp.glowC || 'rgba(255,236,160,.9)'})`;   // 30px を超えると、光の範囲が四角く切れて見えるので頭打ちにする
-          rt.pieces.push({ sp, el, sh, lx, ox, oy, idx, side, cut, faces: cut ? null : { L: LF.back, R: RF.front }, ph: idx * 1.7, vis: true, delay: sp.delay ?? (.04 + .3 * sp.Y / H), fold: cut ? fold : 0, fz: side === 'L' ? -fold : fold, fk: Math.sin(Math.abs(fold) * PI / 180) });
+          rt.pieces.push({ sp, el, sh, lx, ox, oy, idx, q: { [QWHO]: `見開き${s} パーツ#${idx}` }, side, cut, faces: cut ? null : { L: LF.back, R: RF.front }, ph: idx * 1.7, vis: true, delay: sp.delay ?? (.04 + .3 * sp.Y / H), fold: cut ? fold : 0, fz: side === 'L' ? -fold : fold, fk: Math.sin(Math.abs(fold) * PI / 180) });
         });
       });
       // 構造物の床(terrace の deck): 壁(host)と同じページに、ページと平行な板として置く。背をまたぐ壁なら左右に分ける
@@ -236,6 +243,15 @@ const Tobidas = (function () {
     Promise.race([Promise.all(urls.map(u => new Promise(res => { const im = new Image(); im.onload = () => (im.decode ? im.decode().catch(() => { }) : Promise.resolve()).then(res); im.onerror = () => { T.warnings.push(`画像 '${u}' を読み込めません(パスは index.html から見て書く。作品の assets/ に置く)`); res(); }; im.src = u; }))), new Promise(res => setTimeout(res, 15000))]).then(go);
   }
 
+  // たたんだときにページの外へはみ出す板(背が高い板・浮かせた板)は、たたまれるにつれて薄くして消す(k = 立ち上がりの進み具合 0〜1)。
+  // 本物の絵本なら折りたたまれてページの中に収まるが、この機構では板が1枚のまま寝るので、本の上や横から突き出て、閉じきった瞬間に急に消えてしまう。
+  // ページの中に収まる板は、そのまま寝かせる
+  function tuckFade(P, sp, d, k) {
+    if (k >= 1) return 1;
+    const yaw = (P.fold ? P.fz : (sp.yaw || 0) + (d.yaw || 0)) * PI / 180, reach = (sp.h * (d.sc ?? 1) + Math.max(0, d.lift ?? sp.lift ?? 0)) * (P.fold < 0 ? -1 : 1);
+    const x = (P.fold ? (P.side === 'L' ? W : 0) : P.lx + (d.dx || 0)) + reach * Math.sin(yaw), y = sp.Y + (d.dy || 0) - reach * Math.cos(yaw), cy = sp.w / 2 * Math.abs(Math.sin(yaw));   // cy = 回した板の上の角が、中心より上(下)へ出る分
+    return Math.max(-y + cy, y + cy - H, P.side === 'L' ? -x : x - W) > 12 ? sm(k) : 1;
+  }
   function updSpread(s, p, tl, phi) {
     const rt = spreads[s];
     if (p <= .001 && (phi < FOLD_SHOW || !rt.pieces.some(P => P.fold))) { if (rt.shown) { rt.pieces.forEach(P => { P.el.style.display = 'none'; if (P.sh) P.sh.style.display = 'none'; P.vis = false; }); rt.shown = false; } return; }
@@ -243,7 +259,7 @@ const Tobidas = (function () {
     for (const P of rt.pieces) {
       if (P.deck) continue;
       const sp = P.sp, pi = P.fold ? +(phi >= FOLD_SHOW) : cl((p - P.delay) / .6), d = sp.dyn ? sp.dyn(tl) || {} : {};
-      const op = d.op ?? 1, vis = pi > 0 && op > .003;
+      const op = (d.op ?? 1) * tuckFade(P, sp, d, P.fold ? (phi - FOLD_SHOW - 4) / 80 : pi / .3), vis = pi > 0 && op > .003;
       // 背をまたいで動くパーツは、いま根元がある側のページに付け替える(出発側に付けたままだと、めくられる反対側のページがパーツを突き抜ける)
       if (P.faces && d.dx) { const side = sp.X + d.dx < 0 ? 'L' : 'R'; if (side !== P.side) { P.side = side; P.lx = side === 'L' ? sp.X + W : sp.X; if (P.sh) P.faces[side].appendChild(P.sh); P.faces[side].appendChild(P.el); } }
       if (!vis) { P.now = null; if (P.vis) { P.el.style.display = 'none'; if (P.sh) P.sh.style.display = 'none'; P.vis = false; } continue; }

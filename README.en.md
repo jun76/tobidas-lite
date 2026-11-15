@@ -36,10 +36,10 @@ Six finished books are included, all made with this skill. The model used for ea
 
 | Book | Language | Spreads | Look | Made by | Notes |
 |---|---|---|---|---|---|
-| [`examples/jack`](skills/tobidas-lite/themes/default/examples/jack/) — Jack and the Beanstalk | Japanese | 7 | Paper-cut style, wooden desk | Claude Fable5.2 medium | Minor adjustments over a few turns |
-| [`examples/urashima`](skills/tobidas-lite/themes/default/examples/urashima/) — Urashima Taro | English | 8 | Crayon style, moving seaside, Japanese-style music | Claude Fable5.2 medium | Minor adjustments over a few turns |
-| [`examples/alice`](skills/tobidas-lite/themes/default/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Retro style, a different background for each spread | GPT6.1-Sol medium | Created in one turn |
-| [`examples/le-petit-prince`](skills/tobidas-lite/themes/default/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Retro style, a different background for each spread | Claude Opus 5.5 medium | Created in one turn |
+| [`examples/jack`](skills/tobidas-lite/themes/default/examples/jack/) — Jack and the Beanstalk | Japanese | 8 | Paper-cut style, wooden desk | Claude Fable5.2 medium | Minor adjustments over a few turns |
+| [`examples/urashima`](skills/tobidas-lite/themes/default/examples/urashima/) — Urashima Taro | English | 8 | Crayon style, moving seaside, Japanese-style music | Claude Opus 5.5 medium | Minor adjustments over a few turns |
+| [`examples/alice`](skills/tobidas-lite/themes/default/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Retro style, a different background for each spread | GPT-6 Astra medium | Created in one turn |
+| [`examples/le-petit-prince`](skills/tobidas-lite/themes/default/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Retro style, a different background for each spread | GPT6.1-Sol medium | Created in one turn |
 | [`examples/momotaro`](skills/tobidas-lite/themes/default/examples/momotaro/) — Momotaro | English | 6 | Paper-cut style, a different background for each spread | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) | Created in one turn |
 | [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/default/examples/hanasaka-jiisan/) — Hanasaka Jiisan | Japanese | 6 | Paper-cut style, original backgrounds for each spread and original Japanese-style BGM | GPT-6 Astra medium | Created in one turn |
 

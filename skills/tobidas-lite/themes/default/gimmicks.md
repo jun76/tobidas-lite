@@ -62,6 +62,32 @@ pc(30, 600, 260, 1300, A.stalk(260, 1300), { nosplit: true, side: 'R', delay: 0,
 - 幹に人物をつかまらせるなど、すぐ手前に物を置くときは、2枚を `yaw: 45` と `yaw: -45` の X 字に組み、手前の物の Y を「板の幅の半分 × 0.71」より大きく離す(幅 260 なら 100 以上)。十字のままだと、真横向きの板が手前の物を突き抜けて縦の線に見える。
 - カメラを `keys` で引く(`d: 1150, tilt: 72, cz: 560` など)。伸びきった先端が画面に入るか必ず確認する。
 - 先端に雲などを `lift` で浮かせ、`pop` で後から出すと高さが伝わる。
+- **高さ 1000 を超える板は、上下2枚に分けて置く。** 1枚のままだと、カメラが近いとき(`d` 250〜520、既定の `tilt`)に板の下のほうが描かれず、上のほうだけが浮いて見える(カメラを引くと正しく出るので、引いたコマだけ見ていると気づかない)。下の板はそのまま根元に置き、上の板は同じ根元に `lift`(下の板の高さ)で浮かせて `sh: false` にする。絵は、全体の絵の一部だけを箱に描く関数で作り分ける。
+
+```js
+// 全体 w×h の絵のうち、上端 y0〜下端 y1 の部分だけを、w×(y1−y0) の箱に描く(clipPath の id は呼ぶたびに変える)
+let partN = 0;
+const partTop = y0 => y0 ? 0 : -80;                  // 切り抜く四角の上端(いちばん上の板は、先の葉が箱の上へ出る分を足す)
+A.stalkPart = (w, h, y0, y1) => { const id = 'stk' + (partN++);
+  return `<clipPath id="${id}"><rect class="gr" x="-200" y="${partTop(y0)}" width="${w + 400}" height="${y1 - y0 - partTop(y0)}"/></clipPath><g clip-path="url(#${id})"><g transform="translate(0 ${-y0})">${A.stalk(w, h)}</g></g>`; };
+// 下から伸びる動き: 切り抜く四角を、下から g(0〜1)の割合だけ開ける。同じ id の切り抜きを全部動かす(下の注意)
+const aGrow = (y0, y1, f) => (tl, el, q) => {
+  const rs = q.gr || (q.gr = document.querySelectorAll(`[id="${qs(el, q, 'clipPath').id}"] .gr`)), top = partTop(y0), H = y1 - y0 - top, g = cl(f(tl));
+  const y = (top + (1 - g) * H).toFixed(1), hh = (g * H).toFixed(1); rs.forEach(r => { r.setAttribute('y', y); r.setAttribute('height', hh); }); };
+
+const SPLIT = 860, LOW = (1300 - SPLIT) / 1300;      // 上の板の高さと、下の板が全体に占める割合
+const lowG = tl => growU(tl) / LOW, upG = tl => (growU(tl) - LOW) / (1 - LOW);   // 下の板が伸びきってから、上の板が伸びる
+pc(30, 600, 260, 1300 - SPLIT, A.stalkPart(260, 1300, SPLIT, 1300), { nosplit: true, side: 'R', delay: 0, sway: 0,
+  anim: aGrow(SPLIT, 1300, lowG), dyn: tl => ({ op: lowG(tl) > 0 ? 1 : 0 }) }),
+pc(30, 600, 260, SPLIT, A.stalkPart(260, 1300, 0, SPLIT), { nosplit: true, side: 'R', delay: 0, sway: 0, sh: false, lift: 1300 - SPLIT,
+  anim: aGrow(0, SPLIT, upG), dyn: tl => ({ op: upG(tl) > 0 ? 1 : 0 }) }),
+```
+  - **分けた板は、`dyn` の `clip` ではなく、絵の中の切り抜き(上の `aGrow`)で伸ばす。** `yaw` で回して `lift` で浮かせた板に `clip` を使うと、板の下のほうが欠けて、上のほうだけが浮いて見える(`yaw: 0` の板では起きない)。十字や X 字に組むと必ず当たるので、向きにかかわらず切り抜きで伸ばす。伸びる途中のコマ(上の板が半分ほど出たところ)を撮って確かめる。
+  - **切り抜きは、板の中の1つだけでなく、同じ id のものを全部動かす(上の `aGrow`)。** 影を付ける板(`sh: false` でない板)は、エンジンが同じ絵を板と影の2か所に入れるので、同じ id の切り抜きが2つできる。板の絵は先にある影の側の切り抜きを参照するため、板の中の1つだけを動かすと、板は最初から全部見えたまま動かず、伸び始めに急に現れる。伸び始めの直後のコマも撮って確かめる。
+  - 継ぎ目には2枚それぞれの紙の縁が出る。葉や節などの小さな絵を、同じ根元に `lift`(継ぎ目の高さ)で浮かせて重ね、かくす。X 字に組むときは、この絵を板より手前(Y を 30 ほど大きく)に置く。
+  - 倒すときは、下の板を `rz`、上の板と継ぎ目の絵を `rzBase` で同じ角度だけ回す(下の「倒れる」)。2枚とも `sway: 0` にして、継ぎ目がずれないようにする。
+  - X 字に組んだ板(`yaw: ±45`)は、`rz` `rzBase` だと板ごとに斜めの別の向きへ倒れる。そろえて横へ倒すには、倒す回転を `yaw` `lean` `rzBase` の3つの角に分けて `dyn` で返す(見本の `fallX`)。
+  - 見本: `examples/jack` の見開き3(伸びる)と見開き7(倒れる)。`book/art.js` の `A.stalkPart` `aStalkGrow` `A.stalkKnot`、`book/book.js` の `fallX`。
 
 ## 傾いて沈む(船・塔)
 
@@ -85,6 +111,8 @@ dyn: tl => ({ rz: 88 * fallU(tl), op: 1 - sm((tl - 6.0) / .8) })    // 右へ倒
 ```
 - `yaw: 90` の板は `rz` ではなく `lean: 88 * fallU(tl)` で同じ向きに倒れる。
 - 倒れる物につかまっている物は、同じ根元に置いて `rzBase` で一緒に振り回す。
+- 高さ 1000 を超える物は上下2枚に分けてあるので(上の「下から伸びる」)、下の板を `rz`、上の板を `rzBase` で同じ角度だけ回す。
+- 十字や X 字に組んだ物は、板ごとに倒れる向きが変わる。`yaw: 90` の板は上のとおり `lean`、`yaw: ±45` の X 字は `yaw` `lean` `rzBase` の3つに分けて回す(上の「下から伸びる」、見本 `examples/jack` の `fallX`)。
 - 着地の瞬間に `shake`、土ぼこり(`A.puff` を `sc` で広げ `op` で消す)、切り株などの「跡」を `op` で出す。
 
 ## 積み重ねる(肩車・タワー)

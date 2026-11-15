@@ -36,10 +36,10 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 
 | 作品 | 言語 | 見開き数 | 見た目 | 制作 | 備考 |
 |---|---|---|---|---|---|
-| [`examples/jack`](skills/tobidas-lite/themes/default/examples/jack/): ジャックと豆の木 | 日本語 | 7 | 切り紙、板張りの机 | Claude Fable5.2 medium | 数ターン微調整 |
-| [`examples/urashima`](skills/tobidas-lite/themes/default/examples/urashima/): Urashima Taro | 英語 | 8 | クレヨン、動く背景の海辺、和風の曲 | Claude Fable5.2 medium | 数ターン微調整 |
-| [`examples/alice`](skills/tobidas-lite/themes/default/examples/alice/): 不思議な国のアリス | 日本語 | 6 | レトロ、見開きごとに変わる背景 | GPT6.1-Sol medium | 1ターンで作成 |
-| [`examples/le-petit-prince`](skills/tobidas-lite/themes/default/examples/le-petit-prince/): Le Petit Prince | フランス語 | 6 | レトロ、見開きごとに変わる背景 | Claude Opus 5.5 medium | 1ターンで作成 |
+| [`examples/jack`](skills/tobidas-lite/themes/default/examples/jack/): ジャックと豆の木 | 日本語 | 8 | 切り紙、板張りの机 | Claude Fable5.2 medium | 数ターン微調整 |
+| [`examples/urashima`](skills/tobidas-lite/themes/default/examples/urashima/): Urashima Taro | 英語 | 8 | クレヨン、動く背景の海辺、和風の曲 | Claude Opus 5.5 medium | 数ターン微調整 |
+| [`examples/alice`](skills/tobidas-lite/themes/default/examples/alice/): 不思議な国のアリス | 日本語 | 6 | レトロ、見開きごとに変わる背景 | GPT-6 Astra medium | 1ターンで作成 |
+| [`examples/le-petit-prince`](skills/tobidas-lite/themes/default/examples/le-petit-prince/): Le Petit Prince | フランス語 | 6 | レトロ、見開きごとに変わる背景 | GPT6.1-Sol medium | 1ターンで作成 |
 | [`examples/momotaro`](skills/tobidas-lite/themes/default/examples/momotaro/): Momotaro | 英語 | 6 | 切り紙、見開きごとに変わる背景 | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) | 1ターンで作成 |
 | [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/default/examples/hanasaka-jiisan/): はなさかじいさん | 日本語 | 6 | 切り紙、見開きごとに書き下ろした背景・和風BGM | GPT-6 Astra medium | 1ターンで作成 |
 
