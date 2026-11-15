@@ -87,9 +87,9 @@
     const set = Object.assign({}, baseSet, typeof sv === 'string' ? SETS[sv] : sv);
     for (const r of ['main', 'sub', 'minor']) { const v = set[r]; tunes[r] = typeof v === 'string' ? tunes[v] || TUNES[baseSet[r]] : v; if (typeof v === 'string' && !tunes[v]) warn(`音: 曲 '${v}' はありません`); }
     for (const r of ['main', 'sub', 'minor']) { const t = tunes[r]; if (!t && !Object.keys(SETS).length) continue; if (!t || !Array.isArray(t.chords) || !Array.isArray(t.mel) || t.chords.length !== t.mel.length) { warn(`音: 曲集の ${r} は chords と mel を同じ小節数で書く`); tunes[r] = TUNES[baseSet[r]]; } else t.chords.forEach(c => { if (!CH[c]) warn(`音: 和音 '${c}' はありません(使える名前: ${Object.keys(CH).join(' ')})`); }); }
-    // 効果音の音色を曲集に合わせる。伸びる音色は短く切って鳴らす
+    // 効果音の音色を曲集に合わせる。伸びる音色は短く切って鳴らす。hold = 締めの和音を伸ばす秒数(伸びる音色だけに効く。短く切ると「ピッ」で終わってしまうため)
     { const fx = (set.inst || {}).fx, FX = { harp: [VOICE.harp, 1], pizz: [VOICE.pizz, 1.5], koto: [VOICE.koto, 1], fife: [VOICE.fife, 1.9, .2], flute: [VOICE.flute, 1.2, .2], pulse: [VOICE.pulse, 2.8, .13] }[fx];
-      if (FX) ding = (t, m, vol = 1, pan = 0) => FX[0](t, m, vol * FX[1], pan, FX[2]); coarse = (set.inst || {}).noise === 'coarse'; }
+      if (FX) ding = (t, m, vol = 1, pan = 0, rev, hold) => FX[0](t, m, vol * FX[1] * (hold && FX[2] ? .6 : 1), pan, hold && FX[2] ? hold : FX[2]); coarse = (set.inst || {}).noise === 'coarse'; }
     // t0〜t1 のあいだ、曲 ph を鳴らす
     const phrase = (t0, t1, ph, o = {}) => {
       const { vol = 1, oct = 0, bass = 1, dbl = false, stac = false, startBar = 0 } = o, nb = ph.chords.length, nbeat = ph.beats || 3;
@@ -138,7 +138,8 @@
       if (cfg.auto !== false) {
         [60, 64, 67, 72, 74, 76, 79, 84, 86, 88, 91, 96].forEach((m, i) => ding((.9 + i * .3) * k, m, .5 + i * .03, (i % 2 ? .4 : -.4), .8));
         sparkle(3.2 * k, 5.0 * k, 10, .35);
-        [72, 76, 79].forEach(m => ding(TL.ts[0] + .1, m, .65));
+        // 表紙の締め: 上がっていく音のあと、本が開く所で和音を下から順に鳴らして「しゃらーん」と響かせる(おしまいの和音と同じ作り)
+        { const o = TL.ts[0] + .1; [48, 60, 64, 67, 72, 76, 79, 84].forEach((m, i) => ding(o + i * .045, m, .7, i % 2 ? .3 : -.3, .9, .8)); soft(o, 36, .8, 1.6); sparkle(o + .3, o + 1.9, 8, .22); }
         TL.ts.forEach(t => {
           noise(t + .1, TL.TURN * .85, u => 700 + 2600 * Math.sin(u * PI), u => Math.sin(u * PI) ** 2 * .1, .9, u => -.5 + u, .4);
           noise(t + .05, .5, () => 4200, u => Math.sin(u * PI) * .05 * (rand() > .4 ? 1 : .2), 1.5, .3, .3, 'hp');
@@ -149,7 +150,7 @@
         noise(TL.tc + .1, TL.CLOSE * .8, u => 600 + 2000 * Math.sin(u * PI), u => Math.sin(u * PI) ** 2 * .1, .9, u => .5 - u, .4);
         thud(TL.tc + TL.CLOSE - .12, .4, 85, .3);
         seq(S, TL.tc + .3, [84, 79, 76, 72, 67, 64], .34, .7);
-        const e = TL.tc + TL.CLOSE + .25; [48, 60, 64, 67, 72, 76, 84].forEach((m, i) => ding(e + i * .045, m, .8, 0, .9)); soft(e, 36, 1, 2); sparkle(e + .3, e + 2.4, 10, .25);
+        const e = TL.tc + TL.CLOSE + .25; [48, 60, 64, 67, 72, 76, 84].forEach((m, i) => ding(e + i * .045, m, .8, 0, .9, .9)); soft(e, 36, 1, 2); sparkle(e + .3, e + 2.4, 10, .25);
       }
       // --- BGM: 見開きの music をつなぐ。同じ気分が続く見開きは、めくりをまたいで1つの流れにする ---
       const segs = [];

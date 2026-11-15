@@ -186,8 +186,13 @@ const SETUP = /*SETUP_DATA*/null;
   const qDesk = pickList('desk', TH.desks, [['*custom', L.custom], ['*image', L.deskImg]]), qSet = pickList('set', TH.sets, [['*custom', L.custom], ['*audio', L.setAud], ['*none', L.silent]]);
   const setBig = on => { pv.classList.toggle('big', on); bigBtn.innerHTML = on ? '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>' : esc(L.big); bigBtn.title = on ? L.small : ''; bigBtn.setAttribute('aria-label', on ? L.small : L.big); };
   bigBtn.onclick = () => setBig(!pv.classList.contains('big')); addEventListener('keydown', e => { if (e.key === 'Escape') setBig(false); }); setBig(false);
-  const frame = $('sample'); let shown = null, timer = 0, at = 'open';   // 見本は最初の見開きから見せ、選び直しても見ていた位置を保つ
-  addEventListener('message', e => { if (e.source === frame.contentWindow && e.data && e.data.tobidas === 'time' && isFinite(e.data.t)) at = e.data.t; });
+  const frame = $('sample'); let shown = null, timer = 0, at = 'open', playing = false;   // 見本は最初の見開きから見せ、選び直しても見ていた位置と、再生中かどうかを保つ
+  // 見本が合成した音を預かっておき、読み直した見本が同じ曲を求めたら返す(画風や背景を替えても、音を作り直さずに済む)。大きいので2曲ぶんまで
+  const pcms = new Map();
+  addEventListener('message', e => { const d = e.data; if (e.source !== frame.contentWindow || !d) return;
+    if (d.tobidas === 'time' && isFinite(d.t)) { at = d.t; playing = !!d.auto; }
+    else if (d.tobidas === 'pcm' && d.pcm) { pcms.delete(d.key); pcms.set(d.key, d.pcm); while (pcms.size > 2) pcms.delete(pcms.keys().next().value); }
+    else if (d.tobidas === 'pcm?') e.source.postMessage({ tobidas: 'pcm', key: d.key, pcm: pcms.get(d.key) || null }, '*'); });
   const name = (list, v) => { const f = list.find(x => x[0] === v); return f ? `${v}(${f[1]})` : v; };
   function update() {
     for (const k of ['lang', 'len', 'hi', 'style', 'desk', 'set']) for (const b of groups[k] || []) b.setAttribute('aria-pressed', String(b.dataset.v === String(S[k])));
@@ -200,7 +205,7 @@ const SETUP = /*SETUP_DATA*/null;
     // 見本: 内蔵の組み合わせだけ当てはめられる
     if (TH.sample) {
       const q = new URLSearchParams({ style: S.style }); if (S.desk[0] !== '*') q.set('desk', S.desk); if (S.set[0] !== '*') q.set('set', S.set);
-      const url = `${D.base}${TH.sample}/index.html?${q}`; if (url !== shown) { shown = url; clearTimeout(timer); timer = setTimeout(() => { frame.src = `${url}&at=${at}&embed`; }, 250); }
+      const url = `${D.base}${TH.sample}/index.html?${q}`; if (url !== shown) { shown = url; clearTimeout(timer); timer = setTimeout(() => { frame.src = `${url}&at=${at}&embed${playing ? '&autoplay' : ''}`; }, 120); }   // 再生中に選び直したら、同じ位置から再生を続ける
       $('p-note').textContent = [S.desk[0] === '*' ? L.pNoDesk : '', S.set[0] === '*' ? L.pNoSet : ''].filter(Boolean).join(' ');
     }
     // 結果

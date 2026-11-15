@@ -3,7 +3,7 @@
 //   左上のプルダウン … 画風・背景・曲の切り替え(?style= ?desk= ?set= を付けて読み直し、見ていた位置へ戻る。作品の theme.pickers: false で3つとも、theme.stylePicker: false で画風だけ出さない)
 //   音は自動再生中だけ鳴る。どの位置から再生しても、その時刻の音から始まる(engine/sound.js が全体を合成しておく)。
 //   URL: ?t=12.5 … その時刻の静止画だけ描く(チェック・動画化用。HUDなし)   ?autoplay … 自動再生で開始   ?debug … デバッグ表示   ?at=12.5 / ?at=open … その時刻 / 最初の見開きの中ほど(字幕が出そろった所)から始める   ?embed … 操作の案内と画風のプルダウンを出さない(聞き取りページの見本用)
-//   ほかのページに埋め込まれているときは、いまの時刻を親へ postMessage で知らせる(聞き取りページが、画風を替えても同じ位置を見せるために使う)
+//   ほかのページに埋め込まれているときは、いまの時刻と再生中かどうかを親へ postMessage で知らせる(聞き取りページが、画風などを替えても同じ位置から、再生中なら再生したまま見せるために使う)
 (function () {
   const q = new URLSearchParams(location.search), root = document.getElementById('tobidas');
   const fit = () => { const k = Math.min(innerWidth / 1920, innerHeight / 1080); root.style.transform = `translate(${((innerWidth - 1920 * k) / 2).toFixed(1)}px,${((innerHeight - 1080 * k) / 2).toFixed(1)}px) scale(${k.toFixed(5)})`; };
@@ -52,11 +52,20 @@
     }
     const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { } } };
     const AU = P.audio = { ctx: null, pcm: null, buf: null, src: null, gain: null, t0: 0, c0: 0, muted: store.get('tobidas-muted') === '1' };
-    if (hasSound) setTimeout(() => Tobidas.sound.build().then(r => { AU.pcm = r; ui(); }, e => console.error(e)), 200);   // 開いたらすぐ裏で合成しておく
+    // 開いたらすぐ裏で合成しておく。聞き取りページの見本(?embed)では、同じ曲の合成済みの音を親のページから受け取れればそれを使い、なければ合成して親に預ける
+    // (画風や背景を替えて読み直しても、音を作り直さずにすぐ鳴らすため)
+    if (hasSound) {
+      const emb = parent !== window && q.has('embed'), key = location.pathname + '|' + (q.get('set') || ''), got = r => { AU.pcm = r; ui(); };
+      const make = () => Tobidas.sound.build().then(r => { got(r); if (emb) try { parent.postMessage({ tobidas: 'pcm', key, pcm: { L: r.L, R: r.R, N: r.N, SR: r.SR, dur: r.dur } }, '*'); } catch { } }, e => { AU.fail = true; console.error(e); });
+      if (emb) { let done = false; const on = e => { if (done || e.source !== parent || !e.data || e.data.tobidas !== 'pcm' || e.data.key !== key) return; done = true; removeEventListener('message', on); if (e.data.pcm) got(e.data.pcm); else make(); };
+        addEventListener('message', on); try { parent.postMessage({ tobidas: 'pcm?', key }, '*'); } catch { } setTimeout(() => { if (!done) { done = true; removeEventListener('message', on); make(); } }, 500); }
+      else setTimeout(make, 200);
+    }
     const wake = () => {                                  // 音を出せるようにする(ブラウザの決まりで、ユーザーの操作の中でしか始められない)
       if (!hasSound) return; const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
       if (!AU.ctx) AU.ctx = new AC(); if (AU.ctx.state !== 'running') AU.ctx.resume().catch(() => { });
     };
+    if (P.auto) wake();   // ?autoplay で開いたときは、音も始めてみる(ブラウザが許さなければ無音で進み、最初の操作で鳴りはじめる)
     const audioStart = t => {
       const c = AU.ctx; if (!AU.buf) { AU.buf = c.createBuffer(2, AU.pcm.N, AU.pcm.SR); AU.buf.copyToChannel(AU.pcm.L, 0); AU.buf.copyToChannel(AU.pcm.R, 1); }
       const src = c.createBufferSource(), g = c.createGain(), now = c.currentTime; src.buffer = AU.buf; src.connect(g); g.connect(c.destination);
@@ -102,6 +111,7 @@
     hud.addEventListener('pointerup', () => { hud.onpointermove = null; });
     // --- ループ ---
     let prev = performance.now(), shown = -1;
+    const born = performance.now();
     const loop = now => {
       const dt = Math.min(.1, (now - prev) / 1000); prev = now;
       // 音: 自動再生中だけ鳴らす。鳴っているあいだは音の時計に絵を合わせる(ずれないように)
@@ -109,7 +119,9 @@
       if (want && !AU.src && P.target < TL.END - .05) audioStart(P.target);
       else if (!want && AU.src && (P.auto || P.target < TL.END)) audioStop();   // 最後まで行って止まったときは余韻を残す
       ui();
-      if (P.auto) { P.target = Math.min(TL.END, AU.src ? AU.t0 + (AU.ctx.currentTime - AU.c0) : P.target + dt); if (P.target >= TL.END) P.auto = false; }
+      // 音の合成がまだ済んでいないあいだは、絵だけ先に進めずに待つ(合成に失敗したとき・音を消しているとき・8秒たっても済まないときは待たない)
+      const waitSnd = P.auto && hasSound && !AU.muted && !AU.pcm && !AU.fail && now - born < 8000;
+      if (P.auto && !waitSnd) { P.target = Math.min(TL.END, AU.src ? AU.t0 + (AU.ctx.currentTime - AU.c0) : P.target + dt); if (P.target >= TL.END) P.auto = false; }
       else if (P.snap && now - lastInput > 350) {     // ページめくりの途中で止めたら、めくりきる/戻す
         const tr = turns.find(([a, b]) => P.target > a + .02 && P.target < b - .02);
         if (tr) { const to = P.dir >= 0 ? tr[1] : tr[0]; P.target += Math.sign(to - P.target) * Math.min(Math.abs(to - P.target), dt * 1.6); }
@@ -120,7 +132,7 @@
       if (P.t !== shown) {
         shown = P.t; fill.style.width = (P.t / TL.END * 100).toFixed(3) + '%';
         if (dbg.style.display === 'block') { const w = Tobidas.where(P.t); dbg.textContent = `t = ${P.t.toFixed(2)} / ${TL.END.toFixed(1)}\nspread ${w.spread}   tl = ${w.tl.toFixed(2)}${Tobidas.warnings.length ? '\n⚠ ' + Tobidas.warnings.join('\n⚠ ') : ''}`; }
-        if (parent !== window && Math.abs(P.target - (P.sent ?? -9)) > .05) { P.sent = P.target; try { parent.postMessage({ tobidas: 'time', t: +P.target.toFixed(2) }, '*'); } catch { } }
+        if (parent !== window && (Math.abs(P.target - (P.sent ?? -9)) > .05 || P.auto !== P.sentAuto)) { P.sent = P.target; P.sentAuto = P.auto; try { parent.postMessage({ tobidas: 'time', t: +P.target.toFixed(2), auto: P.auto }, '*'); } catch { } }
         document.dispatchEvent(new CustomEvent('tobidas:time', { detail: { t: P.t, auto: P.auto } }));   // 音声などを後付けするためのフック
       }
       requestAnimationFrame(loop);
