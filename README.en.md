@@ -40,7 +40,7 @@ Six finished books are included, all made with this skill. The model used for ea
 | [`examples/urashima`](skills/tobidas-lite/themes/default/examples/urashima/) — Urashima Taro | English | 8 | Crayon style, moving seaside, Japanese-style music | Claude Opus 5.5 medium | Minor adjustments over a few turns |
 | [`examples/alice`](skills/tobidas-lite/themes/default/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Retro style, a different background for each spread | GPT-6 Astra medium | Created in one turn |
 | [`examples/le-petit-prince`](skills/tobidas-lite/themes/default/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Retro style, a different background for each spread | GPT6.1-Sol medium | Created in one turn |
-| [`examples/momotaro`](skills/tobidas-lite/themes/default/examples/momotaro/) — Momotaro | English | 6 | Paper-cut style, a different background for each spread | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) | Created in one turn |
+| [`examples/momotaro`](skills/tobidas-lite/themes/default/examples/momotaro/) — Momotaro | English | 8 | Pop art style, moving meadow, Japanese-style music | Qwen 3.8 Flash Next IQ3_S (Strata) | Minor adjustments over a few turns. Several internal warnings; reference implementation |
 | [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/default/examples/hanasaka-jiisan/) — Hanasaka Jiisan | Japanese | 6 | Paper-cut style, original backgrounds for each spread and original Japanese-style BGM | GPT-6 Astra medium | Created in one turn |
 
 The examples are under `skills/tobidas-lite/themes/default/`.

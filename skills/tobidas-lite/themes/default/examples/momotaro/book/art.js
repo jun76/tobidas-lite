@@ -1,267 +1,233 @@
-// Momotaro — この作品だけの絵。テーマの共通パーツ(A.*)に足す形で定義する。
-// 画風は kirigami: べた塗りの形を重ねる。人物の足は必ず y=h0。
-const repeats = (n, f) => Array.from({ length: n }, (_, i) => f(i)).join('');
-const gold = '#e8bd70', cream = '#fff0cf';
+// ============================================================
+// ももたろう(英語版・popart)の絵。目録にない絵在这里描く。
+// 約束: 各絵は w0×h0 の箱に収まり、足元は y=h0。線は描かない(エンジンが縁取る)。
+// ============================================================
+const ENF = '"Georgia","Times New Roman",serif';        // 本文の欧文フォント(book.js で theme.font に指定)
+const ENFT = '"Trebuchet MS","Verdana","DejaVu Sans",sans-serif';   // 表紙の題名
 
-// ---------- 登場人物(大人 k .9〜1、子どもは本側で k .8 前後) ----------
-A.granny = (o = {}) => A.person(Object.assign({
-  top: '#8fa0b4', bottom: '#6f6a86', long: true,
-  hair: `<path d="M31 56Q33 26 60 26Q87 26 89 56Q76 42 60 44Q44 42 31 56Z" fill="#ddd4c0"/><path d="M31 56Q25 62 25 70L37 63Z" fill="#ddd4c0"/><circle cx="87" cy="47" r="8" fill="#ddd4c0"/>`,
-  extra: `<path d="M42 112H78L85 158Q60 168 35 158Z" fill="#efe8d6"/>`,
-}, o));
-A.gramps = (o = {}) => A.person(Object.assign({
-  top: '#5c708c', bottom: '#46506a',
-  hair: `<path d="M31 58Q32 26 60 26Q88 26 89 58Q80 42 60 42Q40 42 31 58Z" fill="#e9e6dc"/><rect x="33" y="40" width="54" height="9" rx="4" fill="#d2452f"/><path d="M42 72Q60 96 78 72Q74 90 60 92Q46 90 42 72Z" fill="#e9e6dc"/>`,
-  extra: `<rect x="37" y="136" width="46" height="11" rx="5" fill="#d8b25c"/>`,
-}, o));
+// ---------- 日本一の剣(ももたろうの持物)40×150 ----------
+A.sword = () => `<rect x="14" y="6" width="12" height="98" rx="5" fill="#e8ecf0"/><path d="M14 60h12v92a6 6 0 0 1-12 0Z" fill="#cfd6de"/>
+  <rect x="6" y="100" width="28" height="12" rx="5" fill="#e0b23c"/><rect x="15" y="112" width="10" height="34" rx="4" fill="#3a3542"/><circle cx="20" cy="118" r="3" fill="#e0b23c"/>`;
+// 持ち方: 刀は伸ばした腕の延長(柄を手に握らせ、刃先は腕の向きへ)。
+// 腕グループごと回っても刃先が体の方を向かない。
+const A_swordHold = () => `<g transform="translate(80 150) scale(.5) translate(-20 0) rotate(180 20 75)">${A.sword()}</g>`;
+
+// ---------- ももたろう(大人)。A.person の着せ替え ----------
+// 総髪のちょんまげ + 赤い半缠 + 帯。o: armL, armR, mouth, holdR など A.person の設定がそのまま効く
+A.momoHair = `<path d="M30 64Q26 26 60 24Q94 26 90 64Q84 44 60 42Q36 44 30 64Z" fill="#2e2318"/>
+  <path d="M50 32Q46 10 62 8Q76 10 72 32Z" fill="#2e2318"/><circle cx="61" cy="11" r="10" fill="#2e2318"/>`;
 A.momo = (o = {}) => A.person(Object.assign({
-  top: '#e2574c', bottom: '#8a6238',
-  hair: `<path d="M32 56Q34 27 60 27Q86 27 88 56Q80 42 60 42Q40 42 32 56Z" fill="#3a2a22"/><circle cx="60" cy="24" r="9" fill="#3a2a22"/>`,
-  extra: `<rect x="38" y="136" width="44" height="11" rx="5" fill="#f3c64f"/>`,
+  top: '#e2574c', bottom: '#f3c64f', hair: A.momoHair,
+  extra: `<path d="M45 94L60 118L75 94Z" fill="#fbf6ea"/>
+    <rect x="33" y="132" width="54" height="12" rx="5" fill="#f6ecd6"/><rect x="54" y="130" width="12" height="16" rx="4" fill="#e0b23c"/>`,
 }, o));
-// 日の丸の幡(持たせると aFlag でなびく)。棒の先頭が旗の始点
-A.momoFlag = { holdR: `<path d="M80 158L80 -14" stroke="#8a5a33" stroke-width="9" stroke-linecap="round"/><path class="flag" d="M80 -14H172L150 8L172 30H80Z" fill="${cream}"/><circle cx="112" cy="8" r="12" fill="#d2452f"/>` };
+// 剣を持ったももたろう(右手上げ持ち)
+A.momoSword = (o = {}) => A.momo(Object.assign({ holdR: A_swordHold() }, o));
 
-// 赤ちゃん 170×130(毛布にくるまる)
-A.baby = () => `<path d="M14 92Q4 54 44 40Q88 24 130 42Q160 56 152 84Q144 114 92 118Q36 120 14 92Z" fill="#fbe6ee"/>
-  <path d="M40 44Q76 66 140 52" stroke="#f2c2d2" stroke-width="9" fill="none" stroke-linecap="round"/>
-  <circle cx="88" cy="60" r="31" fill="#f6cfa6"/>
-  <path d="M80 32Q88 20 96 33" stroke="#3a2a22" stroke-width="8" fill="none" stroke-linecap="round"/>
-  <path d="M72 62Q77 67 82 62M94 62Q99 67 104 62" stroke="#3a2a22" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <path d="M83 76Q88 81 93 76" stroke="#8a3b2a" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-  <circle cx="66" cy="72" r="6.5" fill="#f08f7e" opacity=".55"/><circle cx="110" cy="72" r="6.5" fill="#f08f7e" opacity=".55"/>`;
+// ---------- 桃から生まれた赤ちゃん 130×120(足元 y=120) ----------
+A.baby = () => `<ellipse cx="65" cy="94" rx="43" ry="27" fill="#f2685f"/><ellipse cx="65" cy="100" rx="30" ry="14" fill="#fbf6ea"/>
+  <circle cx="33" cy="80" r="10" fill="#f6cfa6"/><circle cx="97" cy="80" r="10" fill="#f6cfa6"/>
+  <circle cx="65" cy="48" r="30" fill="#f6cfa6"/>
+  <path d="M52 20Q64 8 76 20Q70 27 58 26Z" fill="#2e2318"/>
+  <path d="M48 46Q53 51 58 46M72 46Q77 51 82 46" stroke="#3a2a1e" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M56 58Q65 72 74 58Z" fill="#8a3b2a"/>
+  <circle cx="43" cy="56" r="6.5" fill="#f08f7e" opacity=".6"/><circle cx="87" cy="56" r="6.5" fill="#f08f7e" opacity=".6"/>`;
 
-// 桃・割れた桃
-A.peach = (w, h) => `<circle cx="${w * .38}" cy="${h * .57}" r="${h * .42}" fill="#f7aec0"/>
-  <circle cx="${w * .63}" cy="${h * .57}" r="${h * .42}" fill="#f5a3b8"/>
-  <path d="M${w * .5} ${h * .07}Q${w * .66} ${h * .22} ${w * .62} ${h * .36}Q${w * .5} ${h * .24} ${w * .38} ${h * .36}Q${w * .34} ${h * .22} ${w * .5} ${h * .07}Z" fill="#f9c3cf"/>
-  <path d="M${w * .5} ${h * .16}Q${w * .45} ${h * .5} ${w * .5} ${h * .9}" stroke="#e88ba0" stroke-width="${Math.max(6, h * .05)}" fill="none"/>
-  <path d="M${w * .56} ${h * .1}Q${w * .72} ${h * .0} ${w * .82} ${h * .07}Q${w * .7} ${h * .19} ${w * .56} ${h * .1}Z" fill="#7cbf66"/>
-  <circle cx="${w * .27}" cy="${h * .58}" r="${h * .09}" fill="#ffd7e0" opacity=".8"/>`;
-A.peachHalf = (w, h) => `<path d="M${w * .04} ${h * .3}Q${w * .04} ${h * .95} ${w * .5} ${h * .97}Q${w * .96} ${h * .95} ${w * .96} ${h * .3}Q${w * .73} ${h * .44} ${w * .5} ${h * .44}Q${w * .27} ${h * .44} ${w * .04} ${h * .3}Z" fill="#f2a0b0"/>
-  <path d="M${w * .12} ${h * .35}Q${w * .15} ${h * .87} ${w * .5} ${h * .88}Q${w * .85} ${h * .87} ${w * .88} ${h * .35}Q${w * .7} ${h * .47} ${w * .5} ${h * .47}Q${w * .3} ${h * .47} ${w * .12} ${h * .35}Z" fill="#fce7ed"/>`;
+// ---------- 割れた桃の半分 320×360(右端が割れ目。flip:true で反対側) ----------
+// --- まるごと桃(割れる前)— 半分2枚の皮色と同じで、断面とつながる ---
+A.peachWhole = (o = {}) => `<g transform="translate(0 34)">
+    <path d="M320 -2Q150 -6 56 56Q2 140 16 238Q36 334 152 356Q240 366 320 360Q400 366 488 356Q604 334 624 238Q638 140 584 56Q490 -6 320 -2Z" fill="#f4a6ae"/>
+    <path d="M70 36Q14 116 24 210Q40 296 148 320Q78 272 62 182Q54 102 88 30Z" fill="#ec8493" opacity=".6"/>
+    <path d="M570 36Q626 116 616 210Q600 296 492 320Q562 272 578 182Q586 102 552 30Z" fill="#ec8493" opacity=".5"/>
+    <path d="M316 -2q-16 180 6 362q24 -184 -6 -362Z" fill="#d9718a"/>
+    <path d="M330 12 q4 -26 16 -38" stroke="#7a4e2e" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M344 -14q38 -24 72 -6q-30 28 -72 6Z" fill="#5aa64e"/>
+    <path d="M96 62q26 -20 52 -12q-20 22 -52 12Z" fill="#fff3e8" opacity=".8"/>
+    <circle cx="120" cy="236" r="7" fill="#f9cdd3"/><circle cx="90" cy="198" r="5" fill="#f9cdd3"/>
+    <circle cx="520" cy="242" r="7" fill="#f9cdd3"/><circle cx="560" cy="200" r="5" fill="#f9cdd3"/>
+  </g>`;
 
-// 洗濯桶 200×95 / 道しるべ 150×200
-A.tub = () => `<path d="M14 18L186 18L170 88L30 88Z" fill="#9a6a3a"/><ellipse cx="100" cy="18" rx="86" ry="16" fill="#bfe3f2"/>
-  <path d="M46 12Q70 0 96 12Q80 22 60 22Z" fill="#fdf8ea"/><path d="M108 14Q132 4 156 16Q140 26 118 22Z" fill="#e8d5f2"/>
-  <rect x="8" y="8" width="184" height="12" rx="6" fill="#7c5230"/>`;
-A.sign = () => `<rect x="66" y="52" width="18" height="148" rx="6" fill="#8a5f38"/>
-  <path d="M18 30H118L138 52L118 74H18Z" fill="#c9a05a"/><text x="60" y="60" font-family='${FONT}' font-weight="900" font-size="26" text-anchor="middle" fill="#4a3016">ONIs</text>
-  <path d="M32 96H132V138H32L14 117Z" fill="#b98e4a"/><text x="82" y="126" font-family='${FONT}' font-weight="900" font-size="22" text-anchor="middle" fill="#4a3016">HOME</text>`;
-
-// ---------- 家来(動物)。右向き。flip で左向き ----------
-A.dog = (o = {}) => {
-  const s = `<g class="tl"><path d="M58 100Q34 80 40 50" stroke="#c98a4a" stroke-width="17" fill="none" stroke-linecap="round"/></g>
-  <path d="M46 118Q40 74 92 66Q150 58 190 74Q232 88 236 118Q240 152 208 158L84 158Q46 152 46 118Z" fill="#c98a4a"/>
-  <path d="M96 150L96 182M132 152L132 184M184 152L184 182M210 148L212 180" stroke="#c98a4a" stroke-width="20" stroke-linecap="round"/>
-  <ellipse cx="98" cy="186" rx="15" ry="8" fill="#fdf3e0"/><ellipse cx="134" cy="188" rx="15" ry="8" fill="#fdf3e0"/>
-  <ellipse cx="186" cy="186" rx="14" ry="8" fill="#fdf3e0"/><ellipse cx="214" cy="184" rx="14" ry="8" fill="#c98a4a"/>
-  <circle cx="212" cy="82" r="37" fill="#c98a4a"/>
-  <path d="M196 52Q188 24 208 26Q222 34 220 56Z" fill="#a06a34"/>
-  <ellipse cx="238" cy="96" rx="24" ry="17" fill="#e8c49a"/><circle cx="246" cy="90" r="6.5" fill="#3a2a1e"/>
-  <circle cx="216" cy="76" r="5" fill="#3a2a1e"/>
-  <path d="M228 104Q238 112 248 104" stroke="#8a3b2a" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <path d="M216 112Q224 122 232 114Z" fill="#f08f7e"/>`;
-  return o.flip ? `<g transform="translate(260 0) scale(-1 1)">${s}</g>` : s;
+// 割れた半分:外側(皮)が前面で、断面の白は切り口の縁に少しだけ見える
+A.peachHalf = (o = {}) => {
+  let s = `<path d="M314 2Q150 -4 56 54Q4 138 18 238Q38 332 150 354Q240 362 314 356Z" fill="#f4a6ae"/>
+    <path d="M70 70Q14 150 24 244Q40 330 148 354Q78 306 62 216Q54 136 88 64Z" fill="#ec8493" opacity=".6"/>
+    <path d="M314 10q14 172 0 344q-8 -172 0 -344Z" fill="#fff0dd"/>
+    <path d="M96 96q26 -20 52 -12q-20 22 -52 12Z" fill="#fff3e8" opacity=".8"/>
+    <circle cx="120" cy="270" r="7" fill="#f9cdd3"/><circle cx="90" cy="232" r="5" fill="#f9cdd3"/>`;
+  return o.flip ? `<g transform="translate(320 0) scale(-1 1)">${s}</g>` : s;
 };
-const aDog = (sp = 5) => (tl, el, q) => rot(qs(el, q, '.tl'), 17 * sin(tl * sp), 58, 100);
 
-A.monkey = (o = {}) => {
-  const s = `<g class="tl"><path d="M62 168Q14 176 16 122Q18 96 36 96" stroke="#a8825e" stroke-width="14" fill="none" stroke-linecap="round"/></g>
-  <ellipse cx="108" cy="142" rx="55" ry="48" fill="#a8825e"/>
-  <ellipse cx="108" cy="152" rx="36" ry="30" fill="#e8c49a"/>
-  <circle cx="150" cy="78" r="40" fill="#a8825e"/><ellipse cx="152" cy="86" rx="29" ry="24" fill="#e8c49a"/>
-  <circle cx="114" cy="64" r="11" fill="#a8825e"/><circle cx="112" cy="64" r="5.5" fill="#e8c49a"/>
-  <circle cx="144" cy="66" r="4.5" fill="#3a2a1e"/><circle cx="164" cy="66" r="4.5" fill="#3a2a1e"/>
-  <path d="M146 86Q154 92 162 86" stroke="#8a3b2a" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <ellipse cx="134" cy="196" rx="18" ry="10" fill="#a8825e"/><ellipse cx="172" cy="194" rx="17" ry="10" fill="#a8825e"/>
-  <path d="M70 122Q52 140 60 162" stroke="#a8825e" stroke-width="15" fill="none" stroke-linecap="round"/>`;
-  return o.flip ? `<g transform="translate(220 0) scale(-1 1)">${s}</g>` : s;
-};
-const aMonkey = (sp = 4.4) => (tl, el, q) => rot(qs(el, q, '.tl'), 13 * sin(tl * sp), 62, 168);
+// ---------- きびだんご(串)150×70 ----------
+A.dango = () => `<rect x="8" y="52" width="134" height="8" rx="4" fill="#c99a62" transform="rotate(-16 75 56)"/>
+  <circle cx="44" cy="46" r="17" fill="#fbf6ea"/><circle cx="76" cy="37" r="17" fill="#fbf6ea"/><circle cx="108" cy="28" r="17" fill="#fbf6ea"/>
+  <circle cx="40" cy="41" r="6" fill="#ffffff" opacity=".85"/><circle cx="72" cy="32" r="6" fill="#ffffff" opacity=".85"/><circle cx="104" cy="23" r="6" fill="#ffffff" opacity=".85"/>
+  <path d="M128 26q16 -8 22 4q-14 8 -22 -4Z" fill="#7cbf66"/>`;
+const A_dangoHold = () => `<g transform="translate(80 150) scale(.42) translate(-75 -70)">${A.dango()}</g>`;
 
+// ---------- きじ(雉)240×250(右向き。flip:true で左向き。\.wg 羽) ----------
 A.pheasant = (o = {}) => {
-  const s = `<g class="tl">${repeats(5, i => `<path d="M96 140Q${30 - i * 14} ${92 - i * 26} ${8 + i * 6} ${44 - i * 22}" stroke="${i % 2 ? '#5f4a30' : '#e8d8b0'}" stroke-width="11" fill="none" stroke-linecap="round"/>`)}</g>
-  <ellipse cx="128" cy="148" rx="52" ry="42" fill="#4a5a8a"/>
-  <g class="wg"><path d="M104 132Q140 116 168 138Q136 156 104 146Z" fill="#6a7ab0"/><circle cx="140" cy="136" r="7" fill="#f3c64f"/></g>
-  <path d="M158 118Q162 92 178 86" stroke="#4a5a8a" stroke-width="16" fill="none" stroke-linecap="round"/>
-  <circle cx="184" cy="80" r="17" fill="#4a5a8a"/><circle cx="196" cy="82" r="8" fill="#d2452f"/>
-  <path d="M202 78L220 82L202 88Z" fill="#e8a83c"/>
-  <path d="M172 62Q180 48 188 62Q182 56 176 62Z" fill="#f3c64f"/>
-  <circle cx="188" cy="78" r="3.4" fill="#2f2640"/>
-  <path d="M120 186L118 214M144 188L146 214" stroke="#e8a83c" stroke-width="7" stroke-linecap="round"/>`;
-  return o.flip ? `<g transform="translate(230 0) scale(-1 1)">${s}</g>` : s;
+  let s = `<path d="M96 150Q52 132 10 96Q56 92 90 118Z" fill="#8a5a33"/><path d="M96 162Q46 152 8 132Q52 128 92 140Z" fill="#a5713f"/>
+    <path d="M96 144Q60 148 30 160Q64 168 96 158Z" fill="#c98a4a"/>
+    <ellipse cx="150" cy="150" rx="60" ry="52" fill="#a5713f"/><ellipse cx="176" cy="158" rx="30" ry="34" fill="#d9a066"/>
+    <g class="wg"><ellipse cx="142" cy="148" rx="40" ry="30" fill="#8a5a33"/><ellipse cx="130" cy="142" rx="18" ry="12" fill="#c98a4a"/></g>
+    <path d="M188 120Q196 92 206 84L222 96Q208 112 204 132Z" fill="#6b4a2a"/>
+    <circle cx="210" cy="82" r="25" fill="#4a3a2a"/>
+    <path d="M224 62q-4 -14 8 -18q2 12 4 16Z" fill="#e2574c"/><path d="M212 60q-6 -12 4 -18q6 10 6 16Z" fill="#c94234"/>
+    <path d="M231 78l14 5l-13 7Z" fill="#e8c88a"/><path d="M228 92q8 4 6 12q-8 -2 -6 -12Z" fill="#e2574c"/>
+    <circle cx="216" cy="78" r="4.5" fill="#2e2318"/>
+    <rect x="148" y="196" width="8" height="42" fill="#c98a4a"/><rect x="176" y="196" width="8" height="42" fill="#c98a4a"/>
+    <path d="M146 238h20l6 10h-26ZM174 238h20l6 10h-26Z" fill="#e8a84a"/>`;
+  return o.flip ? `<g transform="translate(240 0) scale(-1 1)">${s}</g>` : s;
 };
 
-// きびだんご 100×48(串に3つ)
-A.dango = () => `<path d="M12 30H88" stroke="#a8825e" stroke-width="7" stroke-linecap="round"/>
-  <circle cx="26" cy="24" r="15" fill="#fdf8ea"/><circle cx="50" cy="21" r="16" fill="#fffdf4"/><circle cx="74" cy="24" r="15" fill="#fdf8ea"/>
-  <circle cx="22" cy="18" r="4.5" fill="#fff"/><circle cx="46" cy="14" r="4.5" fill="#fff"/>`;
-
-// ---------- 鬼(2 表情で使い分ける)400×480 左向き ----------
-const oniBody = give => {
-  const skin = '#6a7fd0', skin2 = '#8fa3e8';
-  let s = `<g class="aL"><path d="M120 258Q76 292 84 344" stroke="${skin}" stroke-width="30" fill="none" stroke-linecap="round"/><circle cx="84" cy="352" r="19" fill="${skin}"/></g>`;
-  if (give) s += `<g class="aR"><path d="M316 250Q352 196 342 142" stroke="${skin}" stroke-width="30" fill="none" stroke-linecap="round"/><circle cx="342" cy="134" r="19" fill="${skin}"/></g>`;
-  else s += `<g class="aR"><path d="M318 256Q360 238 366 188" stroke="${skin}" stroke-width="30" fill="none" stroke-linecap="round"/><circle cx="366" cy="180" r="19" fill="${skin}"/></g>`;
-  s += `<ellipse cx="182" cy="458" rx="38" ry="16" fill="${skin}"/><ellipse cx="286" cy="458" rx="38" ry="16" fill="${skin}"/>
-  <ellipse cx="232" cy="336" rx="112" ry="118" fill="${skin}"/>
-  <ellipse cx="232" cy="368" rx="78" ry="66" fill="${skin2}"/>
-  <path d="M150 396Q232 424 314 396L332 446Q232 472 132 446Z" fill="#e8b25c"/>
-  ${repeats(4, i => `<path d="M${182 + i * 34} 400L${176 + i * 34} 460" stroke="#3a2a1e" stroke-width="11"/>`)}
-  <path d="M150 214Q172 148 232 140Q294 148 316 214Q288 176 232 172Q176 176 150 214Z" fill="#2f2640"/>
-  <path d="M180 206Q166 152 194 142Q206 172 202 204Z" fill="#f2e7c8"/><path d="M284 206Q298 152 270 142Q258 172 262 204Z" fill="#f2e7c8"/>`;
-  if (give) s += `<path d="M168 232Q186 222 206 230M258 230Q278 222 296 232" stroke="#2f2640" stroke-width="11" fill="none" stroke-linecap="round"/>
-    <path d="M170 258Q184 268 198 258M266 258Q280 268 294 258" stroke="#2f2640" stroke-width="6" fill="none" stroke-linecap="round"/>
-    <ellipse cx="232" cy="300" rx="13" ry="15" fill="#5a2136"/>
-    <path d="M318 176Q330 198 318 208Q306 198 318 176Z" fill="#8fd0ee"/>`;
-  else s += `<path d="M166 238L212 252M298 238L252 252" stroke="#2f2640" stroke-width="12" stroke-linecap="round"/>
-    <circle cx="192" cy="262" r="14" fill="#fff"/><circle cx="272" cy="262" r="14" fill="#fff"/>
-    <circle cx="188" cy="264" r="7" fill="#3a2a1e"/><circle cx="268" cy="264" r="7" fill="#3a2a1e"/>
-    <path d="M186 300Q232 336 278 300Q232 320 186 300Z" fill="#5a2136"/>
-    <path d="M198 302l8 -14l7 14ZM258 302l8 -14l7 14Z" fill="#fff"/>`;
-  return s;
-};
-A.oniMad = () => oniBody(false);
-A.oniGive = () => oniBody(true);
-
-// 金棒 250×80
-A.kanabo = () => `<g transform="rotate(-14 125 40)"><path d="M28 34Q14 40 28 50L210 56Q230 44 210 30Z" fill="#8a5a33"/>
-  <rect x="16" y="30" width="22" height="26" rx="9" fill="#6a4428"/>
-  ${repeats(4, i => `<circle cx="${70 + i * 42}" cy="${40 + i % 2}" r="7" fill="#f3c64f"/>`)}</g>`;
-
-// ---------- 船 700×470 / 鬼ヶ島 720×470 / 宝の chest 250×190 ----------
-A.ship = () => `<rect x="330" y="52" width="16" height="260" rx="6" fill="#6a4428"/>
-  <g class="sl"><path d="M348 70H586V246H348Z" fill="${cream}"/>
-  <circle cx="467" cy="150" r="46" fill="#d2452f"/>
-  <path d="M348 222Q467 198 586 222" stroke="#c0392b" stroke-width="10" fill="none"/>
-  <path d="M348 246H586V258H348Z" fill="#c9a05a"/></g>
-  <path d="M40 300Q16 342 74 386L620 386Q678 342 654 300Q350 336 40 300Z" fill="#7a4f2e"/>
-  <path d="M40 300Q6 252 52 232Q76 262 88 296Z" fill="#8a5f38"/>
-  <path d="M654 300Q688 252 642 232Q618 262 606 296Z" fill="#8a5f38"/>
-  <rect x="60" y="330" width="584" height="18" rx="9" fill="#5f3d22"/>
-  <path d="M70 296l40 -20l0 40Z" fill="#d2452f"/>`;
-A.islandOni = () => `<path d="M0 470Q70 340 160 348Q228 250 320 268Q362 168 438 190Q526 140 572 240Q660 262 720 470Z" fill="#2f2a44"/>
-  <path d="M56 470Q140 380 230 392Q330 300 430 322Q540 292 610 400Q660 430 690 470Z" fill="#241f36" opacity=".7"/>
-  <rect x="322" y="120" width="140" height="120" fill="#1d1830"/><path d="M296 132L392 74L488 132Z" fill="#332a4c"/>
-  ${repeats(3, i => `<rect x="${342 + i * 44}" y="156" width="20" height="30" rx="5" fill="#ff8a50"/>`)}
-  <path d="M386 74v-34" stroke="#332a4c" stroke-width="8"/><path class="flag" d="M386 40l40 12l-40 14Z" fill="#d2452f"/>
-  <path d="M160 470Q170 420 210 400" stroke="#3a3456" stroke-width="10" fill="none"/>
-  <ellipse cx="120" cy="470" rx="70" ry="14" fill="#1a1626"/>`;
-A.chest = () => `<path d="M20 84L230 84L214 178L36 178Z" fill="#6a3a2c"/>
-  <path d="M14 86Q125 6 236 86Q236 100 125 94Q14 100 14 86Z" fill="#7d4632"/>
-  <path d="M44 74Q125 36 206 74L196 90Q125 58 54 90Z" fill="#f3c64f"/>
-  <rect x="20" y="84" width="210" height="12" fill="#d8b25c"/>
-  <circle cx="88" cy="64" r="8" fill="#e2574c"/><circle cx="128" cy="56" r="8" fill="#6cc26a"/><circle cx="166" cy="64" r="8" fill="#5aa9e0"/>
-  <rect x="106" y="120" width="38" height="30" rx="6" fill="#d8b25c"/>`;
-
-// ---------- 波の帯・地面 ----------
-A.waves = (w, h, c = '#4fa8d8', c2 = '#a6dcf2', seed = 5) => {
-  const r = rnd(seed); let s = `<rect y="${F(h * .3)}" width="${w}" height="${F(h * .7)}" fill="${c}"/>`;
-  for (let i = 0; i < 7; i++) { const x = F(r() * w), y = F(h * (.45 + r() * .5));
-    s += `<path d="M${x} ${y}Q${x + 42} ${y - 26} ${x + 84} ${y}Q${x + 42} ${y - 8} ${x} ${y}Z" fill="${c2}" opacity=".9"/>`; }
-  for (let i = 0; i < 9; i++) s += `<ellipse cx="${F(r() * w)}" cy="${F(h * (.5 + r() * .45))}" rx="${F(30 + r() * 46)}" ry="8" fill="#fff" opacity=".4"/>`;
-  return s;
-};
-A.gRiver = () => {
-  const r = rnd(11); let s = `<rect width="1440" height="920" fill="#a8d672"/>`;
-  for (let i = 0; i < 12; i++) s += `<ellipse cx="${F(r() * 1440)}" cy="${F(r() * 920)}" rx="${F(90 + r() * 130)}" ry="${F(44 + r() * 50)}" fill="${i % 2 ? '#bfe58a' : '#8cc35a'}" opacity=".6"/>`;
-  s += `<path d="M-80 620Q300 520 760 560Q1180 596 1520 540V920H-80Z" fill="#63b9de"/>
-  <path d="M-80 620Q300 520 760 560Q1180 596 1520 540V576Q1180 630 760 596Q300 556 -80 656Z" fill="#8fd4ec"/>`;
-  for (let i = 0; i < 14; i++) s += `<ellipse cx="${F(r() * 1440)}" cy="${F(640 + r() * 260)}" rx="${F(40 + r() * 70)}" ry="10" fill="#e8f8ff" opacity=".55"/>`;
-  for (let i = 0; i < 10; i++) s += `<ellipse cx="${F(r() * 1440)}" cy="${F(560 + r() * 80)}" rx="${F(14 + r() * 16)}" ry="${F(8 + r() * 6)}" fill="#b9c4c9"/>`;
-  return s;
-};
-A.gSea = () => {
-  const r = rnd(7); let s = `<rect width="1440" height="920" fill="#3f68b0"/>`;
-  for (let y = 60; y < 920; y += 110) s += `<path d="M0 ${y}Q180 ${y - 26} 360 ${y}T720 ${y}T1080 ${y}T1440 ${y}V${y + 46}H0Z" fill="${y % 220 ? '#4a76bc' : '#35589a'}" opacity=".8"/>`;
-  for (let i = 0; i < 16; i++) s += `<ellipse cx="${F(r() * 1440)}" cy="${F(r() * 920)}" rx="${F(34 + r() * 50)}" ry="9" fill="#cfe4ff" opacity=".5"/>`;
-  return s;
-};
-A.gCourt = () => {
-  let s = `<rect width="1440" height="920" fill="#413a58"/>`;
-  for (let y = 0; y < 920; y += 96) for (let x = 0; x < 1440; x += 104) if (((x / 104) + (y / 96)) % 2) s += `<rect x="${x}" y="${y}" width="104" height="96" fill="#383150"/>`;
-  s += `<path d="M620 920Q640 620 690 430L780 430Q790 640 840 920Z" fill="#8a3b3b"/>
-  <path d="M620 920Q640 620 690 430L780 430Q790 640 840 920Z" fill="none" stroke="#c9a24a" stroke-width="6" stroke-dasharray="2 26"/>`;
-  const r = rnd(4);
-  for (let i = 0; i < 10; i++) s += `<path d="M${F(r() * 1300 + 60)} ${F(r() * 800 + 80)}l30 26l-16 30" stroke="#2c2740" stroke-width="5" fill="none"/>`;
+// ---------- 鬼 240×330(足元 y=330。\.aL(62,118)/\.aR(178,118)腕・\.hd頭・\.mo開き口/\.mc食いしばり・\.club 棒) ----------
+// o: armL, armR(度), mouth 'open'|'closed', club:true/false
+A.oni = (o = {}) => {
+  const { armL = 16, armR = -16, mouth = 'open', club = true } = o;
+  const SK = '#d9483b', DK = '#b8362c', HR = '#2e2318', SH = '#f3c64f';
+  let s = `<g class="lgL"><rect x="72" y="248" width="34" height="70" rx="16" fill="${DK}"/><ellipse cx="82" cy="324" rx="26" ry="10" fill="${HR}"/></g>
+    <g class="lgR"><rect x="134" y="248" width="34" height="70" rx="16" fill="${DK}"/><ellipse cx="162" cy="324" rx="26" ry="10" fill="${HR}"/></g>
+    <path d="M58 194Q120 172 182 194L190 268Q120 292 50 268Z" fill="${SH}"/>
+    <path d="M78 196q10 30 4 62M120 186q6 34 2 74M160 196q-8 28 -2 60" stroke="${HR}" stroke-width="9" fill="none"/>
+    <path d="M62 96Q120 72 178 96L188 212Q120 238 52 212Z" fill="${SK}"/>
+    <ellipse cx="120" cy="176" rx="46" ry="30" fill="${SK}" opacity=".6"/><path d="M96 156Q120 168 144 156" stroke="${DK}" stroke-width="6" fill="none"/>
+    <g class="aL" transform="rotate(${armL} 62 118)"><rect x="38" y="102" width="30" height="98" rx="15" fill="${SK}"/><circle cx="53" cy="208" r="17" fill="${SK}"/><path d="M40 200h26M40 212h26" stroke="${DK}" stroke-width="4"/></g>
+    <g class="aR" transform="rotate(${armR} 178 118)"><rect x="172" y="102" width="30" height="98" rx="15" fill="${SK}"/><circle cx="188" cy="208" r="17" fill="${SK}"/>
+      ${club ? `<g class="club"><g transform="translate(188 208) scale(.62) translate(-35 0) rotate(180 35 72)"><path d="M18 6Q35 -6 52 6L58 132Q35 150 12 132Z" fill="#8a5a33"/><path d="M18 6Q35 -6 52 6L54 34Q35 24 16 34Z" fill="#6b4423"/>
+        <circle cx="35" cy="34" r="8" fill="#e0b23c"/><circle cx="22" cy="70" r="8" fill="#e0b23c"/><circle cx="48" cy="70" r="8" fill="#e0b23c"/><circle cx="35" cy="106" r="8" fill="#e0b23c"/></g></g>` : ''}
+    </g>
+    <g class="hd"><rect x="110" y="76" width="20" height="18" fill="${SK}"/>
+      <path d="M76 26Q82 0 96 8L92 34Z" fill="#fbf1dc"/><path d="M164 26Q158 0 144 8L148 34Z" fill="#fbf1dc"/>
+      <ellipse cx="120" cy="60" rx="50" ry="44" fill="${SK}"/>
+      <path d="M70 34Q80 14 120 14Q160 14 170 34Q150 26 120 26Q90 26 70 34Z" fill="${HR}"/>
+      <path d="M84 40L112 46M156 40L128 46" stroke="${HR}" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="100" cy="56" r="6.5" fill="#2e2318"/><circle cx="140" cy="56" r="6.5" fill="#2e2318"/>
+      <path d="M116 66h8l-4 8Z" fill="${DK}"/>
+      <g class="mo" ${mouth === 'open' ? '' : 'display="none"'}><path d="M96 78Q120 104 144 78Q134 92 120 92Q106 92 96 78Z" fill="#8a3b2a"/>
+        <path d="M102 80l5 9l5 -9ZM133 80l-5 9l-5 -9Z" fill="#fbf1dc"/></g>
+      <g class="mc" ${mouth === 'closed' ? '' : 'display="none"'}><rect x="98" y="78" width="44" height="14" rx="5" fill="#8a3b2a"/>
+        <path d="M104 78l4 8l4 -8ZM132 78l-4 8l-4 -8Z" fill="#fbf1dc"/></g>
+      <circle cx="80" cy="70" r="7" fill="${DK}" opacity=".5"/><circle cx="160" cy="70" r="7" fill="${DK}" opacity=".5"/>
+    </g>`;
   return s;
 };
 
-// 柳(ページ用)300×420 / 桃の木 320×340
-A.willowPage = () => `<rect x="132" y="150" width="34" height="270" rx="12" fill="#7a5a38"/>
-  <circle cx="149" cy="96" r="74" fill="#6fae7a"/><circle cx="96" cy="130" r="44" fill="#8cc28e"/><circle cx="204" cy="126" r="46" fill="#8cc28e"/>
-  ${repeats(7, i => `<path d="M${118 + i * 13} 120Q${96 + i * 15} 250 ${106 + i * 16} 330" stroke="${i % 2 ? '#5f9e6c' : '#8cc28e'}" stroke-width="13" fill="none" stroke-linecap="round"/>`)}`;
-A.peachTree = () => `<rect x="146" y="190" width="30" height="150" rx="10" fill="#7a5a38"/>
-  <circle cx="160" cy="140" r="92" fill="#f6b7c6"/><circle cx="96" cy="176" r="56" fill="#f2a0b0"/><circle cx="228" cy="172" r="60" fill="#f9c3cf"/>
-  ${repeats(6, i => `<circle cx="${100 + (i * 71) % 130}" cy="${96 + (i * 53) % 120}" r="11" fill="#f7aec0"/><circle cx="${102 + (i * 71) % 130}" cy="${94 + (i * 53) % 120}" r="4" fill="#e88ba0"/>`)}`;
-
-// 花びら(降らせる用)26×26
-A.petalArt = (c = '#f9c3cf') => `<path d="M13 24Q2 20 4 10Q8 -1 18 2Q26 7 22 16Q18 24 13 24Z" fill="${c}"/>`;
-
-// ---------- 鬼の城(terrace 段々。X=0 で背の上に置き、壁は山折れ)dyn で城ごとせり上げる ----------
-A.oniCastle = dyn => {
-  const roofArt = (sc = 1) => (w, d) => `<rect width="${w}" height="${d}" fill="#5b5078"/>
-    <path d="M0 ${d * .55}Q${w * .5} ${-6 * sc} ${w} ${d * .55}L${w - 34 * sc} ${d}Q${w * .5} ${d * .22} ${34 * sc} ${d}Z" fill="#6a5c90"/>
-    <path d="M34 ${d * .92}Q${w * .5} ${d * .18} ${w - 34} ${d * .92}" stroke="#f3c64f" stroke-width="${7 * sc}" fill="none"/>
-    <path d="M0 ${d * .5}L${26 * sc} ${d * .1}L${20 * sc} ${d * .8}Z" fill="#6a5c90"/><path d="M${w} ${d * .5}L${w - 26 * sc} ${d * .1}L${w - 20 * sc} ${d * .8}Z" fill="#6a5c90"/>`;
-  const stone = (w, h) => { const r = rnd(4); let s = `<rect width="${w}" height="${h}" fill="#6e6688"/>
-    <rect width="${w}" height="14" fill="#8b81a8"/>`;
-    for (let i = 0; i < 26; i++) s += `<rect x="${F(r() * (w - 70))}" y="${F(18 + r() * (h - 40))}" width="${F(34 + r() * 30)}" height="${F(12 + r() * 9)}" rx="4" fill="#837aa2"/>`;
-    return s; };
-  const mainWall = (w, h) => { const cx = w / 2; return `<rect width="${w}" height="${h}" fill="#4a4266"/>
-    <rect width="${w}" height="16" fill="#5c5380"/><rect y="${h - 20}" width="${w}" height="20" fill="#38314e"/>
-    <path d="M${cx - 92} ${h}V${h - 128}Q${cx} ${h - 210} ${cx + 92} ${h - 128}V${h}Z" fill="#171326"/>
-    <path d="M${cx - 92} ${h}V${h - 128}Q${cx} ${h - 210} ${cx + 92} ${h - 128}V${h}" fill="none" stroke="#c0392b" stroke-width="16"/>
-    <g transform="translate(${cx} ${h - 190}) scale(.72) translate(${-cx} ${208 - h})">
-    <ellipse cx="${cx}" cy="${h - 252}" rx="58" ry="44" fill="#e8e0cf"/>
-    <path d="M${cx - 44} ${h - 274}Q${cx - 60} ${h - 312} ${cx - 30} ${h - 312}M${cx + 44} ${h - 274}Q${cx + 60} ${h - 312} ${cx + 30} ${h - 312}" stroke="#f3c64f" stroke-width="10" fill="none"/>
-    <path d="M${cx - 34} ${h - 258}L${cx - 12} ${h - 250}M${cx + 34} ${h - 258}L${cx + 12} ${h - 250}" stroke="#2f2640" stroke-width="8" stroke-linecap="round"/>
-    <path d="M${cx - 20} ${h - 232}Q${cx} ${h - 218} ${cx + 20} ${h - 232}" stroke="#2f2640" stroke-width="7" fill="none"/></g>
-    ${[-1, 1].map(sd => `<rect x="${cx + sd * 190 - 26}" y="${h - 170}" width="52" height="64" rx="8" fill="#171326"/>
-    <rect x="${cx + sd * 190 - 26}" y="${h - 170}" width="52" height="64" rx="8" fill="none" stroke="#d9cfae" stroke-width="7"/>
-    <rect x="${cx + sd * 190 - 18}" y="${h - 162}" width="36" height="48" rx="5" fill="#ff8a50" opacity=".85"/>`).join('')}`; };
-  const upWall = (w, h) => `<rect width="${w}" height="${h}" fill="#544a72"/>
-    <rect width="${w}" height="14" fill="#665b8a"/>
-    <circle cx="${w / 2}" cy="${h * .45}" r="26" fill="#171326"/><circle cx="${w / 2}" cy="${h * .45}" r="26" fill="none" stroke="#d9cfae" stroke-width="7"/>
-    <rect x="${w / 2 - 15}" y="${h * .45 - 15}" width="30" height="30" fill="#ff8a50" opacity=".85"/>`;
-  const orn = (w, h) => { const cx = w / 2; return `<path d="M${cx - 40} ${h}Q${cx} ${h - 66} ${cx + 40} ${h}Z" fill="#4a3f5e"/>
-    <path d="M${cx - 34} ${h}Q${cx} ${h - 54} ${cx + 34} ${h}" stroke="#f3c64f" stroke-width="6" fill="none"/>
-    <path d="M${cx - 16} ${h - 40}Q${cx - 26} ${h - 96} ${cx - 6} ${h - 108}Q${cx - 2} ${h - 78} ${cx + 2} ${h - 52}Z" fill="#f3c64f"/>
-    <path d="M${cx + 16} ${h - 40}Q${cx + 26} ${h - 96} ${cx + 6} ${h - 108}Q${cx + 2} ${h - 78} ${cx - 2} ${h - 52}Z" fill="#f3c64f"/>`; };
-  return terrace({ X: 0, Y: 560, dyn, tiers: [
-    { w: 940, h: 110, d: 74, top: '#847aa4', art: stone },
-    { w: 900, h: 22, d: 104, top: roofArt(1.4), art: `<rect width="900" height="22" fill="#5b5078"/>` },
-    { w: 800, h: 280, d: 64, top: '#554c74', art: mainWall },
-    { w: 620, h: 20, d: 96, top: roofArt(1.1), art: `<rect width="620" height="20" fill="#5b5078"/>` },
-    { w: 500, h: 230, d: 50, top: roofArt(.9), art: upWall },
-    { w: 210, h: 200, d: 44, top: false, art: orn },
-  ] });
+// ---------- 鬼の城(terrace の段。手前から) ----------
+A.oniCastleTiers = () => {
+  const W1 = '#3a3542', W2 = '#2b2733', RF = '#4a4655', RF2 = '#35323f', GD = '#e0b23c', PL = '#f6ecd6';
+  // 軒先(壁の天井に付く黒瓦の縁。反り上がり+金の点)
+  const eave = (w, y = 34) => `<path d="M0 0H${w}V${y}Q${w - 46} ${y + 26} ${w - 110} ${y + 22}H110Q46 ${y + 26} 0 ${y}Z" fill="${RF}"/>`
+    + Array.from({ length: Math.floor(w / 36) }, (_, i) => `<path d="M${18 + i * 36} 0V${y + 16}" stroke="${RF2}" stroke-width="5"/>`).join('')
+    + `<path d="M0 ${y}Q46 ${y + 26} 110 ${y + 22}H${w - 110}Q${w - 46} ${y + 26} ${w} ${y}L${w} ${y + 14}Q${w - 46} ${y + 42} ${w - 110} ${y + 38}H110Q46 ${y + 42} 0 ${y + 14}Z" fill="${RF2}"/>`
+    + Array.from({ length: Math.floor((w - 240) / 48) + 1 }, (_, i) => `<circle cx="${120 + i * 48}" cy="${y + 30}" r="5" fill="${GD}"/>`).join('')
+    + `<circle cx="30" cy="${y + 10}" r="13" fill="${PL}"/><circle cx="24" cy="${y + 6}" r="3.5" fill="#2e2318"/><circle cx="36" cy="${y + 6}" r="3.5" fill="#2e2318"/><path d="M24 ${y + 16}h12" stroke="#2e2318" stroke-width="3"/>`
+    + `<circle cx="${w - 30}" cy="${y + 10}" r="13" fill="${PL}"/><circle cx="${w - 36}" cy="${y + 6}" r="3.5" fill="#2e2318"/><circle cx="${w - 24}" cy="${y + 6}" r="3.5" fill="#2e2318"/><path d="M${w - 36} ${y + 16}h12" stroke="#2e2318" stroke-width="3"/>`;
+  // 屋根正面(軒から棟へすぼまる黒瓦。棟に金のシャチホモ)
+  const roof = (w, yR, yE, inset, shachi) => {
+    let s = `<path d="M0 ${yE - 22}Q${w * .05} ${yE} ${w * .13} ${yE}H${w * .87}Q${w * .95} ${yE} ${w} ${yE - 22}L${w - inset} ${yR}H${inset}Z" fill="${RF}"/>`;
+    const n = Math.round(w / 36);
+    for (let i = 1; i < n; i++) { const u = i / n, xb = w * .06 + u * w * .88, xt = inset + u * (w - 2 * inset); s += `<path d="M${F(xb)} ${yE - 6}L${F(xt)} ${yR + 10}" stroke="${RF2}" stroke-width="5" stroke-linecap="round"/>`; }
+    s += `<rect x="${inset - 14}" y="${yR - 8}" width="${w - 2 * inset + 28}" height="22" rx="7" fill="${RF2}"/><rect x="${inset - 14}" y="${yR - 8}" width="${w - 2 * inset + 28}" height="6" rx="3" fill="${GD}"/>`;
+    s += `<circle cx="${w * .16}" cy="${yE}" r="12" fill="${PL}"/><circle cx="${w * .16 - 5}" cy="${yE - 4}" r="3" fill="#2e2318"/><circle cx="${w * .16 + 5}" cy="${yE - 4}" r="3" fill="#2e2318"/>`
+      + `<circle cx="${w * .84}" cy="${yE}" r="12" fill="${PL}"/><circle cx="${w * .84 - 5}" cy="${yE - 4}" r="3" fill="#2e2318"/><circle cx="${w * .84 + 5}" cy="${yE - 4}" r="3" fill="#2e2318"/>`;
+    if (shachi) { const horn = (x, m) => `<path d="M${x - m * 6} ${yR + 10}Q${x - m * 2} ${yR - 22} ${x + m * 26} ${yR - 38}Q${x + m * 14} ${yR - 14} ${x + m * 26} ${yR + 10}Z" fill="${GD}"/><circle cx="${x + m * 10}" cy="${yR - 10}" r="4" fill="#8a5a1a"/>`;
+      s += horn(inset - 4, -1) + horn(w - inset + 4, 1); }
+    return s;
+  };
+  const deck = (lip, over) => ({ lip, over, top: (w, d) => `<rect width="${w}" height="${d}" fill="${RF}"/>`
+    + Array.from({ length: Math.floor(w / 32) }, (_, i) => `<path d="M${16 + i * 32} 0V${d - 12}" stroke="${RF2}" stroke-width="5"/>`).join('')
+    + `<rect y="${d - 14}" width="${w}" height="14" fill="${RF2}"/>` + Array.from({ length: Math.floor((w - 24) / 38) }, (_, i) => `<circle cx="${24 + i * 38}" cy="${d - 7}" r="4.5" fill="${GD}"/>`).join('') });
+  return [
+    // 石垣の台
+    { w: 900, h: 80, d: 60, top: '#8a8378', art: (w, h) => `<rect width="${w}" height="${h}" fill="#77706a"/><path d="M0 26H${w}M0 54H${w}" stroke="#5f5954" stroke-width="5"/>`
+      + Array.from({ length: 10 }, (_, i) => `<path d="M${45 + i * 90 + (i % 2) * 22} 0V${i < 3 || i > 6 ? 26 : 54}" stroke="#5f5954" stroke-width="5"/>`).join('') },
+    // 一の階の黒壁(大きな鬼門)。上端に大屋根の軒先
+    { w: 840, h: 250, d: 34, ...deck(56, 34), art: (w, h) => {
+      const cx = w / 2; let s = `<rect width="${w}" height="${h}" fill="${W1}"/>`
+        + `<rect y="${h - 34}" width="${w}" height="34" fill="${W2}"/>` + Array.from({ length: 12 }, (_, i) => `<path d="M${i * 70} ${h - 34}L${i * 70 + 24} ${h}" stroke="${RF2}" stroke-width="4"/>`).join('');
+      s += `<rect x="60" y="88" width="90" height="70" rx="8" fill="${GD}"/><rect x="68" y="96" width="74" height="54" fill="${W2}"/>`
+        + `<rect x="${w - 150}" y="88" width="90" height="70" rx="8" fill="${GD}"/><rect x="${w - 142}" y="96" width="74" height="54" fill="${W2}"/>`;
+      s += `<path d="M${cx - 150} ${h}Q${cx - 128} ${h - 46} ${cx - 128} 120Q${cx - 128} 74 ${cx} 70Q${cx + 128} 74 ${cx + 128} 120Q${cx + 128} ${h - 46} ${cx + 150} ${h}Z" fill="${GD}"/>`
+        + `<path d="M${cx - 134} ${h}Q${cx - 114} ${h - 40} ${cx - 114} 122Q${cx - 114} 86 ${cx} 82Q${cx + 114} 86 ${cx + 114} 122Q${cx + 114} ${h - 40} ${cx + 134} ${h}Z" fill="#4a321f"/>`
+        + `<path d="M${cx} 82V${h}" stroke="#2e2318" stroke-width="5"/>`
+        + [[-84, 140], [-42, 140], [42, 140], [84, 140], [-84, 200], [-42, 200], [42, 200], [84, 200]].map(([dx, y]) => `<circle cx="${cx + dx}" cy="${y}" r="8" fill="${GD}"/>`).join('');
+      return s + eave(w) + `<rect y="60" width="${w}" height="20" fill="${W2}" opacity=".8"/>`;
+    } },
+    // 下の大屋根(正面の面)
+    { w: 800, h: 316, d: 50, top: false, art: (w) => roof(w, 44, 150, 168, false) },
+    // 二の階の黒壁(金の格子と「鬼」の額)。上端に上の屋根の軒先
+    { w: 540, h: 470, d: 50, ...deck(50, 30), art: (w, h) => {
+      const cx = w / 2; let s = `<rect width="${w}" height="${h}" fill="${W1}"/><rect y="${h - 30}" width="${w}" height="30" fill="${W2}"/>`;
+      s += `<rect x="${cx - 120}" y="150" width="240" height="110" fill="${W2}"/>`
+        + Array.from({ length: 5 }, (_, i) => `<rect x="${cx - 120 + i * 50}" y="150" width="8" height="110" fill="${GD}"/>`).join('')
+        + `<rect x="${cx - 120}" y="186" width="240" height="8" fill="${GD}"/>`;
+      s += `<rect x="${cx - 64}" y="72" width="128" height="60" rx="8" fill="${GD}"/><text x="${cx}" y="118" text-anchor="middle" font-family='${FONT}' font-weight="900" font-size="46" fill="#8a3b2a">鬼</text>`;
+      s += `<rect x="34" y="308" width="76" height="86" rx="7" fill="${GD}"/><rect x="42" y="316" width="60" height="70" fill="${W2}"/>`
+        + `<rect x="${w - 110}" y="308" width="76" height="86" rx="7" fill="${GD}"/><rect x="${w - 102}" y="316" width="60" height="70" fill="${W2}"/>`;
+      return s + eave(w) + `<rect y="56" width="${w}" height="18" fill="${W2}" opacity=".8"/>`;
+    } },
+    // 上の屋根(棟に金のシャチホモ)
+    { w: 600, h: 580, d: 50, top: false, art: (w) => roof(w, 44, 152, 128, true) },
+  ];
 };
 
-// ---------- 表紙 738×948 ----------
-A.coverMomo = () => `<defs>
-  <linearGradient id="cvsky" x2="0%" y2="100%"><stop stop-color="#28406e"/><stop offset="1" stop-color="#3f5a8c"/></linearGradient>
-  <radialGradient id="cvglow"><stop stop-color="#ffdf9e"/><stop offset="1" stop-color="#ffdf9e" stop-opacity="0"/></radialGradient>
-  </defs>
-  <rect width="738" height="948" fill="url(#cvsky)"/>
-  <rect width="38" height="948" fill="#152a45"/>
-  <ellipse cx="380" cy="430" rx="330" ry="300" fill="url(#cvglow)" opacity=".5"/>
-  <path d="M0 760Q200 690 420 730T738 706V948H0Z" fill="#243a63"/>
-  <path d="M560 620Q600 540 650 560Q700 520 720 620Z" fill="#1b2c4d"/>
-  <g fill="#f6b7c6"><circle cx="150" cy="300" r="86"/><circle cx="96" cy="360" r="52"/><circle cx="208" cy="356" r="56"/></g>
-  <rect x="140" y="360" width="24" height="120" rx="8" fill="#5f4630"/>
-  <g transform="translate(240 470)">
-    <circle cx="160" cy="150" r="140" fill="#f5a3b8"/><circle cx="104" cy="158" r="96" fill="#f7aec0"/>
-    <path d="M160 16Q196 60 186 104Q160 72 132 104Q124 58 160 16Z" fill="#f9c3cf"/>
-    <path d="M160 40Q150 150 160 282" stroke="#e88ba0" stroke-width="12" fill="none"/>
-    <path d="M170 22Q204 4 226 18Q200 36 178 30Z" fill="#7cbf66"/>
-    <g transform="translate(96 60) scale(.62)">${A.momo({ armR: -140, mouth: 'big' })}</g>
-  </g>
-  ${repeats(10, i => `<path d="M${480 + (i * 137) % 210} ${120 + (i * 89) % 560}q10 -4 18 2q-6 10-18 4Z" fill="#f9c3cf" opacity=".7"/>`)}
-  <text x="388" y="130" font-family='${FONT}' font-weight="900" font-size="84" text-anchor="middle" fill="#0c2340" transform="translate(4 5)">MOMOTARO</text>
-  <text x="388" y="130" font-family='${FONT}' font-weight="900" font-size="84" text-anchor="middle" fill="${gold}">MOMOTARO</text>
-  <text x="384" y="184" font-family='${FONT}' font-weight="700" font-size="30" letter-spacing="6" text-anchor="middle" fill="${cream}">The Peach Boy</text>
-  <text x="384" y="908" font-family='${FONT}' font-weight="700" font-size="20" letter-spacing="7" text-anchor="middle" fill="#f8e3a0">A POP-UP STORYBOOK</text>
-  <rect x="56" y="56" width="626" height="836" fill="none" stroke="${gold}" stroke-width="5"/>
-  <rect x="70" y="70" width="598" height="808" fill="none" stroke="${gold}" stroke-width="2" opacity=".7"/>`;
+// ---------- 船と家来たち 840×500(水線 y=500) ----------
+A.shipParty = () => `<path d="M30 390Q420 470 810 390L770 306Q420 348 70 306Z" fill="#8a5a33"/>
+  <path d="M70 306Q420 348 770 306L770 326Q420 370 70 326Z" fill="#a56f3d"/>
+  <path d="M46 314Q26 254 62 214Q50 268 88 300Z" fill="#e0b23c"/><path d="M794 314Q814 254 778 214Q790 268 752 300Z" fill="#e0b23c"/>
+  <rect x="540" y="112" width="14" height="202" fill="#6b4423"/>
+  <rect x="428" y="110" width="236" height="12" rx="5" fill="#6b4423"/>
+  <rect x="440" y="124" width="212" height="172" rx="6" fill="#fbf6ea"/>
+  <circle cx="546" cy="210" r="52" fill="#e2574c"/>
+  <rect x="440" y="150" width="212" height="6" fill="#d8cdb8"/><rect x="440" y="262" width="212" height="6" fill="#d8cdb8"/>
+  <path class="flag" d="M554 88l62 13l-62 13Z" fill="#f3c64f"/>
+  <ellipse cx="70" cy="452" rx="52" ry="14" fill="#fff"/><ellipse cx="776" cy="452" rx="52" ry="14" fill="#fff"/>
+  <ellipse cx="240" cy="470" rx="70" ry="12" fill="#fff" opacity=".7"/><ellipse cx="600" cy="470" rx="70" ry="12" fill="#fff" opacity=".7"/>
+  <g transform="translate(150 210) scale(.48)">${lib('wild.monkey')}</g>
+  <g transform="translate(262 226) scale(.5)">${lib('dog.shiba')}</g>
+  <g transform="translate(352 186) scale(.55)">${A.momo({ armR: -130, mouth: 'big' })}</g>
+  <g transform="translate(622 205) scale(.42)">${A.pheasant()}</g>`;
+
+// ---------- 地面の描き足し ----------
+// 海(見開き 1440×920。上は空、下は三段の海)
+A.gSea = (o = {}) => {
+  const sky = o.dusk ? '#8fa6c9' : '#cfe9f2';
+  let s = `<rect width="1440" height="920" fill="${sky}"/>
+    <rect y="300" width="1440" height="150" fill="#8fd0f0"/><rect y="450" width="1440" height="190" fill="#6fb8e4"/><rect y="640" width="1440" height="280" fill="#4f9fd0"/>`;
+  for (const [y, k] of [[300, 7], [450, 9], [640, 11], [780, 13]]) {
+    for (let i = 0; i < k; i++) s += `<path d="M${40 + i * (1360 / k)} ${y + 12}q34 -18 68 0" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" opacity=".85"/>`;
+  }
+  for (let i = 0; i < 22; i++) { const r = (i * 97) % 1400 + 20, q = 660 + (i * 53) % 240; s += `<circle cx="${r}" cy="${q}" r="${5 + (i % 3) * 3}" fill="#fff" opacity=".7"/>`; }
+  return s;
+};
+// 鬼ヶ島の岩場(yard:true で城前の石畳)
+A.gRock = (o = {}) => {
+  let s = `<rect width="1440" height="920" fill="#b9b2a8"/>`;
+  if (!o.yard) s += `<rect width="1440" height="120" fill="#4f9fd0"/><path d="M0 118q40 -16 80 0t80 0t80 0t80 0t80 0t80 0t80 0t80 0t80 0t80 0t80 0t80 0t80 0t80 0t80 0t80 0t80 0t80 0" stroke="#fff" stroke-width="6" fill="none"/>`;
+  for (let i = 0; i < 14; i++) { const x = (i * 199) % 1340 + 30, y = (o.yard ? 160 : 170) + (i * 97) % 620;
+    s += `<ellipse cx="${x}" cy="${y}" rx="${90 + (i % 4) * 40}" ry="${44 + (i % 3) * 20}" fill="${i % 2 ? '#a29a8e' : '#c6bfb4'}" opacity=".8"/>`; }
+  const jag = (x, y, w, h, c) => `<path d="M${x} ${y}L${x + w * .3} ${y - h}L${x + w * .55} ${y - h * .4}L${x + w} ${y}Z" fill="${c}"/>`;
+  s += jag(40, 300, 210, 130, '#6e675e') + jag(260, 340, 150, 90, '#7d766c') + jag(1180, 320, 220, 150, '#6e675e') + jag(1040, 350, 150, 90, '#7d766c');
+  if (o.yard) {
+    for (let r = 0; r < 5; r++) for (let cN = 0; cN < 8; cN++) { const x = 120 + cN * 160 + (r % 2) * 40, y = 380 + r * 105;
+      s += `<rect x="${x}" y="${y}" width="146" height="88" rx="12" fill="${(r + cN) % 2 ? '#c6bfb4' : '#b0a99e'}"/>`; }
+    s += `<rect x="560" y="300" width="320" height="34" rx="8" fill="#a29a8e"/><rect x="590" y="266" width="260" height="34" rx="8" fill="#948c81"/><rect x="620" y="232" width="200" height="34" rx="8" fill="#877f74"/>`;
+  }
+  return s;
+};
+
+// ---------- 表紙 738×948(左端 38px は背の帯) ----------
+A.cover = () => `<rect width="738" height="948" fill="#e2574c"/>
+  <rect x="41" width="697" height="948" fill="#e9634f"/>
+  ${Array.from({ length: 12 }, (_, i) => `<path d="M400 600L${400 + 760 * Math.cos(i * Math.PI / 6)} ${600 + 760 * Math.sin(i * Math.PI / 6)}L${400 + 760 * Math.cos(i * Math.PI / 6 + .24)} ${600 + 760 * Math.sin(i * Math.PI / 6 + .24)}Z" fill="#e2574c"/>`).join('')}
+  <rect x="38" width="3" height="948" fill="#e0b23c"/><rect width="38" height="948" fill="#8f2e24"/>
+  <rect x="0" y="444" width="38" height="60" fill="#e0b23c"/>
+  <rect x="58" y="58" width="640" height="832" rx="10" fill="#e0b23c"/><rect x="70" y="70" width="616" height="808" rx="8" fill="#e9634f"/>
+  <path d="M405 432Q400 404 372 398Q398 390 410 414Z" fill="#5aa64e"/><rect x="398" y="408" width="12" height="30" fill="#8a5a33"/>
+  <circle cx="330" cy="580" r="172" fill="#f4a6ae"/><circle cx="470" cy="580" r="150" fill="#f4a6ae"/>
+  <path d="M400 414Q378 560 400 748Q422 560 400 414Z" fill="#d9718a" opacity=".85"/>
+  <ellipse cx="300" cy="520" rx="52" ry="34" fill="#fbd6dc" opacity=".9"/>
+  <g transform="translate(296 706) scale(1.22)">${A.momo({ armR: -130, mouth: 'big', holdR: A_swordHold() })}</g>
+  <text x="392" y="236" text-anchor="middle" font-family='${ENFT}' font-weight="900" font-size="92" letter-spacing="1" fill="#8f2e24">MOMOTARO</text>
+  <text x="388" y="232" text-anchor="middle" font-family='${ENFT}' font-weight="900" font-size="92" letter-spacing="1" fill="#f6ecd6">MOMOTARO</text>
+  <text x="392" y="298" text-anchor="middle" font-family='${ENFT}' font-weight="900" font-size="32" letter-spacing="7" fill="#f6ecd6">THE PEACH BOY</text>`;
