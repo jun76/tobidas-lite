@@ -104,7 +104,7 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 |---|---|
 | 画風 | 10種: 切り紙、フラット、クレヨン、レトロ、ネオン、リソグラフ、ポップアート、モノクロ、黒板、ドット絵 |
 | 机 | 10種: 板張り、白木、麻布、フェルト、大理石、芝生、青空、星空、カッティングマット、鉄板 |
-| 動く背景 | 4種: 海辺、草原、森、市街 |
+| 動く背景 | 5種: 海辺、草原、森、市街、レトロゲーム |
 | 曲集 | 5種: オルゴール、鼓笛隊、ハープ、和笛、チップチューン |
 
 机・背景と曲は、内蔵から選ぶか、その作品のためにエージェントに書き下ろしてもらうかを決められます。画風は内蔵から選びます。見本画像は [`themes/storybook/previews/`](skills/tobidas-lite/themes/storybook/previews/) に、テーマの書式は [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) にあります。
@@ -156,7 +156,7 @@ node scripts/render-video.mjs themes/storybook/examples/jack
 
 次のものはスキルの範囲外です。
 
-- 動画ファイル。
+- 動画ファイルを素材として作品の中に入れること。素材に使えるのは画像と音声です。完成した作品を動画ファイルに書き出すことはできます(`render-video.mjs`)。
 - 読み上げ(声)の生成。用意した声の音声ファイルを鳴らすことはできます。後付けできるように、現在時刻を通知する `tobidas:time` イベントも用意しています。
 
 ## ライセンス

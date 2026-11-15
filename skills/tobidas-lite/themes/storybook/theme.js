@@ -24,7 +24,7 @@
     // 海辺: 空と雲、寄せては返す波の重なり、沖の帆かけ舟、かもめ、手前の砂浜と波打ちぎわ
     seaside: {
       svg: () => {
-        let s = skyGrad('scA', '#7cc6f2', '#e4f5fc', 420) + `<circle cx="1560" cy="150" r="150" fill="#fff6d0" opacity=".35"/><circle cx="1560" cy="150" r="78" fill="#fff3b8"/>`;
+        let s = skyGrad('scA', '#7cc6f2', '#e4f5fc', 420);
         s += sCloud(200, 150, 1.2) + sCloud(820, 90, .8) + sCloud(1250, 210, 1) + sCloud(1750, 300, .7);
         s += `<rect x="-100" y="400" width="2120" height="780" fill="#2f8fcc"/>`;
         [[420, 10, 190, '#3f9fd6'], [480, 14, 230, '#4bacde'], [560, 18, 280, '#5ab8e4'], [660, 22, 330, '#6cc4ea'], [780, 26, 400, '#84d0ee']].forEach(([y, a, l, c], i) => s += `<path class="wv" data-i="${i}" d="${wavePath(y, a, l, 3 + i)}" fill="${c}"/>`);
@@ -166,6 +166,37 @@
       },
       room: ['#f3dcc0', '#b89a8a', '#4f4a5c'], light: '255,238,206', blur: 5,
     },
+    // レトロゲーム: 横へ流れていくドット絵の景色。色の帯の空、またたく四角い光、四角い雲、段々の山と丘、手前に草と土のブロック。
+    // 遠い物ほどゆっくり流れ、動きは半ますずつ進む。ぼかしは弱くして、ますの角を残す
+    game: {
+      svg: () => {
+        const U = 12, W = 1920, r = R(31), g = v => Math.round(v / U) * U, sq = (x, y, w, h = w) => `M${x} ${y}h${w}v${h}h${-w}Z`;
+        // 高さの並び(柱の幅 w ごと)を段々の形にする。同じ並びを2回つないで描き、1920 ずれたら元へ戻して流しつづける
+        const steps = (hs, w, base, lift = 0) => { let d = `M0 ${base}`; for (let k = 0; k < hs.length * 2; k++) d += `V${base - hs[k % hs.length] + lift}h${w}`; return d + `V${base}Z`; };
+        const cols = W / (U * 2), far = Array.from({ length: cols }, (_, i) => { let h = 0; for (const [cx, hw, H] of [[260, 300, 300], [760, 380, 420], [1280, 260, 260], [1680, 340, 360]]) for (const o of [-W, 0, W]) h = Math.max(h, H * (1 - Math.abs(i * U * 2 + U - cx - o) / hw)); return g(h); });
+        const near = Array.from({ length: cols }, (_, i) => { const a = i / cols * 2 * PI; return g(150 + 70 * Math.sin(a * 2 + 1) + 40 * Math.sin(a * 5) + 22 * Math.sin(a * 9 + 2)); });
+        const cloud = (x, y, k, v) => `<g class="gc" data-x="${x}" data-y="${y}" data-v="${v}"><g transform="scale(${k})"><path d="${sq(0, U * 2, U * 12, U * 2)}${sq(U, U, U * 9, U)}${sq(U * 3, 0, U * 4, U)}" fill="#fff"/><path d="${sq(0, U * 3, U * 12, U)}" fill="#cfe4f7"/></g></g>`;
+        let s = `<defs>${lgrad('gmDark', [[0, '#141a3a', 0], [1, '#141a3a', .66]])}</defs>`;
+        [['#4f86d9', -100, 360], ['#6699e3', 260, 180], ['#80afea', 440, 150], ['#a3c8f2', 590, 130], ['#c9e0f8', 720, 400]].forEach(([c, y, h]) => s += `<rect x="-100" y="${y}" width="2120" height="${h + 1}" fill="${c}"/>`);
+        for (let i = 0; i < 16; i++) { const x = g(r() * W), y = g(40 + r() * 380); s += `<path class="gs" data-p="${N1(r() * 6.3)}" d="${sq(x, y - U, U, U * 3)}${sq(x - U, y, U * 3, U)}" fill="#fff" opacity=".8"/>`; }
+        s += cloud(180, 120, 1.5, 9) + cloud(760, 70, 1, 6) + cloud(1180, 250, 1.2, 8) + cloud(1840, 330, .8, 5) + cloud(480, 330, .7, 4);
+        s += `<g class="gm" data-v="7" data-w="${W}"><path d="${steps(far, U * 2, 880)}" fill="#8c9ee0"/><path d="${steps(far, U * 2, 880, U * 3)}" fill="#7a8bd2"/></g>`;
+        s += `<g class="gm" data-v="18" data-w="${W}"><path d="${steps(near, U * 2, 884)}" fill="#7fd070"/><path d="${steps(near, U * 2, 884, U * 2)}" fill="#5fb85e"/><path d="${steps(near, U * 2, 884, U * 7)}" fill="#4ea452"/></g>`;
+        // 茂みと、草と土のブロック
+        let bush = ''; for (const x of [96, 504, 984, 1344, 1704]) for (const o of [0, W]) bush += `<path d="${sq(x + o, 844, U * 9, U * 3)}${sq(x + o + U, 832, U * 7, U)}${sq(x + o + U * 3, 820, U * 3, U)}" fill="#3f9a4c"/><path d="${sq(x + o + U, 844, U * 2, U)}${sq(x + o + U * 5, 832, U * 2, U)}" fill="#63c064"/>`;
+        s += `<g class="gm" data-v="34" data-w="${W}">${bush}</g>`;
+        let tiles = ''; for (let x = 0; x < W + U * 8; x += U * 4) tiles += sq(x, 904, U * 2) + sq(x + U * 2, 928, U * 2) + sq(x, 952, U * 2) + sq(x + U * 2, 976, U * 2) + sq(x, 1000, U * 2) + sq(x + U * 2, 1024, U * 2) + sq(x, 1048, U * 2) + sq(x + U * 2, 1072, U * 2);
+        s += `<g class="gm" data-v="52" data-w="${U * 4}"><rect x="-100" y="880" width="${W + 300}" height="${U * 2}" fill="#7bd35f"/><rect x="-100" y="${880 + U * 2}" width="${W + 300}" height="300" fill="#b9743f"/><path d="${tiles}" fill="#9f6134"/></g>`;
+        return s + `<rect x="-100" y="740" width="2120" height="360" fill="url(#gmDark)"/>`;
+      },
+      anim: (t, el, q) => {
+        const st = v => Math.round(v / 6) * 6;   // 半ますずつ
+        each(el, q, '.gm', e => tr(e, -st((t * +e.dataset.v) % +e.dataset.w), 0));
+        each(el, q, '.gc', e => tr(e, st(wrap(+e.dataset.x - t * +e.dataset.v, -300, 2220)), +e.dataset.y));
+        each(el, q, '.gs', e => e.setAttribute('opacity', Math.sin(t * 1.3 + +e.dataset.p) > .3 ? '.85' : '.12'));
+      },
+      room: ['#bcdcff', '#6a8fd0', '#2a3566'], light: '236,244,255', blur: 1.5,
+    },
   };
   Tobidas.theme({
     id: 'storybook', label: '童話の絵本', engine: 1,
@@ -212,6 +243,7 @@
       meadow: { label: '草原(動く背景)', scene: SCENES.meadow, room: SCENES.meadow.room, light: SCENES.meadow.light },
       forest: { label: '森(動く背景)', scene: SCENES.forest, room: SCENES.forest.room, light: SCENES.forest.light },
       town: { label: '市街(動く背景)', scene: SCENES.town, room: SCENES.town.room, light: SCENES.town.light },
+      game: { label: 'レトロゲーム(動く背景)', scene: SCENES.game, room: SCENES.game.room, light: SCENES.game.light },
     },
 
     sound: {

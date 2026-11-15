@@ -9,7 +9,7 @@
 | 項目 | 内蔵 | 作品定義での書き方 |
 |---|---|---|
 | **画風** | `kirigami` 切り紙(既定)/ `flat` フラット / `crayon` クレヨン / `vintage` レトロ / `neon` ネオン / `riso` リソグラフ / `popart` ポップアート / `mono` モノクロ / `chalk` 黒板 / `pixel` ドット絵 | `theme: { style: 'kirigami' }` |
-| **机・背景** | 机: `wood` 板張り(既定)/ `lightwood` 白木 / `linen` 麻布 / `felt` フェルト / `marble` 大理石 / `grass` 芝生 / `sky` 青空 / `night` 星空 / `mat` カッティングマット / `steel` 鉄板。動く背景: `seaside` 海辺 / `meadow` 草原 / `forest` 森 / `town` 市街 | `theme: { desk: 'wood' }` |
+| **机・背景** | 机: `wood` 板張り(既定)/ `lightwood` 白木 / `linen` 麻布 / `felt` フェルト / `marble` 大理石 / `grass` 芝生 / `sky` 青空 / `night` 星空 / `mat` カッティングマット / `steel` 鉄板。動く背景: `seaside` 海辺 / `meadow` 草原 / `forest` 森 / `town` 市街 / `game` レトロゲーム | `theme: { desk: 'wood' }` |
 | **曲** | 曲集 `musicbox` オルゴール(既定)/ `march` 鼓笛隊 / `lullaby` ハープ / `wafu` 和笛 / `chip` チップチューン。音なしも可 | `sound: { set: 'musicbox' }`(音なしは `sound: false`) |
 
 机・背景は内蔵なら全部の見開きで共通。書き下ろすなら、見開きごとにその場面に合う背景を書く(`presets.md`)。

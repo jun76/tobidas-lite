@@ -104,7 +104,7 @@ The look and sound live in a folder called a theme, which can be swapped. One th
 |---|---|
 | Art style | 10: paper-cut, flat, crayon, retro, neon, risograph, pop art, monochrome, chalkboard, pixel art |
 | Desk | 10: wood, light wood, linen, felt, marble, grass, sky, night sky, cutting mat, steel plate |
-| Moving background | 4: seaside, meadow, forest, town |
+| Moving background | 5: seaside, meadow, forest, town, retro game |
 | Music set | 5: music box, fife and drum, harp, Japanese flute, chiptune |
 
 For the desk or background and the music, you either pick a built-in choice or have the agent write a new one for that book. The art style is picked from the built-in choices. Preview images are in [`themes/storybook/previews/`](skills/tobidas-lite/themes/storybook/previews/). The theme format is described in [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) (in Japanese).
@@ -158,7 +158,7 @@ A book is deterministic: given a time `t`, it draws one frame. Wheel scrolling, 
 
 The following are outside the scope of the skill.
 
-- Video files.
+- Using video files as material inside a book. Only image and audio files can be used as material. A finished book can still be exported as a video file (`render-video.mjs`).
 - Generating narration (voice). Voice audio files you provide can be played. A `tobidas:time` event also reports the current time so you can add your own playback.
 
 ## License
