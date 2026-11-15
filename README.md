@@ -36,14 +36,14 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 
 | 作品 | 言語 | 見開き数 | 見た目 | 制作 | 備考 |
 |---|---|---|---|---|---|
-| [`examples/jack`](skills/tobidas-lite/themes/storybook/examples/jack/): ジャックと豆の木 | 日本語 | 7 | 切り紙、板張りの机 | Claude Fable5.2 medium | 数ターン微調整 |
-| [`examples/urashima`](skills/tobidas-lite/themes/storybook/examples/urashima/): Urashima Taro | 英語 | 8 | クレヨン、動く背景の海辺、和風の曲 | Claude Fable5.2 medium | 数ターン微調整 |
-| [`examples/alice`](skills/tobidas-lite/themes/storybook/examples/alice/): 不思議な国のアリス | 日本語 | 6 | レトロ、見開きごとに変わる背景 | GPT6.1-Sol medium | 1ターンで作成 |
-| [`examples/le-petit-prince`](skills/tobidas-lite/themes/storybook/examples/le-petit-prince/): Le Petit Prince | フランス語 | 6 | レトロ、見開きごとに変わる背景 | Claude Opus 5.5 medium | 1ターンで作成 |
-| [`examples/momotaro`](skills/tobidas-lite/themes/storybook/examples/momotaro/): Momotaro | 英語 | 6 | 切り紙、見開きごとに変わる背景 | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) | 1ターンで作成 |
-| [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/storybook/examples/hanasaka-jiisan/): はなさかじいさん | 日本語 | 6 | 切り紙、見開きごとに書き下ろした背景・和風BGM | GPT-6 Astra medium | 1ターンで作成 |
+| [`examples/jack`](skills/tobidas-lite/themes/default/examples/jack/): ジャックと豆の木 | 日本語 | 7 | 切り紙、板張りの机 | Claude Fable5.2 medium | 数ターン微調整 |
+| [`examples/urashima`](skills/tobidas-lite/themes/default/examples/urashima/): Urashima Taro | 英語 | 8 | クレヨン、動く背景の海辺、和風の曲 | Claude Fable5.2 medium | 数ターン微調整 |
+| [`examples/alice`](skills/tobidas-lite/themes/default/examples/alice/): 不思議な国のアリス | 日本語 | 6 | レトロ、見開きごとに変わる背景 | GPT6.1-Sol medium | 1ターンで作成 |
+| [`examples/le-petit-prince`](skills/tobidas-lite/themes/default/examples/le-petit-prince/): Le Petit Prince | フランス語 | 6 | レトロ、見開きごとに変わる背景 | Claude Opus 5.5 medium | 1ターンで作成 |
+| [`examples/momotaro`](skills/tobidas-lite/themes/default/examples/momotaro/): Momotaro | 英語 | 6 | 切り紙、見開きごとに変わる背景 | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) | 1ターンで作成 |
+| [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/default/examples/hanasaka-jiisan/): はなさかじいさん | 日本語 | 6 | 切り紙、見開きごとに書き下ろした背景・和風BGM | GPT-6 Astra medium | 1ターンで作成 |
 
-見本は `skills/tobidas-lite/themes/storybook/` の下にあります。
+見本は `skills/tobidas-lite/themes/default/` の下にあります。
 
 ### 操作
 
@@ -98,7 +98,7 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 
 ## テーマ
 
-見た目と音の素材は「テーマ」というフォルダ単位でまとまっていて、差し替えられます。同梱しているのは `storybook`(童話の絵本)です。
+見た目と音の素材は「テーマ」というフォルダ単位でまとまっていて、差し替えられます。同梱しているのは `default`(童話の絵本)です。
 
 | 項目 | 内蔵の選択肢 |
 |---|---|
@@ -106,28 +106,28 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 | 机 | 10種: 板張り、白木、麻布、フェルト、大理石、芝生、青空、星空、カッティングマット、鉄板 |
 | 動く背景 | 5種: 海辺、草原、森、市街、レトロゲーム |
 | 曲集 | 5種: オルゴール、鼓笛隊、ハープ、和笛、チップチューン |
-| 絵の部品 | 300点: 家、城、木、山、乗り物、人物、動物、家具、道具、食べ物など(見本は [`previews/parts/`](skills/tobidas-lite/themes/storybook/previews/parts/)) |
+| 絵の部品 | 300点: 家、城、木、山、乗り物、人物、動物、家具、道具、食べ物など(見本は [`previews/parts/`](skills/tobidas-lite/themes/default/previews/parts/)) |
 
-机・背景と曲は、内蔵から選ぶか、その作品のためにエージェントに書き下ろしてもらうかを決められます。画風は内蔵から選びます。見本画像は [`themes/storybook/previews/`](skills/tobidas-lite/themes/storybook/previews/) に、テーマの書式は [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) にあります。
+机・背景と曲は、内蔵から選ぶか、その作品のためにエージェントに書き下ろしてもらうかを決められます。画風は内蔵から選びます。見本画像は [`themes/default/previews/`](skills/tobidas-lite/themes/default/previews/) に、テーマの書式は [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) にあります。
 
 ## スクリプト
 
 `skills/tobidas-lite/` で実行します。
 
 ```bash
-node scripts/new-book.mjs ../my-book --theme storybook
+node scripts/new-book.mjs ../my-book --theme default
 ```
 
 ひな形とテーマから、新しい作品フォルダを作ります。
 
 ```bash
-node scripts/check.mjs themes/storybook/examples/jack
+node scripts/check.mjs themes/default/examples/jack
 ```
 
 代表フレームを撮って一覧画像にまとめ、音の間違いも報告します。
 
 ```bash
-node scripts/render-video.mjs themes/storybook/examples/jack
+node scripts/render-video.mjs themes/default/examples/jack
 ```
 
 音つきの動画を書き出します。これだけ ffmpeg も必要です。

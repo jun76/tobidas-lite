@@ -36,14 +36,14 @@ Six finished books are included, all made with this skill. The model used for ea
 
 | Book | Language | Spreads | Look | Made by | Notes |
 |---|---|---|---|---|---|
-| [`examples/jack`](skills/tobidas-lite/themes/storybook/examples/jack/) — Jack and the Beanstalk | Japanese | 7 | Paper-cut style, wooden desk | Claude Fable5.2 medium | Minor adjustments over a few turns |
-| [`examples/urashima`](skills/tobidas-lite/themes/storybook/examples/urashima/) — Urashima Taro | English | 8 | Crayon style, moving seaside, Japanese-style music | Claude Fable5.2 medium | Minor adjustments over a few turns |
-| [`examples/alice`](skills/tobidas-lite/themes/storybook/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Retro style, a different background for each spread | GPT6.1-Sol medium | Created in one turn |
-| [`examples/le-petit-prince`](skills/tobidas-lite/themes/storybook/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Retro style, a different background for each spread | Claude Opus 5.5 medium | Created in one turn |
-| [`examples/momotaro`](skills/tobidas-lite/themes/storybook/examples/momotaro/) — Momotaro | English | 6 | Paper-cut style, a different background for each spread | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) | Created in one turn |
-| [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/storybook/examples/hanasaka-jiisan/) — Hanasaka Jiisan | Japanese | 6 | Paper-cut style, original backgrounds for each spread and original Japanese-style BGM | GPT-6 Astra medium | Created in one turn |
+| [`examples/jack`](skills/tobidas-lite/themes/default/examples/jack/) — Jack and the Beanstalk | Japanese | 7 | Paper-cut style, wooden desk | Claude Fable5.2 medium | Minor adjustments over a few turns |
+| [`examples/urashima`](skills/tobidas-lite/themes/default/examples/urashima/) — Urashima Taro | English | 8 | Crayon style, moving seaside, Japanese-style music | Claude Fable5.2 medium | Minor adjustments over a few turns |
+| [`examples/alice`](skills/tobidas-lite/themes/default/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Retro style, a different background for each spread | GPT6.1-Sol medium | Created in one turn |
+| [`examples/le-petit-prince`](skills/tobidas-lite/themes/default/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Retro style, a different background for each spread | Claude Opus 5.5 medium | Created in one turn |
+| [`examples/momotaro`](skills/tobidas-lite/themes/default/examples/momotaro/) — Momotaro | English | 6 | Paper-cut style, a different background for each spread | Qwen3.8 Flash Next Unsloth UD-Q4_K_XL high (Strata) | Created in one turn |
+| [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/default/examples/hanasaka-jiisan/) — Hanasaka Jiisan | Japanese | 6 | Paper-cut style, original backgrounds for each spread and original Japanese-style BGM | GPT-6 Astra medium | Created in one turn |
 
-The examples are under `skills/tobidas-lite/themes/storybook/`.
+The examples are under `skills/tobidas-lite/themes/default/`.
 
 ### Controls
 
@@ -98,7 +98,7 @@ Once asked, the agent works through these steps:
 
 ## Themes
 
-The look and sound live in a folder called a theme, which can be swapped. One theme, `storybook`, is included.
+The look and sound live in a folder called a theme, which can be swapped. One theme, `default`, is included.
 
 | Item | Built-in choices |
 |---|---|
@@ -106,28 +106,28 @@ The look and sound live in a folder called a theme, which can be swapped. One th
 | Desk | 10: wood, light wood, linen, felt, marble, grass, sky, night sky, cutting mat, steel plate |
 | Moving background | 5: seaside, meadow, forest, town, retro game |
 | Music set | 5: music box, fife and drum, harp, Japanese flute, chiptune |
-| Drawing parts | 300: houses, castles, trees, mountains, vehicles, people, animals, furniture, tools, food and more (previews in [`previews/parts/`](skills/tobidas-lite/themes/storybook/previews/parts/)) |
+| Drawing parts | 300: houses, castles, trees, mountains, vehicles, people, animals, furniture, tools, food and more (previews in [`previews/parts/`](skills/tobidas-lite/themes/default/previews/parts/)) |
 
-For the desk or background and the music, you either pick a built-in choice or have the agent write a new one for that book. The art style is picked from the built-in choices. Preview images are in [`themes/storybook/previews/`](skills/tobidas-lite/themes/storybook/previews/). The theme format is described in [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) (in Japanese).
+For the desk or background and the music, you either pick a built-in choice or have the agent write a new one for that book. The art style is picked from the built-in choices. Preview images are in [`themes/default/previews/`](skills/tobidas-lite/themes/default/previews/). The theme format is described in [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) (in Japanese).
 
 ## Scripts
 
 Run these from `skills/tobidas-lite/`.
 
 ```bash
-node scripts/new-book.mjs ../my-book --theme storybook
+node scripts/new-book.mjs ../my-book --theme default
 ```
 
 Creates a new book folder from the template and the theme.
 
 ```bash
-node scripts/check.mjs themes/storybook/examples/jack
+node scripts/check.mjs themes/default/examples/jack
 ```
 
 Captures representative frames into one contact sheet, and reports sound errors.
 
 ```bash
-node scripts/render-video.mjs themes/storybook/examples/jack
+node scripts/render-video.mjs themes/default/examples/jack
 ```
 
 Exports a video with sound. This one also needs ffmpeg.

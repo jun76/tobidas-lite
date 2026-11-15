@@ -1,5 +1,5 @@
 {
- "theme": "storybook",
+ "theme": "default",
  "defaults": {
   "style": "kirigami",
   "desk": "wood",

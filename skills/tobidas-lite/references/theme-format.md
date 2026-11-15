@@ -30,7 +30,7 @@ themes/<名前>/
 (function () {
   const { edge, grain, tex, noise, planks, grid } = Tobidas.fx, B = Tobidas.sound.bars;
   Tobidas.theme({
-    id: 'storybook',            // フォルダ名と同じ
+    id: 'default',            // フォルダ名と同じ
     label: '童話の絵本',
     engine: 1,                  // 対応するエンジンの版(Tobidas.VERSION より大きいと警告が出る)
     defaults: { style: 'kirigami', desk: 'wood', set: 'musicbox' },   // 作品が指定しなかったときに使う名前
@@ -112,7 +112,7 @@ seaside: { label: '海辺(動く背景)', room: [...], light: '255,250,226',
 
 部品が多いときは `parts-*.js` に分けてよい。`new-book.mjs` が、作品の `index.html` に `theme/parts.js` の次へ読み込みを足す(名前の順)。
 
-名前で呼び出す部品をまとめるなら、storybook の「目録」と同じ形にする: `defPart(名前, 表示名, 幅, 高さ, (絵の設定, 幅, 高さ) => SVG, pc の既定の設定, 絵の設定の説明)` で登録し、作品からは `put(名前, X, Y, 設定)` / `lib(名前, 絵の設定)` で使う(`themes/storybook/parts.js` の「部品の目録」)。`node scripts/parts-sheet.mjs --theme <テーマ>` が、登録した部品の見本画像(`previews/parts/`)と一覧(`parts-lib.md`)を作る。
+名前で呼び出す部品をまとめるなら、default の「目録」と同じ形にする: `defPart(名前, 表示名, 幅, 高さ, (絵の設定, 幅, 高さ) => SVG, pc の既定の設定, 絵の設定の説明)` で登録し、作品からは `put(名前, X, Y, 設定)` / `lib(名前, 絵の設定)` で使う(`themes/default/parts.js` の「部品の目録」)。`node scripts/parts-sheet.mjs --theme <テーマ>` が、登録した部品の見本画像(`previews/parts/`)と一覧(`parts-lib.md`)を作る。
 
 部品の一覧と寸法は、そのテーマの資料に書く。
 

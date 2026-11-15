@@ -1,6 +1,6 @@
 // tobidas sound — BGMと効果音を、作品定義からブラウザ内で合成する音源。曲と効果音の定義はテーマが持つ。作品ごとに編集しない。
 //   音声ファイルも混ぜられる(sound.files と、sfx の名前にファイルのパス)。全体を1本の波形として作っておくので、どの時刻からでも再生できる(player.js が自動再生中に鳴らす)。
-//   作品側の書き方はテーマの資料(storybook なら themes/storybook/sound.md)。  見開きの music: '気分' / sfx: [[tl, '名前', {…}]]、全体の sound: { off, auto, music, files, moods, tunes, extra }
+//   作品側の書き方はテーマの資料(default なら themes/default/sound.md)。  見開きの music: '気分' / sfx: [[tl, '名前', {…}]]、全体の sound: { off, auto, music, files, moods, tunes, extra }
 (function () {
   const SR = 44100, PI = Math.PI, hz = m => 440 * Math.pow(2, (m - 69) / 12);
   // ---- 曲の素材(3拍子・8小節)。chords は CH の名前、mel は小節ごとの [拍, MIDI音程] ----

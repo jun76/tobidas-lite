@@ -2,12 +2,12 @@
 
 机・曲はそれぞれ **内蔵から選ぶ** か **その作品のために書き下ろす** かを、最初の聞き取りでユーザーが決める。画風は内蔵から選び、書き下ろしは聞き取りでは持ちかけない(ユーザーが自分から頼んだときだけ行う)。書き下ろしはユーザーが選んだときだけ行い、選ばれなかった項目は必ず内蔵を使う(内蔵は見え方・聞こえ方を確認済みで、誰が作っても同じ結果になるため)。
 
-見本画像: `themes/storybook/previews/styles.jpg`(画風)、`themes/storybook/previews/desks.jpg`(机)。作り直すには `node scripts/gallery.mjs themes/storybook/examples/jack --out themes/storybook/previews`。
+見本画像: `themes/default/previews/styles.jpg`(画風)、`themes/default/previews/desks.jpg`(机)。作り直すには `node scripts/gallery.mjs themes/default/examples/jack --out themes/default/previews`。
 作品を開いたまま試すには、URL に `?style=crayon&desk=felt&set=march` を付ける(作品定義より優先される)。画面左上のプルダウンでも、画風・背景・曲を切り替えられる。
 
 ## 画風 `theme.style`
 
-パーツの絵そのものは `themes/storybook/art-style.md` のとおり平塗りで描き、画風はその上にかかる仕上げ(縁・質感・色合い)として切り替わる。上の4つは絵本らしい仕上げ、下の6つは絵本らしさにとらわれない、見た目の差が大きい仕上げ。
+パーツの絵そのものは `themes/default/art-style.md` のとおり平塗りで描き、画風はその上にかかる仕上げ(縁・質感・色合い)として切り替わる。上の4つは絵本らしい仕上げ、下の6つは絵本らしさにとらわれない、見た目の差が大きい仕上げ。
 
 | 名前 | 見え方 | 向く題材 | 描くときの注意 |
 |---|---|---|---|
@@ -85,7 +85,7 @@ theme: { desk: {
 
 ## 曲 `sound.set`
 
-曲集1つは3曲(`main` 明るい主題 / `sub` もうひとつの明るい曲 / `minor` 短調)でできていて、見開きの `music`(気分)がこの3曲を速さや高さを変えて使い分ける(`themes/storybook/sound.md`)。
+曲集1つは3曲(`main` 明るい主題 / `sub` もうひとつの明るい曲 / `minor` 短調)でできていて、見開きの `music`(気分)がこの3曲を速さや高さを変えて使い分ける(`themes/default/sound.md`)。
 
 | 名前 | 感じ | 向く題材 |
 |---|---|---|
