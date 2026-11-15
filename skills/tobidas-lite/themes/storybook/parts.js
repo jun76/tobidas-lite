@@ -199,3 +199,32 @@ const hillTrees = (n, seed, s, pine) => yf => {
   return o;
 };
 const GR = ['#ff9ecb', '#fff', '#ffd24d', '#ff7f7f'];
+
+// ================= 部品の目録(名前で呼び出す絵) =================
+// 目録の絵は parts-*.js が登録する。一覧と寸法は themes/storybook/parts-lib.md、見た目は previews/parts/ の画像。
+//   put('house.log', X, Y, { k: 1.2 })              pieces にそのまま入れるパーツを返す(箱の大きさと既定の動きは目録が持つ)
+//   put('fence.hedge', X, Y, { art: { w: 600 } })   art に絵の設定(色や、伸び縮みする部品の w / h)を書く。flip: true で左右を反転
+//   lib('tool.axe', { c: '#888' })                  SVG の中身の文字列だけを返す(人物の holdR に持たせる、別の絵に組みこむ、など)
+const LIB = {};
+const defPart = (name, label, w, h, art, o = {}, note = '') => { LIB[name] = { name, label, w, h, art, o, note, group: defPart.group || '' }; };
+const libMiss = name => { if (typeof Tobidas !== 'undefined') Tobidas.warnings.push(`部品 '${name}' は目録にありません(themes/storybook/parts-lib.md の名前を使う)`); return ''; };
+const lib = (name, a = {}) => { const p = LIB[name]; return p ? p.art(a, a.w || p.w, a.h || p.h) : libMiss(name); };
+const put = (name, X, Y, o = {}) => {
+  const p = LIB[name]; if (!p) { libMiss(name); return pc(X, Y, 10, 10, '', { op: 0, sh: false }); }
+  const { art: a = {}, flip, ...rest } = o, w = a.w || p.w, h = a.h || p.h; let s = p.art(a, w, h);
+  if (flip) s = `<g transform="translate(${w} 0) scale(-1 1)">${s}</g>`;
+  return pc(X, Y, w, h, s, Object.assign({}, p.o, rest));
+};
+// 絵を書くための短い関数(parts-*.js が使う)
+const DRAW = (() => {
+  const n = v => +(+v).toFixed(1);
+  const r = (x, y, w, h, f, rx = 0, x2 = '') => `<rect x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}"${rx ? ` rx="${n(rx)}"` : ''} fill="${f}"${x2}/>`;
+  const c = (x, y, q, f, x2 = '') => `<circle cx="${n(x)}" cy="${n(y)}" r="${n(q)}" fill="${f}"${x2}/>`;
+  const e = (x, y, rx, ry, f, x2 = '') => `<ellipse cx="${n(x)}" cy="${n(y)}" rx="${n(rx)}" ry="${n(ry)}" fill="${f}"${x2}/>`;
+  const p = (d, f, x2 = '') => `<path d="${d}" fill="${f}"${x2}/>`;
+  const l = (d, s, w = 6, x2 = '') => `<path d="${d}" stroke="${s}" stroke-width="${w}" fill="none" stroke-linecap="round" stroke-linejoin="round"${x2}/>`;
+  const g = (cls, s, x2 = '') => `<g class="${cls}"${x2}>${s}</g>`;
+  const at = (x, y, s, k = 1, a = 0) => `<g transform="translate(${n(x)} ${n(y)})${a ? ` rotate(${a})` : ''}${k !== 1 ? ` scale(${k})` : ''}">${s}</g>`;
+  const poly = (pts, f, x2 = '') => p('M' + pts.map(q => n(q[0]) + ' ' + n(q[1])).join('L') + 'Z', f, x2);
+  return { n, r, c, e, p, l, g, at, poly };
+})();

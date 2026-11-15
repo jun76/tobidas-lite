@@ -90,7 +90,7 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 
 Once asked, the agent works through these steps:
 
-1. **Interview.** From the story, it builds a setup page. You open it in a browser, look at the previews, and choose the language used inside the book, the length (4, 6 or 8 spreads), the scene you most want to stand out, whether to use your own image or audio files, and the look and sound (art style, desk or background, music). Then you paste the result into the chat.
+1. **Interview.** From the story, it builds a setup page. You open it in a browser, look at the previews, and choose the language used inside the book, the length (4, 6 or 8 spreads), the scene you most want to stand out, whether to use your own image or audio files, how the things in the book are drawn (ready-made parts only, all drawn for this book, or both), and the look and sound (art style, desk or background, music). Then you paste the result into the chat.
 2. **Outline.** It shows a table with one row per spread (scene, parts that stand up, motion, sound, caption) and waits for your approval.
 3. **Build.** It writes the pictures and the scene definitions for that book on top of the bundled engine and theme.
 4. **Check.** It captures frames with a script, looks at them, and fixes what is wrong.
@@ -106,6 +106,7 @@ The look and sound live in a folder called a theme, which can be swapped. One th
 | Desk | 10: wood, light wood, linen, felt, marble, grass, sky, night sky, cutting mat, steel plate |
 | Moving background | 5: seaside, meadow, forest, town, retro game |
 | Music set | 5: music box, fife and drum, harp, Japanese flute, chiptune |
+| Drawing parts | 300: houses, castles, trees, mountains, vehicles, people, animals, furniture, tools, food and more (previews in [`previews/parts/`](skills/tobidas-lite/themes/storybook/previews/parts/)) |
 
 For the desk or background and the music, you either pick a built-in choice or have the agent write a new one for that book. The art style is picked from the built-in choices. Preview images are in [`themes/storybook/previews/`](skills/tobidas-lite/themes/storybook/previews/). The theme format is described in [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) (in Japanese).
 
@@ -140,7 +141,7 @@ Exports a video with sound. This one also needs ffmpeg.
 | `skills/tobidas-lite/assets/setup/` | Template for the setup page |
 | `skills/tobidas-lite/themes/<theme>/` | Theme pack: styles, desks, music, sound effects, drawing parts, guides, previews, starter, examples |
 | `skills/tobidas-lite/references/` | Guides shared by all themes (book definition API, pitfalls, theme format) |
-| `skills/tobidas-lite/scripts/` | `setup.mjs`, `new-book.mjs`, `check.mjs`, `gallery.mjs`, `embed-audio.mjs`, `render-video.mjs` |
+| `skills/tobidas-lite/scripts/` | `setup.mjs`, `new-book.mjs`, `check.mjs`, `gallery.mjs`, `parts-sheet.mjs`, `embed-audio.mjs`, `render-video.mjs` |
 
 A book folder consists of `index.html`, `engine/`, `theme/` (a copy of the chosen theme) and `book/` (the pictures and definitions for that book).
 

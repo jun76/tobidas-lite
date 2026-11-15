@@ -90,7 +90,7 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 
 頼まれたエージェントは次の順で進めます。
 
-1. 聞き取り: 題材をもとに聞き取りページを作ります。ブラウザで開き、見本を見ながら作中の言語、長さ(見開き4・6・8)、いちばん見せたい場面、素材の有無、見た目と音(画風、机または背景、曲)を選んで、結果を会話に貼ります。
+1. 聞き取り: 題材をもとに聞き取りページを作ります。ブラウザで開き、見本を見ながら作中の言語、長さ(見開き4・6・8)、いちばん見せたい場面、素材の有無、作中の部品(出来合いの部品だけで組むか、描き下ろすか、両方か)、見た目と音(画風、机または背景、曲)を選んで、結果を会話に貼ります。
 2. 構成表: 見開きごとに1行(場面、立ち上がるパーツ、動き、音、字幕)の表を見せ、了承を待ちます。
 3. 制作: 同梱のエンジンとテーマの上に、その作品だけの絵と場面定義を書きます。
 4. 確認: スクリプトでフレームを撮り、画像を見て、崩れているところを直します。
@@ -106,6 +106,7 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 | 机 | 10種: 板張り、白木、麻布、フェルト、大理石、芝生、青空、星空、カッティングマット、鉄板 |
 | 動く背景 | 5種: 海辺、草原、森、市街、レトロゲーム |
 | 曲集 | 5種: オルゴール、鼓笛隊、ハープ、和笛、チップチューン |
+| 絵の部品 | 300点: 家、城、木、山、乗り物、人物、動物、家具、道具、食べ物など(見本は [`previews/parts/`](skills/tobidas-lite/themes/storybook/previews/parts/)) |
 
 机・背景と曲は、内蔵から選ぶか、その作品のためにエージェントに書き下ろしてもらうかを決められます。画風は内蔵から選びます。見本画像は [`themes/storybook/previews/`](skills/tobidas-lite/themes/storybook/previews/) に、テーマの書式は [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) にあります。
 
@@ -140,7 +141,7 @@ node scripts/render-video.mjs themes/storybook/examples/jack
 | `skills/tobidas-lite/assets/setup/` | 聞き取りページのひな形 |
 | `skills/tobidas-lite/themes/<テーマ>/` | テーマパック。画風・机・曲・効果音・絵の部品、資料、見本画像、書き出し、完成見本 |
 | `skills/tobidas-lite/references/` | 全テーマ共通の資料(作品定義の書き方、落とし穴、テーマの書式) |
-| `skills/tobidas-lite/scripts/` | `setup.mjs`、`new-book.mjs`、`check.mjs`、`gallery.mjs`、`embed-audio.mjs`、`render-video.mjs` |
+| `skills/tobidas-lite/scripts/` | `setup.mjs`、`new-book.mjs`、`check.mjs`、`gallery.mjs`、`parts-sheet.mjs`、`embed-audio.mjs`、`render-video.mjs` |
 
 作品フォルダは `index.html`、`engine/`、`theme/`(選んだテーマのコピー)、`book/`(その作品の絵と定義)でできています。
 

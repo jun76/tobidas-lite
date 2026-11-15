@@ -17,6 +17,9 @@ fs.cpSync(path.join(skill, 'assets', 'template'), dest, { recursive: true });
 // テーマのうち、作品が実行時に読むもの(スクリプトと assets/)だけを theme/ に入れる。資料・見本・書き出しは入れない
 fs.mkdirSync(path.join(dest, 'theme'));
 for (const f of fs.readdirSync(themeDir)) { const src = path.join(themeDir, f); if (/\.(js|css)$/.test(f) || f === 'assets') fs.cpSync(src, path.join(dest, 'theme', f), { recursive: true }); }
+// テーマの部品の目録(parts-*.js)があれば、index.html の theme/parts.js の次に読み込みを足す
+{ const extra = fs.readdirSync(path.join(dest, 'theme')).filter(f => /^parts-.*\.js$/.test(f)).sort(), idx = path.join(dest, 'index.html'), tag = '<script src="theme/parts.js"></script>\n', html = fs.readFileSync(idx, 'utf8');
+  if (extra.length && html.includes(tag)) fs.writeFileSync(idx, html.replace(tag, tag + extra.map(f => `<script src="theme/${f}"></script>\n`).join(''))); }
 fs.mkdirSync(path.join(dest, 'assets'), { recursive: true });   // 画像・音声ファイルを使う作品は、ここに置く(使わなければ空のまま)
 const starter = path.join(themeDir, 'starter', 'book');
 if (fs.existsSync(starter)) fs.cpSync(starter, path.join(dest, 'book'), { recursive: true }); else fs.mkdirSync(path.join(dest, 'book'));
