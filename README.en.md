@@ -32,15 +32,15 @@ The goal of tobidas-lite is that **you give an agent the URL of this repository 
 
 ## Examples
 
-Five finished books are included, all made with this skill. The model used for each book is listed below. Clone the repository and open the `index.html` of each in a browser.
+Five finished books are included, all made with this skill. The model used for each book is listed below. Open a link in the table to view the book right in your browser. If you clone the repository, open the `index.html` of each book.
 
 | Book | Language | Spreads | Look (art style / background / music) | Made by | Notes |
 |---|---|---|---|---|---|
-| [`examples/jack`](skills/tobidas-lite/themes/default_storybook/examples/jack/) — Jack and the Beanstalk | Japanese | 8 | Paper-cut / wooden desk / music box | Claude Fable5.2 medium | Minor adjustments over a few turns |
-| [`examples/urashima`](skills/tobidas-lite/themes/default_storybook/examples/urashima/) — Urashima Taro | English | 8 | Crayon / moving seaside / Japanese flute | Claude Opus 5.5 medium | Minor adjustments over a few turns |
-| [`examples/alice`](skills/tobidas-lite/themes/default_storybook/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Flat / original backgrounds / fife and drum | GPT-6 Astra medium | Created in one turn |
-| [`examples/saiyuki`](skills/tobidas-lite/themes/default_storybook/examples/saiyuki/) — 西游记 (Journey to the West) | Chinese | 6 | Pixel art / original backgrounds / chiptune | GPT6.1-Sol medium | Created in one turn |
-| [`examples/momotaro`](skills/tobidas-lite/themes/default_storybook/examples/momotaro/) — Momotaro | English | 8 | Pop art / moving meadow / Japanese flute | Qwen 3.8 Flash Next IQ3_S xhigh (Strata) | Minor adjustments over a few turns. Local LLM reference implementation |
+| [`examples/jack`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/jack/) — Jack and the Beanstalk | Japanese | 8 | Paper-cut / wooden desk / music box | Claude Fable5.2 medium | Minor adjustments over a few turns |
+| [`examples/urashima`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/urashima/) — Urashima Taro | English | 8 | Crayon / moving seaside / Japanese flute | Claude Opus 5.5 medium | Minor adjustments over a few turns |
+| [`examples/alice`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Flat / original backgrounds / fife and drum | GPT-6 Astra medium | Created in one turn |
+| [`examples/saiyuki`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/saiyuki/) — 西游记 (Journey to the West) | Chinese | 6 | Pixel art / original backgrounds / chiptune | GPT6.1-Sol medium | Created in one turn |
+| [`examples/momotaro`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/momotaro/) — Momotaro | English | 8 | Pop art / moving meadow / Japanese flute | Qwen 3.8 Flash Next IQ3_S xhigh (Strata) | Minor adjustments over a few turns. Local LLM reference implementation |
 
 The examples are under `skills/tobidas-lite/themes/default_storybook/`.
 
