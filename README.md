@@ -32,7 +32,7 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 
 ## 見本
 
-完成見本を6作品同梱しています。いずれもこのスキルを使って制作したもので、制作モデルは表に記載しています。リポジトリを clone して、それぞれの `index.html` をブラウザで開いてください。
+完成見本を5作品同梱しています。いずれもこのスキルを使って制作したもので、制作モデルは表に記載しています。リポジトリを clone して、それぞれの `index.html` をブラウザで開いてください。
 
 | 作品 | 言語 | 見開き数 | 見た目 | 制作 | 備考 |
 |---|---|---|---|---|---|
@@ -41,7 +41,6 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 | [`examples/alice`](skills/tobidas-lite/themes/default/examples/alice/): 不思議な国のアリス | 日本語 | 6 | レトロ、見開きごとに変わる背景 | GPT-6 Astra medium | 1ターンで作成 |
 | [`examples/le-petit-prince`](skills/tobidas-lite/themes/default/examples/le-petit-prince/): Le Petit Prince | フランス語 | 6 | レトロ、見開きごとに変わる背景 | GPT6.1-Sol medium | 1ターンで作成 |
 | [`examples/momotaro`](skills/tobidas-lite/themes/default/examples/momotaro/): Momotaro | 英語 | 8 | ポップアート、動く背景の野原、和風の曲 | Qwen 3.8 Flash Next IQ3_S (Strata) | 数ターン微調整。内部警告複数・参考実装 |
-| [`examples/hanasaka-jiisan`](skills/tobidas-lite/themes/default/examples/hanasaka-jiisan/): はなさかじいさん | 日本語 | 6 | 切り紙、見開きごとに書き下ろした背景・和風BGM | GPT-6 Astra medium | 1ターンで作成 |
 
 見本は `skills/tobidas-lite/themes/default/` の下にあります。
 
