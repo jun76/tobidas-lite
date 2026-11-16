@@ -34,13 +34,13 @@ The goal of tobidas-lite is that **you give an agent the URL of this repository 
 
 Five finished books are included, all made with this skill. The model used for each book is listed below. Clone the repository and open the `index.html` of each in a browser.
 
-| Book | Language | Spreads | Look | Made by | Notes |
+| Book | Language | Spreads | Look (art style / background / music) | Made by | Notes |
 |---|---|---|---|---|---|
-| [`examples/jack`](skills/tobidas-lite/themes/default/examples/jack/) — Jack and the Beanstalk | Japanese | 8 | Paper-cut style, wooden desk | Claude Fable5.2 medium | Minor adjustments over a few turns |
-| [`examples/urashima`](skills/tobidas-lite/themes/default/examples/urashima/) — Urashima Taro | English | 8 | Crayon style, moving seaside, Japanese-style music | Claude Opus 5.5 medium | Minor adjustments over a few turns |
-| [`examples/alice`](skills/tobidas-lite/themes/default/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Retro style, a different background for each spread | GPT-6 Astra medium | Created in one turn |
-| [`examples/le-petit-prince`](skills/tobidas-lite/themes/default/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Retro style, a different background for each spread | GPT6.1-Sol medium | Created in one turn |
-| [`examples/momotaro`](skills/tobidas-lite/themes/default/examples/momotaro/) — Momotaro | English | 8 | Pop art style, moving meadow, Japanese-style music | Qwen 3.8 Flash Next IQ3_S (Strata) | Minor adjustments over a few turns. Several internal warnings; reference implementation |
+| [`examples/jack`](skills/tobidas-lite/themes/default/examples/jack/) — Jack and the Beanstalk | Japanese | 8 | Paper-cut / wooden desk / music box | Claude Fable5.2 medium | Minor adjustments over a few turns |
+| [`examples/urashima`](skills/tobidas-lite/themes/default/examples/urashima/) — Urashima Taro | English | 8 | Crayon / moving seaside / Japanese flute | Claude Opus 5.5 medium | Minor adjustments over a few turns |
+| [`examples/alice`](skills/tobidas-lite/themes/default/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Flat / original backgrounds / fife and drum | GPT-6 Astra medium | Created in one turn |
+| [`examples/le-petit-prince`](skills/tobidas-lite/themes/default/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Retro / original backgrounds / original music | GPT6.1-Sol medium | Created in one turn |
+| [`examples/momotaro`](skills/tobidas-lite/themes/default/examples/momotaro/) — Momotaro | English | 8 | Pop art / moving meadow / Japanese flute | Qwen 3.8 Flash Next IQ3_S (Strata) | Minor adjustments over a few turns. Several internal warnings; reference implementation |
 
 The examples are under `skills/tobidas-lite/themes/default/`.
 

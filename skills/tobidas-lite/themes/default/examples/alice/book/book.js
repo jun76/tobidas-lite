@@ -12,11 +12,6 @@ const greens=(seed=1)=>[
 ];
 const hills=()=>pc(0,130,1360,240,A.hills(1360,240,'#8daeb0','#94b89b',12,.9),{fold:12,sh:false});
 const camera={start:{d:430,tilt:58,cz:180,yaw:-3},end:{d:390,tilt:58,cz:180,yaw:3}};
-const tune=(chords,notes)=>({beats:3,chords,mel:notes.map(ns=>ns.map((n,i)=>[i,n]))});
-const music={label:'アリスの夢のワルツ',tempo:1,inst:{mel:'box',comp:'arp',bass:'soft',fx:'harp'},
- main:tune(['C','Am','F','G','Em','F','G7','C'],[[76,79,84],[81,84,83],[81,79,77],[79,83],[79,76,74],[77,81,84],[83,81,74],[72]]),
- sub:tune(['C','Em','F','C','Dm','G','G7','C'],[[79,84,88],[83,79,76],[81,84,89],[88,84],[77,81,86],[83,86,79],[83,81,74],[72]]),
- minor:tune(['Am','E','Am','Dm','F','E','E','Am'],[[81,84,83],[80,83,88],[84,81,76],[81,77],[81,84,89],[83,80,76],[80,83,80],[81]])};
 const spreads=[];
 spreads.push({hold:8,music:'airy',scene:A.scene('river'),ground:A.gMeadow({seed:17,pond:[950,370]}),cam:camera,
  caption:['「たいへん、ちこくしちゃう！」','しろうさぎを おって、アリスは あなの なかへ。'],sfx:[[1,'tick'],[3,'steps',{n:3,gap:.4}],[6.5,'fall',{gap:.08}]],
@@ -85,4 +80,4 @@ spreads.push({hold:11,music:[[0,'chase'],[5.4,'none'],[6.2,'gentle']],
  put('item.book',-170,730,{k:.5,art:{c:'#866a82'},dyn:wake})
  ]});
 
-Tobidas.book({title:'不思議な国のアリス — とびだすえほん',lang:'ja',theme:{board:'#244c57',spine:'#183542',style:'vintage',desk:{base:'forest',scene:A.scene('river')}},sound:{set:music},cover:A.cover(),end:{title:'おしまい',sub:'ふしぎな ゆめは、また いつか。'},spreads});
+Tobidas.book({title:'不思議な国のアリス — とびだすえほん',lang:'ja',theme:{board:'#244c57',spine:'#183542',style:'flat',desk:{base:'forest',scene:A.scene('river')}},sound:{set:'march'},cover:A.cover(),end:{title:'おしまい',sub:'ふしぎな ゆめは、また いつか。'},spreads});
