@@ -1,6 +1,7 @@
 // tobidas player — ホイール/キー/タッチで作品の時刻を進めたり戻したりする。作品ごとに編集しない。
 //   ホイール・↑↓ … 進む/戻る   ←→・PageUp/Down … 前後の見開きへ   ▶ボタン・Space … 自動再生(音つき)   M … 音のオン/オフ   Home/End … 最初/最後   D … デバッグ表示
 //   左上のプルダウン … 画風・背景・曲の切り替え(?style= ?desk= ?set= を付けて読み直し、見ていた位置へ戻る。作品の theme.pickers: false で3つとも、theme.stylePicker: false で画風だけ出さない)
+//   画面の文字(操作の案内・ボタンの説明・プルダウン)は、作品の lang が 'ja' なら日本語、ほかは英語。作品の ui: { … } で言語ごとに差し替えられる(references/book-api.md)
 //   音は自動再生中だけ鳴る。どの位置から再生しても、その時刻の音から始まる(engine/sound.js が全体を合成しておく)。
 //   URL: ?t=12.5 … その時刻の静止画だけ描く(チェック・動画化用。HUDなし)   ?autoplay … 自動再生で開始   ?debug … デバッグ表示   ?at=12.5 / ?at=open … その時刻 / 最初の見開きの中ほど(字幕が出そろった所)から始める   ?embed … 操作の案内と画風のプルダウンを出さない(聞き取りページの見本用)
 //   ほかのページに埋め込まれているときは、いまの時刻と再生中かどうかを親へ postMessage で知らせる(聞き取りページが、画風などを替えても同じ位置から、再生中なら再生したまま見せるために使う)
@@ -9,7 +10,7 @@
   const fit = () => { const k = Math.min(innerWidth / 1920, innerHeight / 1080); root.style.transform = `translate(${((innerWidth - 1920 * k) / 2).toFixed(1)}px,${((innerHeight - 1080 * k) / 2).toFixed(1)}px) scale(${k.toFixed(5)})`; };
   fit(); addEventListener('resize', fit);
   const start = () => {
-    const TL = Tobidas.TL, ja = (Tobidas.def.lang || 'ja') === 'ja';
+    const TL = Tobidas.TL, ja = (Tobidas.def.lang || 'ja') === 'ja', UI = Tobidas.def.ui || {}, tx = (k, j, e) => UI[k] || (ja ? j : e);   // 画面の文字。作品の ui: { … } が先、なければ日本語か英語
     if (q.has('t')) { Tobidas.render(+q.get('t')); return; }             // 静止画モード
     const T0 = 1.5;   // 冒頭の暗転(動画用)は飛ばし、表紙が見えている所から始める
     const P = Tobidas.player = { speed: .006, snap: true, target: T0, t: T0, auto: q.has('autoplay'), dir: 1 };
@@ -21,7 +22,7 @@
     const turns = TL.ts.map(a => [a, a + TL.TURN]).concat([[TL.tc, TL.tc + TL.CLOSE]]);
     // --- HUD ---
     const hud = document.createElement('div'); hud.id = 'tb-hud'; hud.innerHTML = `<div class="bar"><div class="fill"></div>${stops.slice(1).map(s => `<div class="tick" style="left:${(s / TL.END * 100).toFixed(3)}%"></div>`).join('')}</div>`;
-    const hint = document.createElement('div'); hint.id = 'tb-hint'; hint.textContent = ja ? 'ホイールでめくる ・ ←→ 見開き ・ ▶ / Space で再生(音つき)' : 'Scroll to turn pages · ←→ spreads · ▶ / Space to play with sound';
+    const hint = document.createElement('div'); hint.id = 'tb-hint'; hint.textContent = tx('hint', 'ホイールでめくる ・ ←→ 見開き ・ ▶ / Space で再生(音つき)', 'Scroll to turn pages · ←→ spreads · ▶ / Space to play with sound');
     if (q.has('embed')) hint.style.display = 'none';
     const dbg = document.createElement('div'); dbg.id = 'tb-debug'; if (q.has('debug')) dbg.style.display = 'block';
     // --- 再生ボタンと音 ---
@@ -39,16 +40,16 @@
       if (list.length + (own ? 1 : 0) < 2) return;
       const sel = document.createElement('select'); sel.className = 'sty'; sel.tabIndex = -1; sel.title = title;
       const add = (v, label) => { const o = document.createElement('option'); o.value = v; o.textContent = label; o.selected = v === (q.get(param) || cur || ''); sel.append(o); };
-      if (own) add('', own); for (const [k, v] of list) add(k, short(v.label || k));
+      if (own) add('', own); for (const [k, v] of list) add(k, (UI.names && UI.names[k]) || short((!ja && v.en) || v.label || k));
       sel.addEventListener('change', () => { try { sessionStorage.setItem('tobidas-resume', P.target.toFixed(2)); } catch { } const u = new URLSearchParams(location.search); if (sel.value) u.set(param, sel.value); else u.delete(param); u.delete('autoplay'); u.delete('at'); location.search = u.toString(); });
       pk.append(sel);
     };
     if (dth.pickers !== false && !q.has('embed')) {
-      if (dth.stylePicker !== false) picker('style', ja ? '画風' : 'Art style', Object.entries(Tobidas.STYLES), typeof dth.style === 'string' ? dth.style : dth.style ? '' : tdf.style, dth.style && typeof dth.style === 'object' ? (ja ? 'この作品の画風' : 'This book’s style') : '');
+      if (dth.stylePicker !== false) picker('style', tx('style', '画風', 'Art style'), Object.entries(Tobidas.STYLES), typeof dth.style === 'string' ? dth.style : dth.style ? '' : tdf.style, dth.style && typeof dth.style === 'object' ? tx('ownStyle', 'この作品の画風', 'This book’s style') : '');
       const ownDesk = (dth.desk && typeof dth.desk === 'object') || Tobidas.def.spreads.some(sd => sd.scene);
-      picker('desk', ja ? '背景' : 'Backdrop', Object.entries(Tobidas.DESKS), ownDesk ? '' : dth.desk || tdf.desk, ownDesk ? (ja ? 'この作品の背景' : 'This book’s backdrop') : '');
+      picker('desk', tx('desk', '背景', 'Backdrop'), Object.entries(Tobidas.DESKS), ownDesk ? '' : dth.desk || tdf.desk, ownDesk ? tx('ownDesk', 'この作品の背景', 'This book’s backdrop') : '');
       const ownSet = dsd && typeof dsd === 'object' && dsd.set && typeof dsd.set === 'object';
-      if (hasSound) picker('set', ja ? '曲' : 'Music', Object.entries(lib.sets || {}), ownSet ? '' : (dsd && dsd.set) || tdf.set, ownSet ? (ja ? 'この作品の曲' : 'This book’s music') : '');
+      if (hasSound) picker('set', tx('set', '曲', 'Music'), Object.entries(lib.sets || {}), ownSet ? '' : (dsd && dsd.set) || tdf.set, ownSet ? tx('ownSet', 'この作品の曲', 'This book’s music') : '');
     }
     const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch { } } };
     const AU = P.audio = { ctx: null, pcm: null, buf: null, src: null, gain: null, t0: 0, c0: 0, muted: store.get('tobidas-muted') === '1' };
@@ -77,8 +78,8 @@
     let uiKey = '';
     const ui = () => {
       const k = `${P.auto}|${AU.muted}|${!!AU.pcm}`; if (k === uiKey) return; uiKey = k;
-      bPlay.innerHTML = `<svg viewBox="0 0 24 24">${P.auto ? IC.pause : IC.play}</svg>`; bPlay.title = P.auto ? (ja ? '止める (Space)' : 'Pause (Space)') : (ja ? '再生 (Space)' : 'Play (Space)');
-      bSnd.innerHTML = `<svg viewBox="0 0 24 24">${AU.muted ? IC.off : IC.on}</svg>`; bSnd.title = AU.muted ? (ja ? '音を出す (M)' : 'Unmute (M)') : (ja ? '音を消す (M)' : 'Mute (M)');
+      bPlay.innerHTML = `<svg viewBox="0 0 24 24">${P.auto ? IC.pause : IC.play}</svg>`; bPlay.title = P.auto ? tx('pause', '止める (Space)', 'Pause (Space)') : tx('play', '再生 (Space)', 'Play (Space)');
+      bSnd.innerHTML = `<svg viewBox="0 0 24 24">${AU.muted ? IC.off : IC.on}</svg>`; bSnd.title = AU.muted ? tx('unmute', '音を出す (M)', 'Unmute (M)') : tx('mute', '音を消す (M)', 'Mute (M)');
       bSnd.classList.toggle('wait', hasSound && !AU.pcm); ctl.classList.toggle('playing', P.auto); pk.classList.toggle('playing', P.auto);
     };
     const toggle = () => { wake(); P.auto = !P.auto; if (AU.src) audioStop(); if (P.auto) { if (P.target >= TL.END - .1) P.target = P.t = T0; else P.target = P.t; } input(); };

@@ -53,7 +53,8 @@ themes/<名前>/
 
 | 項目 | 意味 |
 |---|---|
-| `label` | 表示名 |
+| `label` | 表示名(日本語) |
+| `en` | 任意。英語の表示名。日本語以外の作品のプルダウンに出る(なければ `label`) |
 | `filter` | SVG フィルタの中身(`<filter>` タグは不要)。**最後の要素の結果が表示される。** 入力は `SourceGraphic`(絵)と `SourceAlpha`(形) |
 | `pageFilter` | 任意。ページに印刷された地面の絵にかける CSS フィルタ |
 | `grain` | ページの紙のざらつき 0〜1 |
@@ -67,7 +68,8 @@ themes/<名前>/
 
 | 項目 | 意味 |
 |---|---|
-| `label` | 表示名 |
+| `label` | 表示名(日本語) |
+| `en` | 任意。英語の表示名。日本語以外の作品のプルダウンに出る(なければ `label`) |
 | `background` | 机のとき必須。机の面の CSS background(文字列、または `th => 文字列`。`th` は作品の `theme`)。面は 6000×4600px で斜めから見下ろすので、模様は 20px 以上にする |
 | `room` | まわりの部屋の色3つ(中心・中間・外) |
 | `light` | 光の色 `'r,g,b'` |
@@ -101,7 +103,7 @@ seaside: { label: '海辺(動く背景)', room: [...], light: '255,250,226',
 | 項目 | 意味 |
 |---|---|
 | `tunes` | 曲。`{ beats: 3か4, chords: [小節ごとの和音], mel: [小節ごとの [拍, MIDI音程] の並び] }`。`B([音程, …], …)` で「1拍に1音」の略記ができる(0 は休み)。和音は `C Am F G Dm E G7 Em D7 C7 Bb Gm` |
-| `sets` | 曲集。`{ label, main: 曲名, sub: 曲名, minor: 曲名, tr: 移調(半音), tempo: 速さの倍率, inst: 音色 }`。`inst` は `{ mel, comp, pad, bass, perc, fx, noise }` で旋律・伴奏・伸ばす弦・低音・打楽器・効果音の音色を選ぶ(書かなければオルゴール。値は `engine/sound.js` の `VOICE` と `phrase`)。`main`=明るい主題、`sub`=もうひとつの明るい曲、`minor`=短調 |
+| `sets` | 曲集。`{ label, en, main: 曲名, sub: 曲名, minor: 曲名, tr: 移調(半音), tempo: 速さの倍率, inst: 音色 }`。`inst` は `{ mel, comp, pad, bass, perc, fx, noise }` で旋律・伴奏・伸ばす弦・低音・打楽器・効果音の音色を選ぶ(書かなければオルゴール。値は `engine/sound.js` の `VOICE` と `phrase`)。`main`=明るい主題、`sub`=もうひとつの明るい曲、`minor`=短調 |
 | `moods` | 気分(見開きの `music` に書く名前)。`{ tune: 'main'|'sub'|'minor', beat: 1拍の秒数, vol, tr, oct, stac, dbl, startBar }` |
 | `sfx` | 効果音(見開きの `sfx` に書く名前)。`(S, t, o) => {…}`。`S.box` `S.soft` `S.noise` `S.thud` `S.tick` `S.sparkle` `S.seq(t, [音程…], 間隔, 音量, 残響)` `S.sfx(名前, t, 設定)` で鳴らす。`t` は全体の秒数、`o` は作品が渡した設定 |
 

@@ -7,7 +7,8 @@
 ```js
 Tobidas.book({
   title: 'ももたろう とびだすえほん',      // ブラウザのタブ名
-  lang: 'ja',                              // 'ja' 以外なら操作ヒントが英語になる
+  lang: 'ja',                              // 'ja' 以外なら画面の文字(操作の案内・ボタンの説明・プルダウン)が英語になる
+  ui: { hint: '…' },                       // 省略可。日本語・英語以外の作品で、画面の文字をその言語にする(下記「画面の文字」)
   theme: { board: '#7a2f2f', spine: '#5a1f1f', style: 'kirigami', desk: 'wood' },   // 装丁の色と、画風・机(themes/<テーマ>/presets.md)。ほかに pickers: false(左上の画風・背景・曲のプルダウンを出さない。stylePicker: false なら画風だけ)、paper, font(字幕・結びの文字のフォント。日本語以外の作品は欧文フォントを指定する)
   timing: { intro: 5.2, turn: 2.4, close: 2.8, outro: 3.8 },   // 省略可(この値が既定)
   cover: A.cover(),                        // 表紙の絵。738×948 のSVGの中身(紙の縁取りなし)
@@ -19,6 +20,23 @@ Tobidas.book({
 ```
 
 `index.html` は エンジン(tobidas.js, sound.js)→ テーマ(theme/theme.js, theme/parts/parts.js, あれば theme/parts/parts-*.js)→ book/art.js → book/book.js → player.js の順に読み込む。モジュールではなく普通の `<script>` なので、art.js で定義した `A.xxx` や定数は book.js からそのまま使える(`file://` で開けるようにするため)。
+
+### 画面の文字 ui
+
+エンジンが出す文字(操作の案内、ボタンの説明、左上のプルダウン)は、`lang` が `'ja'` なら日本語、ほかは英語で出る。**日本語・英語以外の作品では、`ui` にその言語の文字を書く。** 書かなかった項目は英語のまま出る。`engine/player.js` は書き換えない。文字のためだけに `theme.pickers: false` でプルダウンを消すこともしない。
+
+```js
+ui: {
+  hint: '滚动翻页 · ← → 切换跨页 · ▶ 或空格键有声播放',      // 画面下の操作の案内
+  play: '播放（空格键）', pause: '暂停（空格键）',             // ▶ボタンの説明(止まっているとき / 再生中)
+  mute: '静音（M）', unmute: '取消静音（M）',                 // 音ボタンの説明(音が出ているとき / 消しているとき)
+  style: '画风', desk: '背景', set: '音乐',                   // プルダウンの見出し
+  ownStyle: '本作的画风', ownDesk: '本作的背景', ownSet: '本作的音乐',   // 書き下ろした項目へ戻る選択肢(書き下ろした項目のぶんだけ書けばよい)
+  names: { kirigami: '剪纸', wood: '木桌', musicbox: '八音盒' },   // プルダウンの選択肢の名前。キーは画風・机や背景・曲集の名前(themes/<テーマ>/presets.md)
+}
+```
+
+`names` に書かなかった選択肢は、テーマの英語名で出る。
 
 ## 座標系
 

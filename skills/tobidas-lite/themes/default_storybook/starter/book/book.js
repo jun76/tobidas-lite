@@ -42,7 +42,7 @@ const spread2 = {
 Tobidas.book({
   title: 'とびだすえほん',
   lang: 'ja',
-  theme: { board: '#1f3f66', spine: '#17304f', style: 'kirigami', desk: 'wood' },   // 画風と机(themes/default_storybook/presets.md)
+  theme: { board: '#1f3f66', spine: '#17304f', style: 'flat', desk: 'wood' },   // 画風と机(themes/default_storybook/presets.md)。画風は作る間 'flat' のままにし、全部できてから決まった画風に書き換える
   sound: { set: 'musicbox' },                                                     // 曲集
   cover: A.cover(),
   end: { title: 'おしまい', sub: 'だいめい' },
