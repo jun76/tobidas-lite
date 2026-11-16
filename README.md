@@ -40,7 +40,7 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 | [`examples/urashima`](skills/tobidas-lite/themes/default_storybook/examples/urashima/): Urashima Taro | 英語 | 8 | クレヨン / 動く背景の海辺 / 和笛 | Claude Opus 5.5 medium | 数ターン微調整 |
 | [`examples/alice`](skills/tobidas-lite/themes/default_storybook/examples/alice/): 不思議な国のアリス | 日本語 | 6 | フラット / 描き下ろし背景 / 鼓笛隊 | GPT-6 Astra medium | 1ターンで作成 |
 | [`examples/le-petit-prince`](skills/tobidas-lite/themes/default_storybook/examples/le-petit-prince/): Le Petit Prince | フランス語 | 6 | レトロ / 描き下ろし背景 / 描き下ろしの曲 | GPT6.1-Sol medium | 1ターンで作成 |
-| [`examples/momotaro`](skills/tobidas-lite/themes/default_storybook/examples/momotaro/): Momotaro | 英語 | 8 | ポップアート / 動く背景の草原 / 和笛 | Qwen 3.8 Flash Next IQ3_S (Strata) | 数ターン微調整。内部警告複数・参考実装 |
+| [`examples/momotaro`](skills/tobidas-lite/themes/default_storybook/examples/momotaro/): Momotaro | 英語 | 8 | ポップアート / 動く背景の草原 / 和笛 | Qwen 3.8 Flash Next IQ3_S xhigh (Strata) | 数ターン微調整。ローカルLLM参考実装 |
 
 見本は `skills/tobidas-lite/themes/default_storybook/` の下にあります。
 

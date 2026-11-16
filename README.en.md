@@ -40,7 +40,7 @@ Five finished books are included, all made with this skill. The model used for e
 | [`examples/urashima`](skills/tobidas-lite/themes/default_storybook/examples/urashima/) — Urashima Taro | English | 8 | Crayon / moving seaside / Japanese flute | Claude Opus 5.5 medium | Minor adjustments over a few turns |
 | [`examples/alice`](skills/tobidas-lite/themes/default_storybook/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Flat / original backgrounds / fife and drum | GPT-6 Astra medium | Created in one turn |
 | [`examples/le-petit-prince`](skills/tobidas-lite/themes/default_storybook/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Retro / original backgrounds / original music | GPT6.1-Sol medium | Created in one turn |
-| [`examples/momotaro`](skills/tobidas-lite/themes/default_storybook/examples/momotaro/) — Momotaro | English | 8 | Pop art / moving meadow / Japanese flute | Qwen 3.8 Flash Next IQ3_S (Strata) | Minor adjustments over a few turns. Several internal warnings; reference implementation |
+| [`examples/momotaro`](skills/tobidas-lite/themes/default_storybook/examples/momotaro/) — Momotaro | English | 8 | Pop art / moving meadow / Japanese flute | Qwen 3.8 Flash Next IQ3_S xhigh (Strata) | Minor adjustments over a few turns. Local LLM reference implementation |
 
 The examples are under `skills/tobidas-lite/themes/default_storybook/`.
 
