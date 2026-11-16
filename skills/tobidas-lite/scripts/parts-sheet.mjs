@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // テーマの部品の目録(LIB)から、見本画像と一覧を作る。
 //   node parts-sheet.mjs [--theme default_storybook] [--only 文字列]
-//   → <テーマ>/previews/parts/NN.jpg(1枚に 4×3 個)と <テーマ>/parts-lib.md(名前・寸法・載っている画像の一覧)
-//   --only を付けると、名前がその文字列で始まる部品だけを <テーマ>/previews/parts/_only_NN.jpg に撮る(描いている途中の確認用。一覧は書きかえない)
+//   → <テーマ>/parts/previews/NN.jpg(1枚に 4×3 個)と <テーマ>/parts/parts-lib.md(名前・寸法・載っている画像の一覧)
+//   --only を付けると、名前がその文字列で始まる部品だけを <テーマ>/parts/previews/_only_NN.jpg に撮る(描いている途中の確認用。一覧は書きかえない)
 import { chromium } from 'playwright-core';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -12,13 +12,14 @@ const args = process.argv.slice(2), opt = {};
 for (let i = 0; i < args.length; i++) if (args[i].startsWith('--')) opt[args[i].slice(2)] = args[++i];
 const name = opt.theme || 'default_storybook', themes = path.join(skill, 'themes');
 const themeDir = fs.existsSync(path.join(themes, name, 'theme.js')) ? path.join(themes, name) : path.resolve(name);
-const files = fs.readdirSync(themeDir).filter(f => /^parts.*\.js$/.test(f)).sort((a, b) => (a === 'parts.js' ? -1 : b === 'parts.js' ? 1 : a.localeCompare(b)));
-const out = path.join(themeDir, 'previews', 'parts'); fs.mkdirSync(out, { recursive: true });
+const partsDir = path.join(themeDir, 'parts');
+const files = fs.readdirSync(partsDir).filter(f => /^parts.*\.js$/.test(f)).sort((a, b) => (a === 'parts.js' ? -1 : b === 'parts.js' ? 1 : a.localeCompare(b)));
+const out = path.join(partsDir, 'previews'); fs.mkdirSync(out, { recursive: true });
 const u = f => pathToFileURL(f).href;
 const html = `<!doctype html><meta charset="utf-8"><style>body{margin:0;background:#d9e6cf;font:600 20px system-ui,sans-serif;color:#2c3a2a}#g{display:grid;grid-template-columns:repeat(4,400px);grid-auto-rows:400px}
 .c{position:relative;box-sizing:border-box;border:1px solid #c3d3b8;padding:10px 10px 62px}.c>svg{width:100%;height:100%;overflow:visible}.t{position:absolute;left:0;right:0;bottom:8px;text-align:center;line-height:1.25}.t small{display:block;font-weight:400;font-size:16px;opacity:.8}</style>
 <div id="tobidas" style="display:none"></div><div id="g"></div>
-<script src="${u(path.join(skill, 'assets/template/engine/tobidas.js'))}"></script>${files.map(f => `<script src="${u(path.join(themeDir, f))}"></script>`).join('')}`;
+<script src="${u(path.join(skill, 'assets/template/engine/tobidas.js'))}"></script>${files.map(f => `<script src="${u(path.join(partsDir, f))}"></script>`).join('')}`;
 const tmp = path.join(out, '_sheet.html'); fs.writeFileSync(tmp, html);
 const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars'] };
 let browser; for (const o of [process.env.CHROME_PATH && { ...base, executablePath: process.env.CHROME_PATH }, { ...base, channel: 'chrome' }, { ...base, channel: 'msedge' }, base].filter(Boolean)) { try { browser = await chromium.launch(o); break; } catch { } }
@@ -45,10 +46,10 @@ for (let i = 0; i < pages; i++) {
 }
 await browser.close(); fs.unlinkSync(tmp);
 if (!only) {
-  let md = `# 部品の目録(put / lib で呼び出す絵)\n\n\`scripts/parts-sheet.mjs\` が作る一覧(手で編集しない)。使い方は \`parts.md\` の「目録の部品」。見た目は \`previews/parts/\` の画像で確かめる(1枚に12個)。\n\n全 ${list.length} 点。「動き」に ○ のある部品は、置くだけで動く(\`anim\` や \`dyn\` を渡すと置きかわる)。箱は絵の元サイズ(w0×h0)で、\`put\` が自動で使う。\n`;
+  let md = `# 部品の目録(put / lib で呼び出す絵)\n\n\`scripts/parts-sheet.mjs\` が作る一覧(手で編集しない)。使い方は \`parts.md\` の「目録の部品」。見た目は \`previews/\` の画像で確かめる(1枚に12個)。\n\n全 ${list.length} 点。「動き」に ○ のある部品は、置くだけで動く(\`anim\` や \`dyn\` を渡すと置きかわる)。箱は絵の元サイズ(w0×h0)で、\`put\` が自動で使う。\n`;
   let g = null;
   for (const p of list) { if (p.group !== g) { g = p.group; md += `\n## ${g}\n\n| 名前 | 絵 | 箱 | 動き | 絵の設定(art) | 画像 |\n|---|---|---|---|---|---|\n`; } md += `| \`${p.name}\` | ${p.label} | ${p.w}×${p.h} | ${p.anim ? '○' : ''} | ${p.note} | ${sheetOf[p.name]} |\n`; }
-  fs.writeFileSync(path.join(themeDir, 'parts-lib.md'), md);
+  fs.writeFileSync(path.join(partsDir, 'parts-lib.md'), md);
 }
 console.log(`部品 ${list.length} 点 / 画像 ${pages} 枚 → ${out}`);
 if (errors.length) { console.log('エラー:\n  ' + [...new Set(errors)].join('\n  ')); process.exit(1); }

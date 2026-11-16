@@ -105,7 +105,7 @@ The look and sound live in a folder called a theme, which can be swapped. One th
 | Desk | 10: wood, light wood, linen, felt, marble, grass, sky, night sky, cutting mat, steel plate |
 | Moving background | 5: seaside, meadow, forest, town, retro game |
 | Music set | 5: music box, fife and drum, harp, Japanese flute, chiptune |
-| Drawing parts | 300: houses, castles, trees, mountains, vehicles, people, animals, furniture, tools, food and more (previews in [`previews/parts/`](skills/tobidas-lite/themes/default_storybook/previews/parts/)) |
+| Drawing parts | 300: houses, castles, trees, mountains, vehicles, people, animals, furniture, tools, food and more (previews in [`parts/previews/`](skills/tobidas-lite/themes/default_storybook/parts/previews/)) |
 
 For the desk or background and the music, you either pick a built-in choice or have the agent write a new one for that book. The art style is picked from the built-in choices. Preview images are in [`themes/default_storybook/previews/`](skills/tobidas-lite/themes/default_storybook/previews/). The theme format is described in [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) (in Japanese).
 

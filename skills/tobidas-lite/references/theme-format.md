@@ -9,8 +9,12 @@
 ```
 themes/<名前>/
   theme.js      必須。画風・机・曲などを登録する(下記)
-  parts.js      任意。絵の部品と動きの部品(作品の art.js / book.js から使う)
-  parts-*.js    任意。部品を分けて書くときの追加のファイル(parts.js の次に、名前の順で読み込まれる)
+  parts/        任意。絵の部品(下記「parts/」)
+    parts.js      絵の部品と動きの部品(作品の art.js / book.js から使う)
+    parts-*.js    部品を分けて書くときの追加のファイル(parts.js の次に、名前の順で読み込まれる)
+    parts.md      部品の使い方の資料
+    parts-lib.md  名前で呼び出す部品の一覧(scripts/parts-sheet.mjs で作る)
+    previews/     部品の見本画像(scripts/parts-sheet.mjs で作る)
   *.css         任意。テーマ用のスタイル
   assets/       任意。テーマが使う画像・音声ファイル(作品の theme/assets/ にコピーされる。作品からは 'theme/assets/…' で指定。書き方は references/assets.md)
   guide.md      必須。向く用途、聞き取りで決めること、資料を読む順
@@ -20,9 +24,9 @@ themes/<名前>/
   examples/     任意。完成見本
 ```
 
-`scripts/new-book.mjs` は、このうち **`.js` `.css` と `assets/`** だけを作品の `theme/` にコピーし、`starter/book/` を作品の `book/` にコピーする。資料・見本画像・完成見本は作品には入らない。
+`scripts/new-book.mjs` は、このうち **直下の `.js` `.css`、`assets/`、`parts/` の `.js`** だけを作品の `theme/` にコピーし、`starter/book/` を作品の `book/` にコピーする。資料・見本画像・完成見本は作品には入らない。
 
-作品の `index.html` は エンジン → `theme/theme.js` → `theme/parts.js` →(あれば)`theme/parts-*.js` → `book/art.js` → `book/book.js` → 操作系 の順に読み込む。サーバーなし(`file://`)で開けるように、どれもモジュールではない普通のスクリプトにする。
+作品の `index.html` は エンジン → `theme/theme.js` → `theme/parts/parts.js` →(あれば)`theme/parts/parts-*.js` → `book/art.js` → `book/book.js` → 操作系 の順に読み込む。サーバーなし(`file://`)で開けるように、どれもモジュールではない普通のスクリプトにする。
 
 ## theme.js
 
@@ -103,16 +107,16 @@ seaside: { label: '海辺(動く背景)', room: [...], light: '255,250,226',
 
 乱数は `S.rand()` を使う(`Math.random()` を使うと、同じ作品でも鳴るたびに音が変わり、動画化や検査で再現しない)。
 
-## parts.js
+## parts/
 
-作品の `art.js` と `book.js` から使う部品を、普通のスクリプトとして定義する。約束は2つある。
+作品の `art.js` と `book.js` から使う部品を、`parts/parts.js` に普通のスクリプトとして定義する。約束は2つある。
 
 - 絵の部品は名前空間 `A` に「SVG の中身の文字列を返す関数」として足す(`const A = {};` はテーマの parts.js が定義する)。
 - 動きの部品や小物(`pc()` を返す関数)は、グローバルの関数として定義する。
 
-部品が多いときは `parts-*.js` に分けてよい。`new-book.mjs` が、作品の `index.html` に `theme/parts.js` の次へ読み込みを足す(名前の順)。
+部品が多いときは `parts-*.js` に分けてよい。`new-book.mjs` が、作品の `index.html` に `theme/parts/parts.js` の次へ読み込みを足す(名前の順)。
 
-名前で呼び出す部品をまとめるなら、default の「目録」と同じ形にする: `defPart(名前, 表示名, 幅, 高さ, (絵の設定, 幅, 高さ) => SVG, pc の既定の設定, 絵の設定の説明)` で登録し、作品からは `put(名前, X, Y, 設定)` / `lib(名前, 絵の設定)` で使う(`themes/default_storybook/parts.js` の「部品の目録」)。`node scripts/parts-sheet.mjs --theme <テーマ>` が、登録した部品の見本画像(`previews/parts/`)と一覧(`parts-lib.md`)を作る。
+名前で呼び出す部品をまとめるなら、default_storybook の「目録」と同じ形にする: `defPart(名前, 表示名, 幅, 高さ, (絵の設定, 幅, 高さ) => SVG, pc の既定の設定, 絵の設定の説明)` で登録し、作品からは `put(名前, X, Y, 設定)` / `lib(名前, 絵の設定)` で使う(`themes/default_storybook/parts/parts.js` の「部品の目録」)。`node scripts/parts-sheet.mjs --theme <テーマ>` が、登録した部品の見本画像(`parts/previews/`)と一覧(`parts/parts-lib.md`)を作る。
 
 部品の一覧と寸法は、そのテーマの資料に書く。
 

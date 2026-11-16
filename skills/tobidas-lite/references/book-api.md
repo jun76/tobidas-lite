@@ -18,7 +18,7 @@ Tobidas.book({
 });
 ```
 
-`index.html` は エンジン(tobidas.js, sound.js)→ テーマ(theme/theme.js, theme/parts.js, あれば theme/parts-*.js)→ book/art.js → book/book.js → player.js の順に読み込む。モジュールではなく普通の `<script>` なので、art.js で定義した `A.xxx` や定数は book.js からそのまま使える(`file://` で開けるようにするため)。
+`index.html` は エンジン(tobidas.js, sound.js)→ テーマ(theme/theme.js, theme/parts/parts.js, あれば theme/parts/parts-*.js)→ book/art.js → book/book.js → player.js の順に読み込む。モジュールではなく普通の `<script>` なので、art.js で定義した `A.xxx` や定数は book.js からそのまま使える(`file://` で開けるようにするため)。
 
 ## 座標系
 
@@ -217,4 +217,4 @@ cam: {
 
 エンジンが用意するグローバル: `pc` `terrace({...})` `pop(tl, t0, 長さ)` `sm` `cl(x, 最小, 最大)` `lerp` `sin` `cos` `abs` `PI` `rnd(seed)` `F(数値)` `qs` `qa` `rot` `many(anim1, anim2)` `FONT`(SVGの `font-family` 用)`Tobidas.pose`。
 
-テーマの parts.js が用意する絵の部品・動き・小物は `themes/<テーマ>/parts.md` を参照。
+テーマの parts.js が用意する絵の部品・動き・小物は `themes/<テーマ>/parts/parts.md` を参照。

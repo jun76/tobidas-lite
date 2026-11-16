@@ -43,8 +43,8 @@ for (const [k, list, label] of [['desk', theme.desks, '本の後ろ'], ['set', t
 }
 if (fx.style != null && !has(theme.styles, fx.style)) errs.push(`fixed.style '${fx.style}' はありません(使える名前: ${names(theme.styles)})`);
 if (fx.length != null && ![4, 6, 8].includes(fx.length)) errs.push('fixed.length は 4 / 6 / 8 のどれかです');
-// 作中の部品の質問は、テーマに部品の目録(parts-*.js)があるときだけ出す
-theme.parts = fs.readdirSync(themeDir).some(f => /^parts-.*\.js$/.test(f));
+// 作中の部品の質問は、テーマに部品の目録(parts/parts-*.js)があるときだけ出す
+theme.parts = fs.existsSync(path.join(themeDir, 'parts')) && fs.readdirSync(path.join(themeDir, 'parts')).some(f => /^parts-.*\.js$/.test(f));
 if (fx.parts != null && !['preset', 'custom', 'mix'].includes(fx.parts)) errs.push('fixed.parts は preset / custom / mix のどれかです');
 if (fx.parts != null && !theme.parts) errs.push('このテーマには部品の目録がないので、fixed.parts は書けません');
 // 画面の言語: ja と en は内蔵。ほかは strings が要る。形が合わない訳は、画面が崩れる前にここで止める

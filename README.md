@@ -105,7 +105,7 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 | 机 | 10種: 板張り、白木、麻布、フェルト、大理石、芝生、青空、星空、カッティングマット、鉄板 |
 | 動く背景 | 5種: 海辺、草原、森、市街、レトロゲーム |
 | 曲集 | 5種: オルゴール、鼓笛隊、ハープ、和笛、チップチューン |
-| 絵の部品 | 300点: 家、城、木、山、乗り物、人物、動物、家具、道具、食べ物など(見本は [`previews/parts/`](skills/tobidas-lite/themes/default_storybook/previews/parts/)) |
+| 絵の部品 | 300点: 家、城、木、山、乗り物、人物、動物、家具、道具、食べ物など(見本は [`parts/previews/`](skills/tobidas-lite/themes/default_storybook/parts/previews/)) |
 
 机・背景と曲は、内蔵から選ぶか、その作品のためにエージェントに書き下ろしてもらうかを決められます。画風は内蔵から選びます。見本画像は [`themes/default_storybook/previews/`](skills/tobidas-lite/themes/default_storybook/previews/) に、テーマの書式は [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) にあります。
 
