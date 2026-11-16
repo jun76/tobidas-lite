@@ -19,7 +19,7 @@ fs.mkdirSync(out, { recursive: true });
 for (const f of fs.readdirSync(out)) if (/^(t\d|sheet)/.test(f)) fs.unlinkSync(path.join(out, f));
 
 export async function launch() {
-  const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars'] }, tries = [];
+  const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars', '--enable-gpu'] }, tries = [];
   if (process.env.CHROME_PATH) tries.push({ ...base, executablePath: process.env.CHROME_PATH });
   tries.push({ ...base, channel: 'chrome' }, { ...base, channel: 'msedge' }, base);
   for (const o of tries) { try { return await chromium.launch(o); } catch { } }

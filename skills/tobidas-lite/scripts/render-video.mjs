@@ -13,7 +13,7 @@ if (!work) { console.error('usage: node render-video.mjs <作品フォルダ> [-
 const html = fs.statSync(work).isDirectory() ? path.join(work, 'index.html') : work, dir = path.dirname(path.resolve(html));
 const frames = path.join(dir, '.frames'), out = path.resolve(opt.out || path.join(dir, 'book.mp4')), W = +(opt.workers || 8), fps = +(opt.fps || 30);
 fs.rmSync(frames, { recursive: true, force: true }); fs.mkdirSync(frames, { recursive: true });
-const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars'] };
+const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars', '--enable-gpu'] };
 let browser; for (const o of [process.env.CHROME_PATH && { ...base, executablePath: process.env.CHROME_PATH }, { ...base, channel: 'chrome' }, base].filter(Boolean)) { try { browser = await chromium.launch(o); break; } catch { } }
 if (!browser) { console.error('Chrome が見つかりません(CHROME_PATH を指定)'); process.exit(1); }
 const open = async () => { const p = await browser.newPage({ viewport: { width: 1920, height: 1080 } }); await p.goto(pathToFileURL(path.resolve(html)).href + '?t=0'); await p.waitForFunction(() => typeof Tobidas !== 'undefined' && Tobidas.ready); await p.evaluate(() => document.fonts.ready); return p; };

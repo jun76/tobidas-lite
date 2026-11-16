@@ -11,7 +11,7 @@ for (let i = 0; i < args.length; i++) { if (args[i].startsWith('--')) opt[args[i
 if (!work) { console.error('usage: node gallery.mjs <作品フォルダ> [--t 秒] [--out dir]'); process.exit(2); }
 const html = fs.statSync(work).isDirectory() ? path.join(work, 'index.html') : work, out = path.resolve(opt.out || path.join(path.dirname(html), '.check'));
 fs.mkdirSync(out, { recursive: true });
-const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars'] };
+const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars', '--enable-gpu'] };
 let browser; for (const o of [process.env.CHROME_PATH && { ...base, executablePath: process.env.CHROME_PATH }, { ...base, channel: 'chrome' }, { ...base, channel: 'msedge' }, base].filter(Boolean)) { try { browser = await chromium.launch(o); break; } catch { } }
 if (!browser) { console.error('Chrome が見つかりません(CHROME_PATH を指定)'); process.exit(1); }
 const url = pathToFileURL(path.resolve(html)).href, errors = [];

@@ -21,7 +21,7 @@ const html = `<!doctype html><meta charset="utf-8"><style>body{margin:0;backgrou
 <div id="tobidas" style="display:none"></div><div id="g"></div>
 <script src="${u(path.join(skill, 'assets/template/engine/tobidas.js'))}"></script>${files.map(f => `<script src="${u(path.join(partsDir, f))}"></script>`).join('')}`;
 const tmp = path.join(out, '_sheet.html'); fs.writeFileSync(tmp, html);
-const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars'] };
+const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars', '--enable-gpu'] };
 let browser; for (const o of [process.env.CHROME_PATH && { ...base, executablePath: process.env.CHROME_PATH }, { ...base, channel: 'chrome' }, { ...base, channel: 'msedge' }, base].filter(Boolean)) { try { browser = await chromium.launch(o); break; } catch { } }
 if (!browser) { console.error('Chrome が見つかりません(CHROME_PATH を指定)'); process.exit(1); }
 const page = await browser.newPage({ viewport: { width: 1600, height: 1200 } }), errors = [];
