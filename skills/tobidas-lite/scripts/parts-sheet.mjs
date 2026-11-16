@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // テーマの部品の目録(LIB)から、見本画像と一覧を作る。
-//   node parts-sheet.mjs [--theme default] [--only 文字列]
+//   node parts-sheet.mjs [--theme default_storybook] [--only 文字列]
 //   → <テーマ>/previews/parts/NN.jpg(1枚に 4×3 個)と <テーマ>/parts-lib.md(名前・寸法・載っている画像の一覧)
 //   --only を付けると、名前がその文字列で始まる部品だけを <テーマ>/previews/parts/_only_NN.jpg に撮る(描いている途中の確認用。一覧は書きかえない)
 import { chromium } from 'playwright-core';
@@ -10,7 +10,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const skill = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2), opt = {};
 for (let i = 0; i < args.length; i++) if (args[i].startsWith('--')) opt[args[i].slice(2)] = args[++i];
-const name = opt.theme || 'default', themes = path.join(skill, 'themes');
+const name = opt.theme || 'default_storybook', themes = path.join(skill, 'themes');
 const themeDir = fs.existsSync(path.join(themes, name, 'theme.js')) ? path.join(themes, name) : path.resolve(name);
 const files = fs.readdirSync(themeDir).filter(f => /^parts.*\.js$/.test(f)).sort((a, b) => (a === 'parts.js' ? -1 : b === 'parts.js' ? 1 : a.localeCompare(b)));
 const out = path.join(themeDir, 'previews', 'parts'); fs.mkdirSync(out, { recursive: true });

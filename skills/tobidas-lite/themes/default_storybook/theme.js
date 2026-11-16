@@ -1,4 +1,4 @@
-// tobidas テーマ「default」— 童話の絵本。画風・机・曲集・気分・効果音をまとめて登録する。
+// tobidas テーマ「default_storybook」— 童話の絵本。画風・机・曲集・気分・効果音をまとめて登録する。
 // 書式は references/theme-format.md、中身の一覧と使い分けはこのフォルダの presets.md / sound.md。作品ごとには編集しない。
 (function () {
   const { edge, grain, tex, noise, planks, grid } = Tobidas.fx, B = Tobidas.sound.bars, PI = Math.PI;
@@ -199,7 +199,7 @@
     },
   };
   Tobidas.theme({
-    id: 'default', label: '童話の絵本', engine: 1,
+    id: 'default_storybook', label: '童話の絵本', engine: 1,
     defaults: { style: 'kirigami', desk: 'wood', set: 'musicbox' },
 
     // ---- 画風(theme.style)---- filter は SVG フィルタの中身、pageFilter はページの絵にかける CSS フィルタ

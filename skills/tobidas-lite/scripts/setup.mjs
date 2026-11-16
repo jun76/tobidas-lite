@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 聞き取りページを作る: ひな形(assets/setup/setup.html)に、題材ごとの候補とおすすめ、テーマの内蔵の一覧を埋めて1枚の HTML に書き出す。
-//   node setup.mjs <書き出す.html> --data <候補とおすすめの.json> [--theme default]
+//   node setup.mjs <書き出す.html> --data <候補とおすすめの.json> [--theme default_storybook]
 //   ユーザーがブラウザで開いて選び、最後の「結果」を会話に貼る。見本画像と見本の絵本はスキル内のファイルを直接指すので、書き出した HTML は同じ機械で開く。
 //   node setup.mjs --strings                       画面の文言(英語)を JSON で出力する。日本語・英語以外の言語では、これを訳して data の strings に書く
 //   data の書式(references なし。ここが正):
@@ -24,7 +24,7 @@ const STR = JSON.parse(strM[1]);
 if (args.includes('--strings')) { console.log(JSON.stringify(STR.en, null, 1)); process.exit(0); }
 if (!dest || !opt.data) { console.error('usage: node setup.mjs <書き出す.html> --data <候補とおすすめの.json> [--theme 名前かパス]'); process.exit(2); }
 const fail = m => { console.error(m); process.exit(1); };
-const name = opt.theme || 'default', themes = path.join(skill, 'themes');
+const name = opt.theme || 'default_storybook', themes = path.join(skill, 'themes');
 const themeDir = fs.existsSync(path.join(themes, name, 'theme.js')) ? path.join(themes, name) : path.resolve(name);
 const index = path.join(themeDir, 'previews', 'index.json');
 if (!fs.existsSync(index)) fail(`テーマ '${name}' に previews/index.json がありません。node scripts/gallery.mjs <見本の作品> --out <テーマ>/previews で作ってください。`);

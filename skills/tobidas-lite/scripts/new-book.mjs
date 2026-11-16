@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 新しい作品フォルダを作る: ひな形(index.html と engine/)+ 選んだテーマ(theme/)+ そのテーマの書き出し用の book/ をコピーする。
-//   node new-book.mjs <作品フォルダ> [--theme default]      --theme にはスキル内のテーマ名か、テーマパックのフォルダのパスを書く
+//   node new-book.mjs <作品フォルダ> [--theme default_storybook]      --theme にはスキル内のテーマ名か、テーマパックのフォルダのパスを書く
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,7 +8,7 @@ const skill = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2), opt = {}; let dest = null;
 for (let i = 0; i < args.length; i++) { if (args[i].startsWith('--')) opt[args[i].slice(2)] = args[++i]; else dest = args[i]; }
 if (!dest) { console.error('usage: node new-book.mjs <作品フォルダ> [--theme 名前かパス]'); process.exit(2); }
-const name = opt.theme || 'default', themes = path.join(skill, 'themes');
+const name = opt.theme || 'default_storybook', themes = path.join(skill, 'themes');
 const themeDir = fs.existsSync(path.join(themes, name, 'theme.js')) ? path.join(themes, name) : path.resolve(name);
 if (!fs.existsSync(path.join(themeDir, 'theme.js'))) { console.error(`テーマ '${name}' が見つかりません(theme.js がない)。使える名前: ${fs.readdirSync(themes).filter(d => fs.existsSync(path.join(themes, d, 'theme.js'))).join(' ')}`); process.exit(1); }
 dest = path.resolve(dest);

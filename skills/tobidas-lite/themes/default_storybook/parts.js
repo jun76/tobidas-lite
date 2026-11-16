@@ -1,5 +1,5 @@
-// tobidas テーマ「default」の絵の部品と、よく使う動き。作品ごとに編集しない(足りない絵は book/art.js に描く)。
-// どれも「SVGの中身の文字列」を返す。一覧と寸法は themes/default/parts.md。
+// tobidas テーマ「default_storybook」の絵の部品と、よく使う動き。作品ごとに編集しない(足りない絵は book/art.js に描く)。
+// どれも「SVGの中身の文字列」を返す。一覧と寸法は themes/default_storybook/parts.md。
 const A = {};
 
 A.star = (cx, cy, r, c = '#ffe9a0') => `<path d="M${cx} ${cy - r}Q${cx} ${cy} ${cx + r} ${cy}Q${cx} ${cy} ${cx} ${cy + r}Q${cx} ${cy} ${cx - r} ${cy}Q${cx} ${cy} ${cx} ${cy - r}Z" fill="${c}"/>`;
@@ -201,13 +201,13 @@ const hillTrees = (n, seed, s, pine) => yf => {
 const GR = ['#ff9ecb', '#fff', '#ffd24d', '#ff7f7f'];
 
 // ================= 部品の目録(名前で呼び出す絵) =================
-// 目録の絵は parts-*.js が登録する。一覧と寸法は themes/default/parts-lib.md、見た目は previews/parts/ の画像。
+// 目録の絵は parts-*.js が登録する。一覧と寸法は themes/default_storybook/parts-lib.md、見た目は previews/parts/ の画像。
 //   put('house.log', X, Y, { k: 1.2 })              pieces にそのまま入れるパーツを返す(箱の大きさと既定の動きは目録が持つ)
 //   put('fence.hedge', X, Y, { art: { w: 600 } })   art に絵の設定(色や、伸び縮みする部品の w / h)を書く。flip: true で左右を反転
 //   lib('tool.axe', { c: '#888' })                  SVG の中身の文字列だけを返す(人物の holdR に持たせる、別の絵に組みこむ、など)
 const LIB = {};
 const defPart = (name, label, w, h, art, o = {}, note = '') => { LIB[name] = { name, label, w, h, art, o, note, group: defPart.group || '' }; };
-const libMiss = name => { if (typeof Tobidas !== 'undefined') Tobidas.warnings.push(`部品 '${name}' は目録にありません(themes/default/parts-lib.md の名前を使う)`); return ''; };
+const libMiss = name => { if (typeof Tobidas !== 'undefined') Tobidas.warnings.push(`部品 '${name}' は目録にありません(themes/default_storybook/parts-lib.md の名前を使う)`); return ''; };
 const lib = (name, a = {}) => { const p = LIB[name]; return p ? p.art(a, a.w || p.w, a.h || p.h) : libMiss(name); };
 const put = (name, X, Y, o = {}) => {
   const p = LIB[name]; if (!p) { libMiss(name); return pc(X, Y, 10, 10, '', { op: 0, sh: false }); }

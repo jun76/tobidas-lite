@@ -1,5 +1,5 @@
 // この作品だけの絵。共通パーツ(theme/parts.js の A.*)に足す形で定義する。
-// どれも「SVGの中身の文字列」を返す。描き方は themes/default/art-style.md。
+// どれも「SVGの中身の文字列」を返す。描き方は themes/default_storybook/art-style.md。
 
 // 登場人物は A.person を包んで作る(ポーズは使う側で armL/armR/mouth などを渡して変える)
 A.hero = (o = {}) => A.person(Object.assign({

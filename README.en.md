@@ -36,13 +36,13 @@ Five finished books are included, all made with this skill. The model used for e
 
 | Book | Language | Spreads | Look (art style / background / music) | Made by | Notes |
 |---|---|---|---|---|---|
-| [`examples/jack`](skills/tobidas-lite/themes/default/examples/jack/) — Jack and the Beanstalk | Japanese | 8 | Paper-cut / wooden desk / music box | Claude Fable5.2 medium | Minor adjustments over a few turns |
-| [`examples/urashima`](skills/tobidas-lite/themes/default/examples/urashima/) — Urashima Taro | English | 8 | Crayon / moving seaside / Japanese flute | Claude Opus 5.5 medium | Minor adjustments over a few turns |
-| [`examples/alice`](skills/tobidas-lite/themes/default/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Flat / original backgrounds / fife and drum | GPT-6 Astra medium | Created in one turn |
-| [`examples/le-petit-prince`](skills/tobidas-lite/themes/default/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Retro / original backgrounds / original music | GPT6.1-Sol medium | Created in one turn |
-| [`examples/momotaro`](skills/tobidas-lite/themes/default/examples/momotaro/) — Momotaro | English | 8 | Pop art / moving meadow / Japanese flute | Qwen 3.8 Flash Next IQ3_S (Strata) | Minor adjustments over a few turns. Several internal warnings; reference implementation |
+| [`examples/jack`](skills/tobidas-lite/themes/default_storybook/examples/jack/) — Jack and the Beanstalk | Japanese | 8 | Paper-cut / wooden desk / music box | Claude Fable5.2 medium | Minor adjustments over a few turns |
+| [`examples/urashima`](skills/tobidas-lite/themes/default_storybook/examples/urashima/) — Urashima Taro | English | 8 | Crayon / moving seaside / Japanese flute | Claude Opus 5.5 medium | Minor adjustments over a few turns |
+| [`examples/alice`](skills/tobidas-lite/themes/default_storybook/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Flat / original backgrounds / fife and drum | GPT-6 Astra medium | Created in one turn |
+| [`examples/le-petit-prince`](skills/tobidas-lite/themes/default_storybook/examples/le-petit-prince/) — Le Petit Prince | French | 6 | Retro / original backgrounds / original music | GPT6.1-Sol medium | Created in one turn |
+| [`examples/momotaro`](skills/tobidas-lite/themes/default_storybook/examples/momotaro/) — Momotaro | English | 8 | Pop art / moving meadow / Japanese flute | Qwen 3.8 Flash Next IQ3_S (Strata) | Minor adjustments over a few turns. Several internal warnings; reference implementation |
 
-The examples are under `skills/tobidas-lite/themes/default/`.
+The examples are under `skills/tobidas-lite/themes/default_storybook/`.
 
 ### Controls
 
@@ -97,7 +97,7 @@ Once asked, the agent works through these steps:
 
 ## Themes
 
-The look and sound live in a folder called a theme, which can be swapped. One theme, `default`, is included.
+The look and sound live in a folder called a theme, which can be swapped. One theme, `default_storybook`, is included.
 
 | Item | Built-in choices |
 |---|---|
@@ -105,28 +105,28 @@ The look and sound live in a folder called a theme, which can be swapped. One th
 | Desk | 10: wood, light wood, linen, felt, marble, grass, sky, night sky, cutting mat, steel plate |
 | Moving background | 5: seaside, meadow, forest, town, retro game |
 | Music set | 5: music box, fife and drum, harp, Japanese flute, chiptune |
-| Drawing parts | 300: houses, castles, trees, mountains, vehicles, people, animals, furniture, tools, food and more (previews in [`previews/parts/`](skills/tobidas-lite/themes/default/previews/parts/)) |
+| Drawing parts | 300: houses, castles, trees, mountains, vehicles, people, animals, furniture, tools, food and more (previews in [`previews/parts/`](skills/tobidas-lite/themes/default_storybook/previews/parts/)) |
 
-For the desk or background and the music, you either pick a built-in choice or have the agent write a new one for that book. The art style is picked from the built-in choices. Preview images are in [`themes/default/previews/`](skills/tobidas-lite/themes/default/previews/). The theme format is described in [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) (in Japanese).
+For the desk or background and the music, you either pick a built-in choice or have the agent write a new one for that book. The art style is picked from the built-in choices. Preview images are in [`themes/default_storybook/previews/`](skills/tobidas-lite/themes/default_storybook/previews/). The theme format is described in [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) (in Japanese).
 
 ## Scripts
 
 Run these from `skills/tobidas-lite/`.
 
 ```bash
-node scripts/new-book.mjs ../my-book --theme default
+node scripts/new-book.mjs ../my-book --theme default_storybook
 ```
 
 Creates a new book folder from the template and the theme.
 
 ```bash
-node scripts/check.mjs themes/default/examples/jack
+node scripts/check.mjs themes/default_storybook/examples/jack
 ```
 
 Captures representative frames into one contact sheet, and reports sound errors.
 
 ```bash
-node scripts/render-video.mjs themes/default/examples/jack
+node scripts/render-video.mjs themes/default_storybook/examples/jack
 ```
 
 Exports a video with sound. This one also needs ffmpeg.
