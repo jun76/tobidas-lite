@@ -61,7 +61,7 @@ const Tobidas = (function () {
   const back = x => { x = cl(x); const c = 1.4; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
   const $ = id => document.getElementById(id);
   const div = (cls, parent) => { const e = document.createElement('div'); e.className = cls; if (parent) parent.appendChild(e); return e; };
-  const svgWrap = (w, h, inner, flt = true, vb) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb || `0 0 ${w} ${h}`}" width="${w}" height="${h}" style="overflow:visible;display:block">${flt ? `<g filter="url(#paper)"><rect width="${w}" height="${h}" fill="none"/>${inner}</g>` : inner}</svg>`;   // 透明な四角は、フィルタのかかる範囲を「絵の箱」に固定するため。これがないと範囲が絵の形(腕の動きなど)で変わり、ます目を敷く画風(ドット絵・網点)でパーツが消えたり現れたりする
+  const svgWrap = (w, h, inner, flt = true, vb) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb || `0 0 ${w} ${h}`}" width="${w}" height="${h}" style="overflow:visible;display:block">${flt && !T.noFilter ? `<g filter="url(#paper)"><rect width="${w}" height="${h}" fill="none"/>${inner}</g>` : inner}</svg>`;   // 透明な四角は、フィルタのかかる範囲を「絵の箱」に固定するため。これがないと範囲が絵の形(腕の動きなど)で変わり、ます目を敷く画風(ドット絵・網点)でパーツが消えたり現れたりする
   const noise = (fx, fy, mat, sz = 800) => `url('data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${sz}' height='${sz}'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='${fx} ${fy}' numOctaves='3' seed='8' stitchTiles='stitch'/><feColorMatrix type='matrix' values='${mat}'/></filter><rect width='${sz}' height='${sz}' filter='url(#n)'/></svg>`).replace(/'/g, '%27')}')`;
   // カメラの基本姿勢。d=引き(大きいほど遠い) tilt=見下ろし角 yaw=机上での回転 cx,cy,cz=注視点
   T.pose = o => Object.assign({ d: 330, tilt: 52, yaw: 0, cx: 0, cy: -30, cz: 150 }, o);
@@ -77,6 +77,10 @@ const Tobidas = (function () {
   // 埋め込んだファイル(パス → データURL)。file:// では音声ファイルを読めないので、scripts/embed-audio.mjs が assets/audio.js に埋め込んで登録する
   T.assets = {}; T.asset = (src, dataUrl) => { T.assets[src] = dataUrl; };
   T.VERSION = 1;
+  // URL の ?…(画風や時刻の指定)。URL を持てない埋め込み(聞き取りページが srcdoc で見せる見本)では、親が window.TOBIDAS_QUERY に同じ書式の文字列を書いておく
+  // WebKit(Safari、iOS の全ブラウザ、macOS のアプリ内表示)かどうか。描き方を一部変える(references/pitfalls.md の「WebKit」)
+  T.webkit = /AppleWebKit/.test(navigator.userAgent) && !/Chrom(e|ium)/.test(navigator.userAgent);
+  T.query = () => new URLSearchParams(typeof window.TOBIDAS_QUERY === 'string' ? window.TOBIDAS_QUERY : location.search);
   // テーマが読み込まれていないときの控え(仕上げなし・無地の机)
   T.STYLES = { plain: { label: '仕上げなし', filter: `<feMerge><feMergeNode in="SourceGraphic"/></feMerge>`, grain: .2, shadow: 1 } };
   T.DESKS = { plain: { label: '無地', background: 'linear-gradient(90deg,#8d8d8d,#6f6f6f)', room: ['#4a4a4a', '#242424', '#101010'], light: '255,255,255' } };
@@ -93,7 +97,9 @@ const Tobidas = (function () {
   let leaves, spreads, N, NL, CAM, world, dctx, motes, capIdx = -1, capSpans = [];
 
   function build() {
-    const def = T.def, dt = def.theme || {}, qp = new URLSearchParams(location.search);   // ?style= ?desk= で内蔵の画風・机を試せる
+    const def = T.def, dt = def.theme || {}, qp = T.query();   // ?style= ?desk= で内蔵の画風・机を試せる
+    // WebKit(Safari、iOS の全ブラウザ、WKWebView)は、立体の中にある絵に SVG フィルタの参照があると、立ち上がるパーツを描かない。そこでは参照を付けずに描く(画風の縁取りや質感は出ない)。?nofilter で常に外し、?nofilter=0 で常に付ける
+    { const v = qp.get('nofilter'); T.noFilter = v != null ? v !== '0' : T.webkit; }
     const td = (T.themeDef && T.themeDef.defaults) || {}; if (!T.themeDef) T.warnings.push('テーマが読み込まれていません(index.html で theme/theme.js を読み込む)');
     const ST = T.style = pick(T.STYLES, qp.get('style') || dt.style, td.style, '画風', T.warnings), DK = T.desk = pick(T.DESKS, qp.get('desk') || dt.desk, td.desk, '机', T.warnings);
     const th = Object.assign({ board: '#174536', spine: '#123a2d', paper: '#f6ecd6', room: DK.room, light: DK.light, font: FONT }, dt);
@@ -106,6 +112,7 @@ const Tobidas = (function () {
     const TL = T.TL = { INTRO: tm.intro, TURN: tm.turn, CLOSE: tm.close, ts, tc: t, END: t + tm.close + tm.outro, N, FPS: 30, open: s => ts[s - 1] + tm.turn, until: s => (s < N ? ts[s] : t) };
     // --- 舞台 ---
     const root = $('tobidas'); document.title = def.title || document.title;
+    root.classList.toggle('tb-lite', qp.has('lite') && qp.get('lite') !== '0');   // ?lite … 飾りの層(ほこり・ぼけ・影のぼかし・光の合成)を省く。重い機械での切り分け用
     root.style.cssText += `--board:${th.board};--spine:${th.spine};--paper:${th.paper};--room1:${th.room[0]};--room2:${th.room[1]};--room3:${th.room[2]};--light:${th.light};--font:${th.font}`;
     root.innerHTML = `
       <div id="tb-scene"></div>

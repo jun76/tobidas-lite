@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // 聞き取りページを作る: ひな形(assets/setup/setup.html)に、題材ごとの候補とおすすめ、テーマの内蔵の一覧を埋めて1枚の HTML に書き出す。
 //   node setup.mjs <書き出す.html> --data <候補とおすすめの.json> [--theme default_storybook]
-//   ユーザーがブラウザで開いて選び、最後の「結果」を会話に貼る。見本画像と見本の絵本はスキル内のファイルを直接指すので、書き出した HTML は同じ機械で開く。
+//   ユーザーがブラウザで開いて選び、最後の「結果」を会話に貼る。見本画像と見本の絵本も埋め込むので、書き出した HTML は1ファイルだけで開ける(別の機械へ渡してもよい)。
 //   node setup.mjs --strings                       画面の文言(英語)を JSON で出力する。日本語・英語以外の言語では、これを訳して data の strings に書く
 //   data の書式(references なし。ここが正):
 //     { "ui": "ja",                                   会話の言語のコード('ja' 'en' 'fr' など)。'ja' と 'en' は文言を内蔵している
@@ -15,6 +15,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { bundle } from './bundle.mjs';
 const skill = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2), opt = {}; let dest = null;
 for (let i = 0; i < args.length; i++) { if (args[i].startsWith('--')) opt[args[i].slice(2)] = args[++i]; else dest = args[i]; }
@@ -59,12 +60,15 @@ if (!STR[ui]) {
 const lb = data.labels || {};
 for (const [k, list] of [['style', theme.styles], ['desk', theme.desks], ['set', theme.sets]]) { for (const n of Object.keys(lb[k] || {})) if (!has(list, n)) errs.push(`labels.${k}.${n} という名前はありません(使える名前: ${names(list)})`); if (ui !== 'ja') { const miss = list.filter(x => !(lb[k] || {})[x[0]]).map(x => x[0]); if (miss.length) notes.push(`labels.${k} に ${miss.join(' ')} がないので、日本語の表示名で出します`); } }
 if (errs.length) fail('data に問題があります:\n  ' + errs.join('\n  '));
-const setup = { ui, strings: STR[ui] ? undefined : data.strings, labels: data.labels, topic: data.topic, highlights: data.highlights.slice(0, 2), recommend: r, fixed: fx, theme, base: pathToFileURL(themeDir).href + '/' };
+const setup = { ui, strings: STR[ui] ? undefined : data.strings, labels: data.labels, topic: data.topic, highlights: data.highlights.slice(0, 2), recommend: r, fixed: fx, theme, thumbs: {}, sample: null };
+// 見本画像(previews/ の style_名前.jpg など)と見本の絵本を、このページに埋め込む。スキルのフォルダを見られない場所(別の機械、アプリ内の表示)でも開けるようにするため
+const dataUrl = (f, mime) => `data:${mime};base64,${fs.readFileSync(f).toString('base64')}`;
+for (const [kind, list] of [['style', theme.styles], ['desk', theme.desks]]) for (const [n] of list) { const f = path.join(themeDir, 'previews', `${kind}_${n}.jpg`); if (fs.existsSync(f)) setup.thumbs[`${kind}_${n}`] = dataUrl(f, 'image/jpeg'); else notes.push(`見本画像 previews/${kind}_${n}.jpg がありません`); }
+if (theme.sample) { try { const b = bundle(path.join(themeDir, theme.sample)); setup.sample = b.html; for (const n of b.notes) notes.push(`見本の絵本: ${n}`); } catch (e) { notes.push(`見本の絵本を埋め込めません(${e.message})。見本なしで作ります`); } }
 const mark = '/*SETUP_DATA*/null';
 if (!tpl.includes(mark)) fail('assets/setup/setup.html に SETUP_DATA の目印がありません。');
 dest = path.resolve(dest); fs.mkdirSync(path.dirname(dest), { recursive: true });
-// ファビコンはスキル内のファイルを直接指す
-const icon = 'href="favicon.png"', page = tpl.replace(mark, () => JSON.stringify(setup).replace(/</g, '\\u003c')).replace(icon, () => `href="${pathToFileURL(path.join(skill, 'assets', 'setup', 'favicon.png')).href}"`);
+const icon = 'href="favicon.png"', page = tpl.replace(mark, () => JSON.stringify(setup).replace(/</g, '\\u003c')).replace(icon, () => `href="${dataUrl(path.join(skill, 'assets', 'setup', 'favicon.png'), 'image/png')}"`);
 fs.writeFileSync(dest, page);
 if (notes.length) console.log('注意:\n  ' + notes.join('\n  '));
-console.log(`聞き取りページを作りました: ${dest}\n  開く: ${pathToFileURL(dest).href}\n  ユーザーにブラウザで開いてもらい、選び終えたら「結果」をコピーして会話に貼ってもらう。`);
+console.log(`聞き取りページを作りました: ${dest}(${(Buffer.byteLength(page) / 1048576).toFixed(1)} MB)\n  開く: ${pathToFileURL(dest).href}\n  ユーザーにブラウザで開いてもらい、選び終えたら「結果」をコピーして会話に貼ってもらう。\n  このファイルだけで開ける。ユーザーが別の機械にいるなら、ファイルそのものを渡す。`);

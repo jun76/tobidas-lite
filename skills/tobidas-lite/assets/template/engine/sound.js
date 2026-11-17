@@ -82,7 +82,7 @@
     const sparkle = (t0, t1, n, vol = .5, base = 96) => { for (let i = 0; i < n; i++) ding(t0 + (t1 - t0) * (i + rand() * .6) / n, base + [0, 2, 4, 7, 9, 12, 14, 16][Math.floor(rand() * 8)], vol * (.5 + rand() * .5), rand() * 1.2 - .6, .8); };
     const tunes = Object.assign({}, TUNES, cfg.tunes), moods = Object.assign({}, MOODS, cfg.moods);
     // 曲集: 内蔵の名前か、書き下ろし { main: {chords, mel, beats}, sub: {…}, minor: {…}, tr, tempo }(足りない役は musicbox の曲)
-    const qset = new URLSearchParams(location.search).get('set'), sv = qset || cfg.set || set0 || Object.keys(SETS)[0] || {};
+    const qset = T.query().get('set'), sv = qset || cfg.set || set0 || Object.keys(SETS)[0] || {};
     if (typeof sv === 'string' && !SETS[sv]) warn(`音: 曲集 '${sv}' はありません(使える名前: ${Object.keys(SETS).join(' ')})`);
     const set = Object.assign({}, baseSet, typeof sv === 'string' ? SETS[sv] : sv);
     for (const r of ['main', 'sub', 'minor']) { const v = set[r]; tunes[r] = typeof v === 'string' ? tunes[v] || TUNES[baseSet[r]] : v; if (typeof v === 'string' && !tunes[v]) warn(`音: 曲 '${v}' はありません`); }

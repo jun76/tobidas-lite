@@ -140,7 +140,7 @@ node scripts/render-video.mjs themes/default_storybook/examples/jack
 | `skills/tobidas-lite/assets/setup/` | 聞き取りページのひな形 |
 | `skills/tobidas-lite/themes/<テーマ>/` | テーマパック。画風・机・曲・効果音・絵の部品、資料、見本画像、書き出し、完成見本 |
 | `skills/tobidas-lite/references/` | 全テーマ共通の資料(作品定義の書き方、落とし穴、テーマの書式) |
-| `skills/tobidas-lite/scripts/` | `setup.mjs`、`new-book.mjs`、`check.mjs`、`gallery.mjs`、`parts-sheet.mjs`、`embed-audio.mjs`、`render-video.mjs` |
+| `skills/tobidas-lite/scripts/` | `setup.mjs`、`new-book.mjs`、`check.mjs`、`gallery.mjs`、`parts-sheet.mjs`、`embed-audio.mjs`、`bundle.mjs`、`render-video.mjs` |
 
 作品フォルダは `index.html`、`engine/`、`theme/`(選んだテーマのコピー)、`book/`(その作品の絵と定義)でできています。
 

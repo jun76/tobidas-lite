@@ -140,7 +140,7 @@ Exports a video with sound. This one also needs ffmpeg.
 | `skills/tobidas-lite/assets/setup/` | Template for the setup page |
 | `skills/tobidas-lite/themes/<theme>/` | Theme pack: styles, desks, music, sound effects, drawing parts, guides, previews, starter, examples |
 | `skills/tobidas-lite/references/` | Guides shared by all themes (book definition API, pitfalls, theme format) |
-| `skills/tobidas-lite/scripts/` | `setup.mjs`, `new-book.mjs`, `check.mjs`, `gallery.mjs`, `parts-sheet.mjs`, `embed-audio.mjs`, `render-video.mjs` |
+| `skills/tobidas-lite/scripts/` | `setup.mjs`, `new-book.mjs`, `check.mjs`, `gallery.mjs`, `parts-sheet.mjs`, `embed-audio.mjs`, `bundle.mjs`, `render-video.mjs` |
 
 A book folder consists of `index.html`, `engine/`, `theme/` (a copy of the chosen theme) and `book/` (the pictures and definitions for that book).
 

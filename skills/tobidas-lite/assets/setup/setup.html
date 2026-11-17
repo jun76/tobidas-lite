@@ -150,7 +150,7 @@ const SETUP = /*SETUP_DATA*/null;
   const card = (key, val, label, sub, img, badge) => { const b = el('button', 'card', `${img ? `<img src="${esc(img)}" alt="" loading="lazy">` : `<div class="noimg">＋</div>`}<div class="cap"><b>${esc(label)}</b>${badge ? `<span class="badge">${esc(badge)}</span>` : ''}${sub ? `<small>${esc(sub)}</small>` : ''}</div>`); b.type = 'button'; b.dataset.v = val; b.onclick = () => choose(key, val);
     const im = b.querySelector('img'); if (im) im.onerror = () => im.replaceWith(el('div', 'noimg', '')); (groups[key] = groups[key] || []).push(b); return b; };
   const text = (key, ph, multi) => { const t = el(multi ? 'textarea' : 'input'); if (!multi) t.type = 'text'; t.placeholder = ph; t.oninput = () => { S[key] = t.value; update(); }; return t; };
-  const thumb = (kind, name) => `${D.base}previews/${kind}_${name}.jpg`;
+  const thumb = (kind, name) => (D.thumbs || {})[`${kind}_${name}`] || '';   // 見本画像は、データURLでこのページに埋め込んである
 
   // 1 言語
   let s = section(L.lang, 'lang'), c = el('div', 'chips'); c.append(chip('lang', 'self', L.langSelf)); if (!isEn) c.append(chip('lang', 'en', L.english)); c.append(chip('lang', '*', L.langOther)); const langT = text('langText', L.langPh); langT.value = S.langText; s.append(c, langT);
@@ -181,7 +181,7 @@ const SETUP = /*SETUP_DATA*/null;
   s = section(L.more); s.append(text('more', '', true));
 
   $('p-title').textContent = L.pTitle; $('p-lead').textContent = L.pLead; $('r-title').textContent = L.rTitle; $('r-lead').textContent = L.rLead; $('copy').textContent = L.copy;
-  if (!TH.sample) $('s-preview').classList.add('hide');
+  if (!D.sample) TH.sample = null; if (!TH.sample) $('s-preview').classList.add('hide');
   // 大きく見るときの切り替え。画風はボタン、本の後ろと曲はプルダウン(どれも下の欄と同じ選択を動かす)
   const quick = $('quick'), pv = $('s-preview'), bigBtn = $('p-big');
   for (const [name, label] of TH.styles) quick.append(chip('style', name, label));
@@ -196,6 +196,8 @@ const SETUP = /*SETUP_DATA*/null;
     if (d.tobidas === 'time' && isFinite(d.t)) { at = d.t; playing = !!d.auto; }
     else if (d.tobidas === 'pcm' && d.pcm) { pcms.delete(d.key); pcms.set(d.key, d.pcm); while (pcms.size > 2) pcms.delete(pcms.keys().next().value); }
     else if (d.tobidas === 'pcm?') e.source.postMessage({ tobidas: 'pcm', key: d.key, pcm: pcms.get(d.key) || null }, '*'); });
+  // 見本の絵本は、1ファイルにまとめたものをこのページに埋め込んである(D.sample)。URL を持たないので、画風などの指定は window.TOBIDAS_QUERY で渡す
+  const sampleDoc = query => D.sample.replace(/<head[^>]*>/i, m => `${m}<script>window.TOBIDAS_QUERY=${JSON.stringify(query)}<\/script>`);
   const name = (list, v) => { const f = list.find(x => x[0] === v); return f ? `${v}(${f[1]})` : v; };
   function update() {
     for (const k of ['lang', 'len', 'hi', 'parts', 'style', 'desk', 'set']) for (const b of groups[k] || []) b.setAttribute('aria-pressed', String(b.dataset.v === String(S[k])));
@@ -208,7 +210,7 @@ const SETUP = /*SETUP_DATA*/null;
     // 見本: 内蔵の組み合わせだけ当てはめられる
     if (TH.sample) {
       const q = new URLSearchParams({ style: S.style }); if (S.desk[0] !== '*') q.set('desk', S.desk); if (S.set[0] !== '*') q.set('set', S.set);
-      const url = `${D.base}${TH.sample}/index.html?${q}`; if (url !== shown) { shown = url; clearTimeout(timer); timer = setTimeout(() => { frame.src = `${url}&at=${at}&embed${playing ? '&autoplay' : ''}`; }, 120); }   // 再生中に選び直したら、同じ位置から再生を続ける
+      const url = String(q); if (url !== shown) { shown = url; clearTimeout(timer); timer = setTimeout(() => { frame.srcdoc = sampleDoc(`${url}&at=${at}&embed${playing ? '&autoplay' : ''}`); }, 120); }   // 再生中に選び直したら、同じ位置から再生を続ける
       $('p-note').textContent = [S.desk[0] === '*' ? L.pNoDesk : '', S.set[0] === '*' ? L.pNoSet : ''].filter(Boolean).join(' ');
     }
     // 結果

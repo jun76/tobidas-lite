@@ -44,6 +44,10 @@ html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
 #tb-end { display: flex; align-items: center; justify-content: center; flex-direction: column; color: #f8e3a0; font-weight: 900; font-size: 150px; letter-spacing: .2em; text-shadow: 0 6px 30px rgba(0,0,0,.8); opacity: 0; }
 #tb-end small { font-size: 34px; letter-spacing: .5em; margin-top: 24px; color: #fff6e0; font-weight: 700; }
 #tb-fade { background: #000; opacity: 1; }
+/* ?lite: 飾りの層を省く(重い機械での切り分け用) */
+#tobidas.tb-lite .bokeh, #tobidas.tb-lite #tb-dust, #tobidas.tb-lite #tb-light, #tobidas.tb-lite #tb-grade, #tobidas.tb-lite .grain { display: none; }
+#tobidas.tb-lite .sh { filter: brightness(0); opacity: .18 !important; }
+#tobidas.tb-lite #tb-shadowR, #tobidas.tb-lite #tb-shadowL { filter: none; opacity: .5; }
 
 /* プレーヤー(ホイール操作のHUD) */
 #tb-hud { position: fixed; left: 0; right: 0; bottom: 0; height: 26px; cursor: pointer; z-index: 10; font: 13px/1 system-ui, sans-serif; }
