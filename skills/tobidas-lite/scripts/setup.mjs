@@ -60,11 +60,14 @@ if (!STR[ui]) {
 const lb = data.labels || {};
 for (const [k, list] of [['style', theme.styles], ['desk', theme.desks], ['set', theme.sets]]) { for (const n of Object.keys(lb[k] || {})) if (!has(list, n)) errs.push(`labels.${k}.${n} という名前はありません(使える名前: ${names(list)})`); if (ui !== 'ja') { const miss = list.filter(x => !(lb[k] || {})[x[0]]).map(x => x[0]); if (miss.length) notes.push(`labels.${k} に ${miss.join(' ')} がないので、日本語の表示名で出します`); } }
 if (errs.length) fail('data に問題があります:\n  ' + errs.join('\n  '));
-const setup = { ui, strings: STR[ui] ? undefined : data.strings, labels: data.labels, topic: data.topic, highlights: data.highlights.slice(0, 2), recommend: r, fixed: fx, theme, thumbs: {}, sample: null };
+const setup = { ui, strings: STR[ui] ? undefined : data.strings, labels: data.labels, topic: data.topic, highlights: data.highlights.slice(0, 2), recommend: r, fixed: fx, theme, thumbs: {}, sample: null, poster: null };
 // 見本画像(previews/ の style_名前.jpg など)と見本の絵本を、このページに埋め込む。スキルのフォルダを見られない場所(別の機械、アプリ内の表示)でも開けるようにするため
 const dataUrl = (f, mime) => `data:${mime};base64,${fs.readFileSync(f).toString('base64')}`;
 for (const [kind, list] of [['style', theme.styles], ['desk', theme.desks]]) for (const [n] of list) { const f = path.join(themeDir, 'previews', `${kind}_${n}.jpg`); if (fs.existsSync(f)) setup.thumbs[`${kind}_${n}`] = dataUrl(f, 'image/jpeg'); else notes.push(`見本画像 previews/${kind}_${n}.jpg がありません`); }
 if (theme.sample) { try { const b = bundle(path.join(themeDir, theme.sample)); setup.sample = b.html; for (const n of b.notes) notes.push(`見本の絵本: ${n}`); } catch (e) { notes.push(`見本の絵本を埋め込めません(${e.message})。見本なしで作ります`); } }
+// 見本の表紙ポスター。見本プレイヤー(iframe)が描けない環境(Mac の Muse アプリ)では、ページがこれに差し替える
+const posterF = path.join(themeDir, 'previews', 'poster.jpg');
+if (fs.existsSync(posterF)) setup.poster = dataUrl(posterF, 'image/jpeg'); else if (theme.sample) notes.push('見本のポスター previews/poster.jpg がありません。node scripts/gallery.mjs <見本の作品> --out <テーマ>/previews で作り直してください');
 const mark = '/*SETUP_DATA*/null';
 if (!tpl.includes(mark)) fail('assets/setup/setup.html に SETUP_DATA の目印がありません。');
 dest = path.resolve(dest); fs.mkdirSync(path.dirname(dest), { recursive: true });
