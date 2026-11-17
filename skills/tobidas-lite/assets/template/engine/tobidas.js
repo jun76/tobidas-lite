@@ -126,7 +126,7 @@ const Tobidas = (function () {
       <div class="bokeh" style="left:200px;top:-60px;width:260px;height:260px;background:rgba(255,190,110,.22)"></div>
       <div class="bokeh" style="left:1380px;top:20px;width:200px;height:200px;background:rgba(255,160,90,.16)"></div>
       <div class="bokeh" style="left:900px;top:-90px;width:300px;height:300px;background:rgba(255,220,160,.12)"></div>
-      <div id="tb-stage"><div id="tb-world"><div id="tb-table"></div><div id="tb-deco"></div><div id="tb-shadowR"></div><div id="tb-shadowL"></div><div id="tb-spine"></div><div id="tb-backBoard" class="board"></div></div></div>
+      <div id="tb-stage"><div id="tb-world"><div id="tb-table"></div><div id="tb-deco"></div><div id="tb-shadowR"></div><div id="tb-shadowL"></div><div id="tb-base"><div id="tb-spine"></div><div id="tb-backBoard" class="board"></div></div></div></div>
       <div id="tb-ov"><div id="tb-grade"></div><div id="tb-light"></div><canvas id="tb-dust" width="1920" height="1080"></canvas><div id="tb-vig"></div><div id="tb-capbg"></div><div id="tb-cap"></div><div id="tb-end"></div><div id="tb-fade"></div></div>
       <svg width="0" height="0" style="position:absolute"><defs><filter id="paper" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">${ST.filter}</filter></defs></svg>`;
     world = $('tb-world');
@@ -136,14 +136,20 @@ const Tobidas = (function () {
     $('tb-table').style.background = hasTable ? (typeof DK.background === 'function' ? DK.background(th) : DK.background) : 'none';
     // 机の面は、1回だけ canvas に描いた絵に差し替える。CSS の背景のままだと、Chrome は奥へ倒した 6000×4600 の板の全面を手前の拡大率で描いて持ち、
     // Retina の大きな窓ではそれだけでタイル用メモリの上限(約 625MB)の半分以上を使って、ほかの層が描かれずに点滅する(pitfalls.md)。canvas なら絵の大きさぶんで済む。
-    // ?table=<倍率> で canvas の細かさを変える(既定 TABLE_RES)。?table=0 で差し替えない。WebKit は舞台を zoom で縮めていて困らないので、差し替えない
-    const tres = qp.get('table') != null ? +qp.get('table') : T.webkit ? 0 : TABLE_RES;
+    // ?table=<倍率> で canvas の細かさを変える(既定 TABLE_RES)。?table=0 で差し替えない
+    const tres = qp.get('table') != null ? +qp.get('table') : TABLE_RES;
     const bake = !hasTable || !(tres > 0) ? Promise.resolve() : new Promise(res => {
-      const old = $('tb-table'), TW = 6000, TH = 4600, esc = x => x.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'), im = new Image(); let done = false;
-      const fin = () => { if (!done) { done = true; res(); } };
-      im.onload = () => { try { const c = document.createElement('canvas'); c.width = Math.round(TW * tres); c.height = Math.round(TH * tres); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); c.id = 'tb-table'; c.style.borderRadius = '0'; old.replaceWith(c); } catch (e) { } fin(); };
-      im.onerror = fin; setTimeout(fin, 4000);   // 描けなかったら、CSS の背景のまま続ける
-      im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${TW}" height="${TH}"><foreignObject width="${TW}" height="${TH}"><div xmlns="http://www.w3.org/1999/xhtml" style="width:${TW}px;height:${TH}px;border-radius:30px;background:${esc(old.style.background)}"></div></foreignObject></svg>`);
+      const old = $('tb-table'), TW = 6000, TH = 4600, esc = x => x.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); let done = false;
+      const fin = () => { if (!done) { done = true; res(); } }; setTimeout(fin, 4000);   // 描けなかったら、CSS の背景のまま続ける
+      const load = src => new Promise((ok, ng) => { const im = new Image(); im.onload = () => ok(im); im.onerror = ng; im.src = src; });
+      // 背景の中の模様(fx.noise の SVG)は、先に元の大きさのまま画像にしておく。Safari は、SVG フィルタの模様を 3000px を超えて引き伸ばして描くと、模様を描かずに捨てる(大理石の石目が出ない)
+      const bg0 = old.style.background, pats = [...new Set([...bg0.matchAll(/url\("(data:image\/svg\+xml[^"]*)"\)/g)].map(m => m[1]))];
+      Promise.all(pats.map(u => load(u.replace(/\\(.)/g, '$1')).then(im => { const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight; c.getContext('2d').drawImage(im, 0, 0); return [u, c.toDataURL('image/png')]; }).catch(() => [u, u])))
+        .then(rs => { let bg = bg0; rs.forEach(([u, v]) => { bg = bg.split(u).join(v); });
+          return load('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${TW}" height="${TH}"><foreignObject width="${TW}" height="${TH}"><div xmlns="http://www.w3.org/1999/xhtml" style="width:${TW}px;height:${TH}px;border-radius:30px;background:${esc(bg)}"></div></foreignObject></svg>`)); })
+        .then(im => (im.decode ? im.decode().catch(() => { }) : Promise.resolve()).then(() => im))   // 復号が済むのを待つ。待たずに描くと、Safari は中に埋めた模様の画像を飛ばして描く
+        .then(im => { if (done) return; const c = document.createElement('canvas'); c.width = Math.round(TW * tres); c.height = Math.round(TH * tres); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); c.id = 'tb-table'; c.style.borderRadius = '0'; old.replaceWith(c); })
+        .catch(() => { }).then(fin);
     });
     T.scenes = null;
     if (SCN || perSpread) {
@@ -170,11 +176,13 @@ const Tobidas = (function () {
     leaves = [];
     for (let i = 0; i < NL; i++) {
       const el = div('leaf p3', world), L = { el };
-      if (i === 0) { div('board', el); const b = div('block', el); b.style.transform = 'rotateY(180deg) translateZ(.8px)'; b.style.transformOrigin = '50% 50%'; }   // 裏返す軸は束の中央(ずれていると、束が背の外へはみ出して白い線に見える)
-      ['front', 'back'].forEach(k => { if (k === 'back' && i === NL - 1) return; const f = div('face p3 ' + k, el); L[k] = f; L[k + 'Paper'] = div('paper', f); });
+      // ほぼ同じ高さに重なる面は、立体の中で別々の面にせず、平らな入れ物(.pile / .ground / #tb-base)にまとめて、書いた順に重ねる。
+      // 別々の面だと、ブラウザが前後を決めきれずに下の面が上に出る(Safari は舞台を zoom で縮めるので、すき間も縮んで起きやすい。pitfalls.md)
+      if (i === 0) { const pile = div('pile', el); div('board', pile); div('block', pile); }   // 表紙の板と、その裏に重なるページの束
+      ['front', 'back'].forEach(k => { if (k === 'back' && i === NL - 1) return; const f = div('face p3 ' + k, el); L[k] = f; L[k + 'Ground'] = div('ground', f); L[k + 'Paper'] = div('paper', L[k + 'Ground']); });   // 紙面と、その上に落ちる影は .ground の中
       leaves.push(L);
     }
-    { const b = div('block', world); b.style.top = '-464px'; b.style.transform = 'translateZ(-.4px)'; }
+    { const b = div('block', $('tb-base')); b.style.top = '-464px'; }   // 背・裏表紙の板・右の束は #tb-base の中に、この順で重ねる
     const printPage = (L, k, inner, vb) => { const p = L[k + 'Paper']; p.innerHTML = svgWrap(W, H, inner, false, vb) + grain + `<div class="gut"></div><div class="shade"></div>`; L[k + 'Shade'] = p.querySelector('.shade'); if (ST.pageFilter) p.firstElementChild.style.filter = ST.pageFilter; };   // 画風の pageFilter は、ページに印刷された地面の絵だけにかける
     { const p = leaves[0].frontPaper; p.style.cssText = `left:0;top:-14px;width:738px;height:948px;right:auto;bottom:auto;border-radius:0 14px 14px 0;background:${th.board}`;
       p.innerHTML = svgWrap(738, 948, def.cover || '', false) + grain.replace('class="grain"', 'class="grain" data-c') + `<div class="sheen"></div><div class="shade"></div>`;
@@ -205,18 +213,18 @@ const Tobidas = (function () {
         if (fold < 0 && sp.Y + sp.h > H + 60) T.warnings.push(`見開き${s} パーツ#${idx}: 手前へたたまれる折れパネルが高すぎて、とじるときページの手前へ ${Math.ceil(sp.Y + sp.h - H)} はみ出す(fold: 12 で奥へたたむ向きにするか、高さを ${Math.floor(H + 60 - sp.Y)} 以下にする)`);
         if (sp.Y < 0 || sp.Y > H || Math.abs(sp.X) > W) T.warnings.push(`見開き${s} パーツ#${idx}: 根元 (${sp.X},${sp.Y}) がページの外`);
         (split ? ['L', 'R'] : [(sp.side || (sp.X < 0 ? 'L' : 'R')) + '!']).forEach(pt => {
-          const side = pt[0], face = side === 'L' ? LF.back : RF.front, lx = side === 'L' ? sp.X + W : sp.X, cut = pt.length === 1;
+          const side = pt[0], face = side === 'L' ? LF.back : RF.front, ground = side === 'L' ? LF.backGround : RF.frontGround, lx = side === 'L' ? sp.X + W : sp.X, cut = pt.length === 1;
           let html = svgWrap(sp.w, sp.h, sp.art, sp.flt !== false), ew = sp.w, eh = sp.h, ox = 0, oy = 0;
           if (cut) { // 背をまたぐパーツは左右のページに切り分ける(同一平面で重ねると片側が描かれない)
             ox = side === 'L' ? -60 : -x0; ew = side === 'L' ? 60 - x0 : x1 + 60; oy = -300; eh = sp.h + 300;   // 下端は根元ちょうどで止める(ページ面より下にはみ出すと、板がページと交差して前後判定が狂い、下半分が消える)
             html = `<div style="position:absolute;left:${-ox}px;top:300px;contain:paint">${html}</div>`;   // contain で中の絵を「絵の箱」の中に閉じる(GPU描画のとき、板の上の余白に縦の光の筋が出るのを防ぐ。箱を板いっぱいに広げると筋が戻る。will-change で独立レイヤーにする方法は、ヘッドレス描画で右半分が消える。pitfalls.md)。このため、切り分けた板では絵を箱の外へはみ出させられない
           }
-          const mk = c => { const e = div(c, face); e.dataset.p = `${s}-${idx}`; e.innerHTML = html; e.style.width = ew + 'px'; e.style.height = eh + 'px'; if (cut) { e.style.overflow = 'hidden'; e.style.transformOrigin = `${fold ? (side === 'L' ? ew : 0) : sp.w / 2 - ox}px ${sp.h - oy}px`; } return e; };
+          const mk = c => { const e = div(c, c === 'sh' ? ground : face); e.dataset.p = `${s}-${idx}`; e.innerHTML = html; e.style.width = ew + 'px'; e.style.height = eh + 'px'; if (cut) { e.style.overflow = 'hidden'; e.style.transformOrigin = `${fold ? (side === 'L' ? ew : 0) : sp.w / 2 - ox}px ${sp.h - oy}px`; } return e; };
           const sh = sp.sh !== false ? mk('sh') : null, el = mk('pc');
           if (cut && Math.abs(fold) >= 20 && side === 'L' && !sp.glow) el.style.filter = 'brightness(.82)';   // 深く折った板は、左の面を少し暗くして面の向きの違いを見せる
           if (sp.glow) el.style.filter = `drop-shadow(0 0 ${Math.min(sp.glow, 30)}px ${sp.glowC || 'rgba(255,236,160,.9)'})`;   // 30px を超えると、光の範囲が四角く切れて見えるので頭打ちにする
           const ox0 = cut ? (fold ? (side === 'L' ? ew : 0) : sp.w / 2 - ox) : sp.w / 2;   // 回転の中心から、板の左右の端までの距離(xl は負)
-          rt.pieces.push({ sp, el, sh, lx, ox, oy, idx, xl: -ox0, xr: ew - ox0, q: { [QWHO]: `見開き${s} パーツ#${idx}` }, side, cut, faces: cut ? null : { L: LF.back, R: RF.front }, ph: idx * 1.7, vis: true, delay: sp.delay ?? (.04 + .3 * sp.Y / H), fold: cut ? fold : 0, fz: side === 'L' ? -fold : fold, fk: Math.sin(Math.abs(fold) * PI / 180) });
+          rt.pieces.push({ sp, el, sh, lx, ox, oy, idx, xl: -ox0, xr: ew - ox0, q: { [QWHO]: `見開き${s} パーツ#${idx}` }, side, cut, faces: cut ? null : { L: LF.back, R: RF.front }, grounds: cut ? null : { L: LF.backGround, R: RF.frontGround }, ph: idx * 1.7, vis: true, delay: sp.delay ?? (.04 + .3 * sp.Y / H), fold: cut ? fold : 0, fz: side === 'L' ? -fold : fold, fk: Math.sin(Math.abs(fold) * PI / 180) });
         });
       });
       // 構造物の床(terrace の deck): 壁(host)と同じページに、ページと平行な板として置く。背をまたぐ壁なら左右に分ける
@@ -287,7 +295,7 @@ const Tobidas = (function () {
       const sp = P.sp, pi = P.fold ? +(phi >= FOLD_SHOW) : cl((p - P.delay) / .6), d = sp.dyn ? sp.dyn(tl) || {} : {};
       const op = (d.op ?? 1) * tuckFade(P, sp, d, P.fold ? (phi - FOLD_SHOW - 4) / 80 : pi / .3), vis = pi > 0 && op > .003;
       // 背をまたいで動くパーツは、いま根元がある側のページに付け替える(出発側に付けたままだと、めくられる反対側のページがパーツを突き抜ける)
-      if (P.faces && d.dx) { const side = sp.X + d.dx < 0 ? 'L' : 'R'; if (side !== P.side) { P.side = side; P.lx = side === 'L' ? sp.X + W : sp.X; if (P.sh) P.faces[side].appendChild(P.sh); P.faces[side].appendChild(P.el); } }
+      if (P.faces && d.dx) { const side = sp.X + d.dx < 0 ? 'L' : 'R'; if (side !== P.side) { P.side = side; P.lx = side === 'L' ? sp.X + W : sp.X; if (P.sh) P.grounds[side].appendChild(P.sh); P.faces[side].appendChild(P.el); } }
       if (!vis) { P.now = null; if (P.vis) { P.el.style.display = 'none'; if (P.sh) P.sh.style.display = 'none'; P.vis = false; } continue; }
       if (!P.vis) { P.el.style.display = ''; if (P.sh) P.sh.style.display = ''; P.vis = true; }
       if (P.fold) { foldPiece(P, d, phi, op); if (sp.anim) { const ta = T.animStep ? Math.floor(tl / T.animStep + 1e-6) * T.animStep : tl; if (P.animT !== ta) { P.animT = ta; P.q = P.q || {}; sp.anim(ta, P.el, P.q); } } continue; }
@@ -388,6 +396,7 @@ const Tobidas = (function () {
       if (L.backShade) L.backShade.style.opacity = (a > 90 ? .32 * sn : 0).toFixed(3);
     }
     $('tb-shadowL').style.opacity = cl((th[0] - 60) / 120) * (T.scenes ? T.scenes.shadow : 1);
+    { const open = th[0] > 179.9; if (open !== T.spineOpen) { T.spineOpen = open; $('tb-spine').classList.toggle('open', open); } }
     if (T.scenes) {   // 動く背景。環境の時計(amb)で動かす。見開きごとの背景は、その見開きへめくる間に現れ、次へめくる間に消える
       const S = T.scenes, show = (L, o) => { const on = o > .004; if (on !== L.on) { L.el.style.display = on ? '' : 'none'; L.on = on; } if (on) { L.el.style.opacity = o.toFixed(3); if (L.sc.anim) L.sc.anim(amb, L.svg, L.q); } };
       let cover = 0;
