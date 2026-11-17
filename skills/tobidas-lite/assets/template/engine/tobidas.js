@@ -61,7 +61,11 @@ const Tobidas = (function () {
   const back = x => { x = cl(x); const c = 1.4; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
   const $ = id => document.getElementById(id);
   const div = (cls, parent) => { const e = document.createElement('div'); e.className = cls; if (parent) parent.appendChild(e); return e; };
-  const svgWrap = (w, h, inner, flt = true, vb) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb || `0 0 ${w} ${h}`}" width="${w}" height="${h}" style="overflow:visible;display:block">${flt && !T.noFilter ? `<g filter="url(#paper)"><rect width="${w}" height="${h}" fill="none"/>${inner}</g>` : inner}</svg>`;   // 透明な四角は、フィルタのかかる範囲を「絵の箱」に固定するため。これがないと範囲が絵の形(腕の動きなど)で変わり、ます目を敷く画風(ドット絵・網点)でパーツが消えたり現れたりする
+  // WebKit では、文字(<text>)の塗りと線がグラデーションの参照(url(#…))だと、macOS のアプリ内表示で文字が描かれない(図形の塗りや線は描かれる)。同じ絵の中にあるグラデーションの、まん中の色のベタ塗りに置き換える
+  const flatText = s => !T.webkit || s.indexOf('<text') < 0 ? s : s.replace(/<text\b[^>]*>/g, tag => tag.replace(/\b(fill|stroke)="url\(#([\w-]+)\)"/g, (m, k, id) => {
+    const g = s.match(new RegExp(`<(linear|radial)Gradient\\b[^>]*\\bid="${id}"[\\s\\S]*?</\\1Gradient>`)), st = g && g[0].match(/stop-color="[^"]+"/g);
+    return st ? `${k}="${st[st.length >> 1].slice(12, -1)}"` : m; }));
+  const svgWrap = (w, h, inner, flt = true, vb) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb || `0 0 ${w} ${h}`}" width="${w}" height="${h}" style="overflow:visible;display:block">${flt && !T.noFilter ? `<g filter="url(#paper)"><rect width="${w}" height="${h}" fill="none"/>${flatText(inner)}</g>` : flatText(inner)}</svg>`;   // 透明な四角は、フィルタのかかる範囲を「絵の箱」に固定するため。これがないと範囲が絵の形(腕の動きなど)で変わり、ます目を敷く画風(ドット絵・網点)でパーツが消えたり現れたりする
   const noise = (fx, fy, mat, sz = 800) => `url('data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${sz}' height='${sz}'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='${fx} ${fy}' numOctaves='3' seed='8' stitchTiles='stitch'/><feColorMatrix type='matrix' values='${mat}'/></filter><rect width='${sz}' height='${sz}' filter='url(#n)'/></svg>`).replace(/'/g, '%27')}')`;
   // カメラの基本姿勢。d=引き(大きいほど遠い) tilt=見下ろし角 yaw=机上での回転 cx,cy,cz=注視点
   T.pose = o => Object.assign({ d: 330, tilt: 52, yaw: 0, cx: 0, cy: -30, cz: 150 }, o);

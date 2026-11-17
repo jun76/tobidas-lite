@@ -147,8 +147,10 @@ const SETUP = /*SETUP_DATA*/null;
   const groups = {};   // 名前 → その欄のボタン一覧(選び直したとき aria-pressed を付け替える)
   const choose = (key, val) => { S[key] = val; for (const b of groups[key] || []) b.setAttribute('aria-pressed', String(b.dataset.v === String(val))); update(); };
   const chip = (key, val, label, sub, badge) => { const b = el('button', 'chip', `${esc(label)}${badge ? `<span class="badge">${esc(badge)}</span>` : ''}${sub ? `<small>${esc(sub)}</small>` : ''}`); b.type = 'button'; b.dataset.v = val; b.onclick = () => choose(key, val); (groups[key] = groups[key] || []).push(b); return b; };
-  const card = (key, val, label, sub, img, badge) => { const b = el('button', 'card', `${img ? `<img src="${esc(img)}" alt="" loading="lazy">` : `<div class="noimg">＋</div>`}<div class="cap"><b>${esc(label)}</b>${badge ? `<span class="badge">${esc(badge)}</span>` : ''}${sub ? `<small>${esc(sub)}</small>` : ''}</div>`); b.type = 'button'; b.dataset.v = val; b.onclick = () => choose(key, val);
-    const im = b.querySelector('img'); if (im) im.onerror = () => im.replaceWith(el('div', 'noimg', '')); (groups[key] = groups[key] || []).push(b); return b; };
+  const card = (key, val, label, sub, img, badge) => { const b = el('button', 'card', `${img ? '' : `<div class="noimg">＋</div>`}<div class="cap"><b>${esc(label)}</b>${badge ? `<span class="badge">${esc(badge)}</span>` : ''}${sub ? `<small>${esc(sub)}</small>` : ''}</div>`); b.type = 'button'; b.dataset.v = val; b.onclick = () => choose(key, val);
+    // 見本画像は要素として作って差す。innerHTML の文字列に data: の画像を書くと、iPhone のアプリ内表示で描かれないことがある
+    if (img) { const im = el('img'); im.alt = ''; im.loading = 'lazy'; im.onerror = () => im.replaceWith(el('div', 'noimg', '')); im.src = img; b.prepend(im); }
+    (groups[key] = groups[key] || []).push(b); return b; };
   const text = (key, ph, multi) => { const t = el(multi ? 'textarea' : 'input'); if (!multi) t.type = 'text'; t.placeholder = ph; t.oninput = () => { S[key] = t.value; update(); }; return t; };
   const thumb = (kind, name) => (D.thumbs || {})[`${kind}_${name}`] || '';   // 見本画像は、データURLでこのページに埋め込んである
 
