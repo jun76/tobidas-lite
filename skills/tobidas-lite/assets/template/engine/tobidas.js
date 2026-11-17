@@ -199,7 +199,8 @@ const Tobidas = (function () {
           const sh = sp.sh !== false ? mk('sh') : null, el = mk('pc');
           if (cut && Math.abs(fold) >= 20 && side === 'L' && !sp.glow) el.style.filter = 'brightness(.82)';   // 深く折った板は、左の面を少し暗くして面の向きの違いを見せる
           if (sp.glow) el.style.filter = `drop-shadow(0 0 ${Math.min(sp.glow, 30)}px ${sp.glowC || 'rgba(255,236,160,.9)'})`;   // 30px を超えると、光の範囲が四角く切れて見えるので頭打ちにする
-          rt.pieces.push({ sp, el, sh, lx, ox, oy, idx, q: { [QWHO]: `見開き${s} パーツ#${idx}` }, side, cut, faces: cut ? null : { L: LF.back, R: RF.front }, ph: idx * 1.7, vis: true, delay: sp.delay ?? (.04 + .3 * sp.Y / H), fold: cut ? fold : 0, fz: side === 'L' ? -fold : fold, fk: Math.sin(Math.abs(fold) * PI / 180) });
+          const ox0 = cut ? (fold ? (side === 'L' ? ew : 0) : sp.w / 2 - ox) : sp.w / 2;   // 回転の中心から、板の左右の端までの距離(xl は負)
+          rt.pieces.push({ sp, el, sh, lx, ox, oy, idx, xl: -ox0, xr: ew - ox0, q: { [QWHO]: `見開き${s} パーツ#${idx}` }, side, cut, faces: cut ? null : { L: LF.back, R: RF.front }, ph: idx * 1.7, vis: true, delay: sp.delay ?? (.04 + .3 * sp.Y / H), fold: cut ? fold : 0, fz: side === 'L' ? -fold : fold, fk: Math.sin(Math.abs(fold) * PI / 180) });
         });
       });
       // 構造物の床(terrace の deck): 壁(host)と同じページに、ページと平行な板として置く。背をまたぐ壁なら左右に分ける
@@ -280,15 +281,17 @@ const Tobidas = (function () {
       P.now = { ang, fz: yaw, lift, bx: P.lx + (d.dx || 0), by: sp.Y + (d.dy || 0), op };   // 構造物の床が壁に合わせるための値
       const sway = (sp.sway ?? .9) * Math.sin(tl * 1.25 + P.ph) + (d.rz || 0), sc = d.sc ?? 1;
       const tx = P.lx + (d.dx || 0) - sp.w / 2 + P.ox, ty = sp.Y + (d.dy || 0) - sp.h + P.oy;
+      // ゆれ・傾きで板を回すと、下の角がページの面より下に出る。出た分だけ板を持ち上げて、ページと交わらないようにする(交わると、Safari ではページが交線で割れて下の束が帯になって見える。pitfalls.md)。わざと沈めた板(負の lift・sink)は、そのまま
+      const sn = Math.sin(sway * PI / 180), up = lift < 0 ? 0 : Math.max(0, Math.max(P.xr * sn, P.xl * sn) * sc - lift);
       // rzBase の回転の中心は根元の中央。rzX で、根元の線の上を左右にずらせる(倒れる側の角を中心にすれば、倒れても板がページの下に潜らない)
       const rzb = d.rzX ? `translateX(${(+d.rzX).toFixed(2)}px) rotateZ(${(d.rzBase || 0).toFixed(2)}deg) translateX(${(-d.rzX).toFixed(2)}px)` : `rotateZ(${(d.rzBase || 0).toFixed(2)}deg)`;
-      P.el.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,.7px) rotateZ(${yaw}deg) rotateX(${(-ang).toFixed(2)}deg) ${rzb} translateY(${(-lift).toFixed(2)}px) rotateZ(${sway.toFixed(3)}deg) scale(${sc.toFixed(4)})`;
+      P.el.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,1.4px) rotateZ(${yaw}deg) rotateX(${(-ang).toFixed(2)}deg) ${rzb} translateY(${(-lift - up).toFixed(2)}px) rotateZ(${sway.toFixed(3)}deg) scale(${sc.toFixed(4)})`;
       P.el.style.opacity = op;
       const clip = clipOf(d, sp, lift < 0 ? -lift / Math.max(sc, .01) : 0);   // ページの下へ沈めた分(負の lift・sink)は根元の線で切って隠す。立ち上がり途中は板が傾いていて、沈めた分がページの上に出てしまうため
       if (clip !== P.clipNow) { P.el.style.clipPath = clip; if (P.sh) P.sh.style.clipPath = clip; P.clipNow = clip; }
       if (P.sh) {
         const sa = Math.sin(cl(ang, 0, 90) * Math.PI / 180);
-        P.sh.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,.3px) rotateZ(${yaw}deg) translateY(${(-lift * .42).toFixed(2)}px) skewX(-26deg) ${rzb} scale(${sc.toFixed(4)},${(sc * .46 * sa).toFixed(4)})`;
+        P.sh.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,.8px) rotateZ(${yaw}deg) translateY(${(-lift * .42).toFixed(2)}px) skewX(-26deg) ${rzb} scale(${sc.toFixed(4)},${(sc * .46 * sa).toFixed(4)})`;
         P.sh.style.opacity = Math.min(.6, .26 * pi * op * (sp.shOp ?? 1) * (T.style.shadow ?? 1)).toFixed(3);
       }
       if (sp.anim) { P.q = P.q || {}; sp.anim(tl, P.el, P.q); }
@@ -315,13 +318,13 @@ const Tobidas = (function () {
     const sink = d.sink || 0, lift = (d.lift ?? sp.lift ?? 0) - sink, sc = d.sc ?? 1;
     const tx = P.lx - sp.w / 2 + P.ox, ty = sp.Y + (d.dy || 0) - sp.h + P.oy;
     P.now = { ang, fz: P.fz, lift, bx: P.side === 'L' ? W : 0, by: sp.Y + (d.dy || 0), op };
-    P.el.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,.7px) rotateZ(${P.fz}deg) rotateX(${(-ang).toFixed(3)}deg) translateY(${(-lift).toFixed(2)}px) scale(${sc.toFixed(4)})`;
+    P.el.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,1.4px) rotateZ(${P.fz}deg) rotateX(${(-ang).toFixed(3)}deg) translateY(${(-lift).toFixed(2)}px) scale(${sc.toFixed(4)})`;
     P.el.style.opacity = op;
     const clip = clipOf(d, sp, lift < 0 ? -lift / Math.max(sc, .01) : 0);
     if (clip !== P.clipNow) { P.el.style.clipPath = clip; if (P.sh) P.sh.style.clipPath = clip; P.clipNow = clip; }
     if (P.sh) {
       const sa = Math.sin(rho * PI / 180);
-      P.sh.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,.3px) rotateZ(${P.fz}deg) translateY(${(-lift * .42).toFixed(2)}px) skewX(-26deg) scale(${sc.toFixed(4)},${(sc * .46 * sa).toFixed(4)})`;
+      P.sh.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,.8px) rotateZ(${P.fz}deg) translateY(${(-lift * .42).toFixed(2)}px) skewX(-26deg) scale(${sc.toFixed(4)},${(sc * .46 * sa).toFixed(4)})`;
       P.sh.style.opacity = Math.min(.6, .26 * sa * op * (sp.shOp ?? 1) * (T.style.shadow ?? 1)).toFixed(3);
     }
   }
