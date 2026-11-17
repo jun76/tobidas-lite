@@ -51,7 +51,8 @@
       pk.append(sel);
     };
     if (dth.pickers !== false && !q.has('embed')) {
-      if (dth.stylePicker !== false) picker('style', tx('style', '画風', 'Art style'), Object.entries(Tobidas.STYLES), typeof dth.style === 'string' ? dth.style : dth.style ? '' : tdf.style, dth.style && typeof dth.style === 'object' ? tx('ownStyle', 'この作品の画風', 'This book’s style') : '');
+      // 画風のフィルタを掛けない環境(WebKit、?nofilter)では、選んでも見た目が変わらないので、画風のプルダウンは出さない
+      if (dth.stylePicker !== false && !Tobidas.noFilter) picker('style', tx('style', '画風', 'Art style'), Object.entries(Tobidas.STYLES), typeof dth.style === 'string' ? dth.style : dth.style ? '' : tdf.style, dth.style && typeof dth.style === 'object' ? tx('ownStyle', 'この作品の画風', 'This book’s style') : '');
       const ownDesk = (dth.desk && typeof dth.desk === 'object') || Tobidas.def.spreads.some(sd => sd.scene);
       picker('desk', tx('desk', '背景', 'Backdrop'), Object.entries(Tobidas.DESKS), ownDesk ? '' : dth.desk || tdf.desk, ownDesk ? tx('ownDesk', 'この作品の背景', 'This book’s backdrop') : '');
       const ownSet = dsd && typeof dsd === 'object' && dsd.set && typeof dsd.set === 'object';
