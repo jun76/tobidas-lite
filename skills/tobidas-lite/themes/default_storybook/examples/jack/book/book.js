@@ -7,16 +7,6 @@ const nearHills = (seed, c = '#7cbf66', c2 = '#94d078') => pc(0, 230, 1420, 210,
 const jump = (amp, sp, ph = 0) => tl => ({ lift: amp * abs(sin(tl * sp + ph)) });
 // 豆の木は、鉛直軸のまわりに ±45 度回した2枚を X 字に組む(正面からも斜めからも、板の面が見える)
 const XYAW = [45, -45];
-// X 字に組んだ板を、まとめて右(+X)へ phi 度たおすための dyn の値。
-// エンジンは板を rotateZ(yaw) rotateX(-ang) rotateZ(rzBase) の順に回すので、「右へたおす回転 × もとの向き」をこの3つの角に分解する
-const fallX = (yaw0, phi) => {
-  const R = PI / 180, f = phi * R, y = yaw0 * R, cf = cos(f), sf = sin(f), cy = cos(y), sy = sin(y);
-  // M = Ry(f) · Rz(y) · Rx(-90°)
-  const m13 = -cf * sy, m23 = cy, m31 = -sf * cy, m32 = -cf, m33 = sf * sy;
-  const b = -Math.acos(cl(m33, -1, 1));                       // rotateX の角(= -ang)
-  const a = Math.atan2(-m13, m23), c = Math.atan2(-m31, -m32);
-  return { yaw: a / R - yaw0, lean: 90 + b / R, rzBase: c / R };
-};
 // 表情を途中で切り替える人物: t0 より前は artA、あとは artB(同じ場所に2枚置いて、片方だけ見せる)
 const swapFace = (t0, X, Y, artA, artB, o) => [
   pc(X, Y, 120, 226, artA, Object.assign({}, o, { dyn: tl => Object.assign({}, o.dyn ? o.dyn(tl) : {}, { op: tl < t0 ? 1 : 0 }) })),
@@ -254,6 +244,12 @@ const fallU = tl => Math.pow(cl((tl - FALL) / 1.45), 2.3);
 const swing = tl => { let a = -150; for (const c of HIT) { const u = (tl - c + .22) / .22; if (u > 0 && u < 1) a = -150 + 105 * u * u; else if (u >= 1 && u < 2.6) a = -45 - 105 * sm((u - 1) / 1.6); } return a; };
 const hitShake = tl => { let a = 0; for (const c of HIT) if (tl > c) a += 3.2 * Math.exp(-5 * (tl - c)) * sin((tl - c) * 30); return a; };
 const fallDeg = tl => 88 * fallU(tl) + hitShake(tl);       // 豆の木の傾き(度)
+// 豆の木をたおす dyn の値。板がページや周りの板を突き抜けると描画が乱れるので、
+//   ・たおれ始める前に、X 字の2枚を1つの面にとじる(closeX)。とじたら2枚めは消す
+//   ・たおれる側の下の角を中心に回す(rzX)。中央で回すと、板の半分がページの下に潜る
+const STALK_W = 260, closeX = tl => sm((tl - (FALL - .5)) / .4);
+const tip = tl => { const a = fallDeg(tl); return { rzBase: a, rzX: (a < 0 ? -1 : 1) * STALK_W / 2 }; };
+const stalkDyn = (yw, i) => tl => Object.assign(tip(tl), { yaw: -yw * closeX(tl), op: goneOp(tl) * (i ? 1 - closeX(tl) : 1) });
 const goneOp = tl => 1 - sm((tl - IMPACT - .9) / .8);
 const dust = (X, Y, seed, t0) => put('fx.smoke', X, Y, { art: { w: 300, h: 130, seed }, sh: false, nosplit: true,
   dyn: tl => { const u = cl((tl - t0) / 2.2); return { sc: .3 + 1.5 * sm(u * 1.6), lift: 50 * u, op: u > 0 ? 1 - sm((u - .35) / .65) : 0 }; } });
@@ -279,14 +275,14 @@ const spread7 = {
     pc(-150, 597, 200, 110, A.stump(), { dyn: tl => ({ op: tl > FALL + .25 ? 1 : 0 }) }),
     // 豆の木: 見開き3と同じ X 字の2枚組(それぞれ上下に分けてある)。おのが当たるたびにゆれ、右へ倒れて消える
     ...XYAW.flatMap((yw, i) => [
-      pc(-150, 600, 260, 1300 - SPLIT, A.stalkPart(260, 1300, SPLIT, 1300, i ? 8 : 3), { yaw: yw, nosplit: true, side: 'L', sway: 0, sh: i === 0, dyn: tl => Object.assign(fallX(yw, fallDeg(tl)), { op: goneOp(tl) }) }),
-      pc(-150, 600, 260, SPLIT, A.stalkPart(260, 1300, 0, SPLIT, i ? 8 : 3), { yaw: yw, nosplit: true, side: 'L', sway: 0, sh: false, lift: 1300 - SPLIT, dyn: tl => Object.assign(fallX(yw, fallDeg(tl)), { op: goneOp(tl) }) }),
+      pc(-150, 600, STALK_W, 1300 - SPLIT, A.stalkPart(260, 1300, SPLIT, 1300, i ? 8 : 3), { yaw: yw, nosplit: true, side: 'L', sway: 0, sh: i === 0, dyn: stalkDyn(yw, i) }),
+      pc(-150, 600, 260, SPLIT, A.stalkPart(260, 1300, 0, SPLIT, i ? 8 : 3), { yaw: yw, nosplit: true, side: 'L', sway: 0, sh: false, lift: 1300 - SPLIT, dyn: stalkDyn(yw, i) }),
     ]),
-    pc(-150, 634, 260, 70, A.stalkKnot(), { nosplit: true, side: 'L', sh: false, sway: 0, lift: 400, dyn: tl => ({ rzBase: fallDeg(tl), op: goneOp(tl) }) }),
+    pc(-150, 634, 260, 70, A.stalkKnot(), { nosplit: true, side: 'L', sh: false, sway: 0, lift: 400, dyn: tl => Object.assign(tip(tl), { op: goneOp(tl) }) }),
     // 大男: 豆の木につかまって下りてくる → 木ごと振り回されて落ちる
     pc(-150, 706, 320, 460, A.giant({ eyes: 'wide', mouth: 'open', armL: 150, armR: -150, brow: false }), { k: .9, nosplit: true, side: 'L', sh: false,
       anim: aGiant(tl => { const f = tl > FALL ? 26 : 9, w = tl > FALL ? 22 : 7; return { aL: 150 + w * sin(tl * f), aR: -150 + w * sin(tl * f + 1), lL: 26 * sin(tl * f * .7), lR: -26 * sin(tl * f * .7 + .6), eyes: tl > HIT[0] ? 'wide' : 'open', mouth: tl > HIT[0] ? 'open' : 'closed' }; }),
-      dyn: tl => ({ lift: 880 - 300 * sm(tl / (FALL - .3)), rzBase: fallDeg(tl), op: goneOp(tl) }) }),
+      dyn: tl => Object.assign(tip(tl), { lift: 880 - 300 * sm(tl / (FALL - .3)), op: goneOp(tl) }) }),
     // おのの火花
     pc(-232, 702, 90, 90, A.spark(), { lift: 70, sh: false, flt: false, nosplit: true, glow: 10, glowC: '#fff3a0',
       dyn: tl => { let s = 0; for (const c of HIT) { const u = (tl - c) / .28; if (u > 0 && u < 1) s = sin(u * PI); } return { sc: .3 + s, op: s > 0 ? 1 : 0 }; } }),

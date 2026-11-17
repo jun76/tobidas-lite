@@ -112,6 +112,8 @@ const Tobidas = (function () {
     const TL = T.TL = { INTRO: tm.intro, TURN: tm.turn, CLOSE: tm.close, ts, tc: t, END: t + tm.close + tm.outro, N, FPS: 30, open: s => ts[s - 1] + tm.turn, until: s => (s < N ? ts[s] : t) };
     // --- 舞台 ---
     const root = $('tobidas'); document.title = def.title || document.title;
+    // ?hide=セレクタ … 当てはまる要素を消す(描画の乱れの切り分け用)。パーツと影には data-p="見開き-番号" が付いている。例: ?hide=.sh(影を全部)、?hide=[data-p="7-9"](見開き7のパーツ#9 と、その影)
+    if (qp.get('hide')) { const st = document.createElement('style'); st.textContent = `${qp.get('hide')} { display: none !important; }`; document.head.append(st); }
     root.classList.toggle('tb-lite', qp.has('lite') && qp.get('lite') !== '0');   // ?lite … 飾りの層(ほこり・ぼけ・影のぼかし・光の合成)を省く。重い機械での切り分け用
     root.style.cssText += `--board:${th.board};--spine:${th.spine};--paper:${th.paper};--room1:${th.room[0]};--room2:${th.room[1]};--room3:${th.room[2]};--light:${th.light};--font:${th.font}`;
     root.innerHTML = `
@@ -193,7 +195,7 @@ const Tobidas = (function () {
             ox = side === 'L' ? -60 : -x0; ew = side === 'L' ? 60 - x0 : x1 + 60; oy = -300; eh = sp.h + 300;   // 下端は根元ちょうどで止める(ページ面より下にはみ出すと、板がページと交差して前後判定が狂い、下半分が消える)
             html = `<div style="position:absolute;left:${-ox}px;top:300px;contain:paint">${html}</div>`;   // contain で中の絵を「絵の箱」の中に閉じる(GPU描画のとき、板の上の余白に縦の光の筋が出るのを防ぐ。箱を板いっぱいに広げると筋が戻る。will-change で独立レイヤーにする方法は、ヘッドレス描画で右半分が消える。pitfalls.md)。このため、切り分けた板では絵を箱の外へはみ出させられない
           }
-          const mk = c => { const e = div(c, face); e.innerHTML = html; e.style.width = ew + 'px'; e.style.height = eh + 'px'; if (cut) { e.style.overflow = 'hidden'; e.style.transformOrigin = `${fold ? (side === 'L' ? ew : 0) : sp.w / 2 - ox}px ${sp.h - oy}px`; } return e; };
+          const mk = c => { const e = div(c, face); e.dataset.p = `${s}-${idx}`; e.innerHTML = html; e.style.width = ew + 'px'; e.style.height = eh + 'px'; if (cut) { e.style.overflow = 'hidden'; e.style.transformOrigin = `${fold ? (side === 'L' ? ew : 0) : sp.w / 2 - ox}px ${sp.h - oy}px`; } return e; };
           const sh = sp.sh !== false ? mk('sh') : null, el = mk('pc');
           if (cut && Math.abs(fold) >= 20 && side === 'L' && !sp.glow) el.style.filter = 'brightness(.82)';   // 深く折った板は、左の面を少し暗くして面の向きの違いを見せる
           if (sp.glow) el.style.filter = `drop-shadow(0 0 ${Math.min(sp.glow, 30)}px ${sp.glowC || 'rgba(255,236,160,.9)'})`;   // 30px を超えると、光の範囲が四角く切れて見えるので頭打ちにする
@@ -278,13 +280,15 @@ const Tobidas = (function () {
       P.now = { ang, fz: yaw, lift, bx: P.lx + (d.dx || 0), by: sp.Y + (d.dy || 0), op };   // 構造物の床が壁に合わせるための値
       const sway = (sp.sway ?? .9) * Math.sin(tl * 1.25 + P.ph) + (d.rz || 0), sc = d.sc ?? 1;
       const tx = P.lx + (d.dx || 0) - sp.w / 2 + P.ox, ty = sp.Y + (d.dy || 0) - sp.h + P.oy;
-      P.el.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,.7px) rotateZ(${yaw}deg) rotateX(${(-ang).toFixed(2)}deg) rotateZ(${(d.rzBase || 0).toFixed(2)}deg) translateY(${(-lift).toFixed(2)}px) rotateZ(${sway.toFixed(3)}deg) scale(${sc.toFixed(4)})`;
+      // rzBase の回転の中心は根元の中央。rzX で、根元の線の上を左右にずらせる(倒れる側の角を中心にすれば、倒れても板がページの下に潜らない)
+      const rzb = d.rzX ? `translateX(${(+d.rzX).toFixed(2)}px) rotateZ(${(d.rzBase || 0).toFixed(2)}deg) translateX(${(-d.rzX).toFixed(2)}px)` : `rotateZ(${(d.rzBase || 0).toFixed(2)}deg)`;
+      P.el.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,.7px) rotateZ(${yaw}deg) rotateX(${(-ang).toFixed(2)}deg) ${rzb} translateY(${(-lift).toFixed(2)}px) rotateZ(${sway.toFixed(3)}deg) scale(${sc.toFixed(4)})`;
       P.el.style.opacity = op;
       const clip = clipOf(d, sp, lift < 0 ? -lift / Math.max(sc, .01) : 0);   // ページの下へ沈めた分(負の lift・sink)は根元の線で切って隠す。立ち上がり途中は板が傾いていて、沈めた分がページの上に出てしまうため
       if (clip !== P.clipNow) { P.el.style.clipPath = clip; if (P.sh) P.sh.style.clipPath = clip; P.clipNow = clip; }
       if (P.sh) {
         const sa = Math.sin(cl(ang, 0, 90) * Math.PI / 180);
-        P.sh.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,.3px) rotateZ(${yaw}deg) translateY(${(-lift * .42).toFixed(2)}px) skewX(-26deg) rotateZ(${(d.rzBase || 0).toFixed(2)}deg) scale(${sc.toFixed(4)},${(sc * .46 * sa).toFixed(4)})`;
+        P.sh.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,.3px) rotateZ(${yaw}deg) translateY(${(-lift * .42).toFixed(2)}px) skewX(-26deg) ${rzb} scale(${sc.toFixed(4)},${(sc * .46 * sa).toFixed(4)})`;
         P.sh.style.opacity = Math.min(.6, .26 * pi * op * (sp.shOp ?? 1) * (T.style.shadow ?? 1)).toFixed(3);
       }
       if (sp.anim) { P.q = P.q || {}; sp.anim(tl, P.el, P.q); }
