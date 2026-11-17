@@ -93,6 +93,8 @@ const Tobidas = (function () {
 
   T.book = function (def) { T.def = def; if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build); else build(); };
 
+  const ANIM_FPS = 15;   // 絵の中の動き(anim)を描き直す回数(毎秒)
+  const TABLE_RES = .5;   // 机の面を描く canvas の細かさ(CSS の 1px あたりの画素数)
   const FOLD = 12, FOLD_MIN = 200;   // 背をまたぐ横長パネルを折る角度の既定(度。一番奥は正、ほかは負)と、自動で折る条件(左右それぞれの張り出しがこれ以上)
   let leaves, spreads, N, NL, CAM, world, dctx, motes, capIdx = -1, capSpans = [];
 
@@ -100,6 +102,9 @@ const Tobidas = (function () {
     const def = T.def, dt = def.theme || {}, qp = T.query();   // ?style= ?desk= で内蔵の画風・机を試せる
     // WebKit(Safari、iOS の全ブラウザ、WKWebView)は、立体の中にある絵に SVG フィルタの参照があると、立ち上がるパーツを描かない。そこでは参照を付けずに描く(画風の縁取りや質感は出ない)。?nofilter で常に外し、?nofilter=0 で常に付ける
     { const v = qp.get('nofilter'); T.noFilter = v != null ? v !== '0' : T.webkit; }
+    // 絵の中の動き(anim。煙・腕・伸びる木など)は、操作できる再生のときだけ毎秒 ANIM_FPS 回に間引く。動かすたびにパーツの絵を描き直すことになり、画風のフィルタが付いていると重いため(板の移動・回転は毎コマ動かす)。
+    // 時刻が変わらないコマでは呼ばない。?t= の静止画モード(検査・動画化)では間引かない。?afps=<回数> で変えられ、?afps=0 で間引かない
+    { const v = qp.get('afps'), f = v != null ? +v : qp.has('t') ? 0 : ANIM_FPS; T.animStep = f > 0 ? 1 / f : 0; }
     const td = (T.themeDef && T.themeDef.defaults) || {}; if (!T.themeDef) T.warnings.push('テーマが読み込まれていません(index.html で theme/theme.js を読み込む)');
     const ST = T.style = pick(T.STYLES, qp.get('style') || dt.style, td.style, '画風', T.warnings), DK = T.desk = pick(T.DESKS, qp.get('desk') || dt.desk, td.desk, '机', T.warnings);
     const th = Object.assign({ board: '#174536', spine: '#123a2d', paper: '#f6ecd6', room: DK.room, light: DK.light, font: FONT }, dt);
@@ -129,6 +134,17 @@ const Tobidas = (function () {
     // 見開きに scene を書くと、その見開きのあいだだけ背景が切り替わる(めくりに合わせてなめらかに入れ替わる)。表紙と結びは机の scene、なければ最初と最後の見開きの scene
     const SCN = DK.scene || null, perSpread = !qp.get('desk') && def.spreads.some(sd => sd.scene),   /* ?desk= で内蔵を選んだら、作品が見開きごとに書いた背景は使わない */ hasTable = !!DK.background && !perSpread;
     $('tb-table').style.background = hasTable ? (typeof DK.background === 'function' ? DK.background(th) : DK.background) : 'none';
+    // 机の面は、1回だけ canvas に描いた絵に差し替える。CSS の背景のままだと、Chrome は奥へ倒した 6000×4600 の板の全面を手前の拡大率で描いて持ち、
+    // Retina の大きな窓ではそれだけでタイル用メモリの上限(約 625MB)の半分以上を使って、ほかの層が描かれずに点滅する(pitfalls.md)。canvas なら絵の大きさぶんで済む。
+    // ?table=<倍率> で canvas の細かさを変える(既定 TABLE_RES)。?table=0 で差し替えない。WebKit は舞台を zoom で縮めていて困らないので、差し替えない
+    const tres = qp.get('table') != null ? +qp.get('table') : T.webkit ? 0 : TABLE_RES;
+    const bake = !hasTable || !(tres > 0) ? Promise.resolve() : new Promise(res => {
+      const old = $('tb-table'), TW = 6000, TH = 4600, esc = x => x.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'), im = new Image(); let done = false;
+      const fin = () => { if (!done) { done = true; res(); } };
+      im.onload = () => { try { const c = document.createElement('canvas'); c.width = Math.round(TW * tres); c.height = Math.round(TH * tres); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); c.id = 'tb-table'; c.style.borderRadius = '0'; old.replaceWith(c); } catch (e) { } fin(); };
+      im.onerror = fin; setTimeout(fin, 4000);   // 描けなかったら、CSS の背景のまま続ける
+      im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${TW}" height="${TH}"><foreignObject width="${TW}" height="${TH}"><div xmlns="http://www.w3.org/1999/xhtml" style="width:${TW}px;height:${TH}px;border-radius:30px;background:${esc(old.style.background)}"></div></foreignObject></svg>`);
+    });
     T.scenes = null;
     if (SCN || perSpread) {
       root.classList.add('has-scene');
@@ -249,8 +265,8 @@ const Tobidas = (function () {
     // 画像ファイルを使う作品は、全部読み終えてから始める(まだ開いていない見開きの画像が、静止画チェックや動画化で抜けないように)。画像がなければ今までどおり即座に始まる
     const go = () => { T.warnings.forEach(w => console.warn('[tobidas]', w)); T.ready = true; T.render(0); document.dispatchEvent(new CustomEvent('tobidas:ready')); };
     const urls = [...new Set([...root.querySelectorAll('image, img')].map(e => e.getAttribute('href') || e.getAttribute('xlink:href') || e.getAttribute('src')).filter(u => u && !u.startsWith('data:')))];
-    if (!urls.length) return go();
-    Promise.race([Promise.all(urls.map(u => new Promise(res => { const im = new Image(); im.onload = () => (im.decode ? im.decode().catch(() => { }) : Promise.resolve()).then(res); im.onerror = () => { T.warnings.push(`画像 '${u}' を読み込めません(パスは index.html から見て書く。作品の assets/ に置く)`); res(); }; im.src = u; }))), new Promise(res => setTimeout(res, 15000))]).then(go);
+    if (!urls.length) return bake.then(go);
+    Promise.race([Promise.all(urls.map(u => new Promise(res => { const im = new Image(); im.onload = () => (im.decode ? im.decode().catch(() => { }) : Promise.resolve()).then(res); im.onerror = () => { T.warnings.push(`画像 '${u}' を読み込めません(パスは index.html から見て書く。作品の assets/ に置く)`); res(); }; im.src = u; }))), new Promise(res => setTimeout(res, 15000))]).then(() => bake).then(go);
   }
 
   // たたんだときにページの外へはみ出す板(背が高い板・浮かせた板)は、たたまれるにつれて薄くして消す(k = 立ち上がりの進み具合 0〜1)。
@@ -274,7 +290,7 @@ const Tobidas = (function () {
       if (P.faces && d.dx) { const side = sp.X + d.dx < 0 ? 'L' : 'R'; if (side !== P.side) { P.side = side; P.lx = side === 'L' ? sp.X + W : sp.X; if (P.sh) P.faces[side].appendChild(P.sh); P.faces[side].appendChild(P.el); } }
       if (!vis) { P.now = null; if (P.vis) { P.el.style.display = 'none'; if (P.sh) P.sh.style.display = 'none'; P.vis = false; } continue; }
       if (!P.vis) { P.el.style.display = ''; if (P.sh) P.sh.style.display = ''; P.vis = true; }
-      if (P.fold) { foldPiece(P, d, phi, op); if (sp.anim) { P.q = P.q || {}; sp.anim(tl, P.el, P.q); } continue; }
+      if (P.fold) { foldPiece(P, d, phi, op); if (sp.anim) { const ta = T.animStep ? Math.floor(tl / T.animStep + 1e-6) * T.animStep : tl; if (P.animT !== ta) { P.animT = ta; P.q = P.q || {}; sp.anim(ta, P.el, P.q); } } continue; }
       const tw = tl + .35 - P.delay * .4, wob = tw > 0 ? 6 * Math.exp(-3.6 * tw) * Math.sin(15 * tw) : 0;   // 開いた直後のぷるぷる
       const ang = 90 * back(pi) + wob * pi - (sp.lean || 0) * pi - (d.lean || 0);
       const sink = d.sink || 0, yaw = (sp.yaw || 0) + (d.yaw || 0), L0 = d.lift ?? sp.lift ?? 0, lift = (L0 < 0 ? L0 : L0 * pi) - sink;   // 浮かせる高さは立ち上がりに合わせて伸ばすが、沈める量(負)は最初から全部沈めておく(途中まで沈めた状態だと、めくり中に頭が出る)
@@ -294,7 +310,7 @@ const Tobidas = (function () {
         P.sh.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,.8px) rotateZ(${yaw}deg) translateY(${(-lift * .42).toFixed(2)}px) skewX(-26deg) ${rzb} scale(${sc.toFixed(4)},${(sc * .46 * sa).toFixed(4)})`;
         P.sh.style.opacity = Math.min(.6, .26 * pi * op * (sp.shOp ?? 1) * (T.style.shadow ?? 1)).toFixed(3);
       }
-      if (sp.anim) { P.q = P.q || {}; sp.anim(tl, P.el, P.q); }
+      if (sp.anim) { const ta = T.animStep ? Math.floor(tl / T.animStep + 1e-6) * T.animStep : tl; if (P.animT !== ta) { P.animT = ta; P.q = P.q || {}; sp.anim(ta, P.el, P.q); } }
     }
     // 構造物の床: 壁(host)の上端の線に手前の辺を合わせ、ページと平行に浮かせる。壁が倒れると、同じだけ奥(または手前)へずれて下がる
     for (const P of rt.pieces) {

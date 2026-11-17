@@ -3,7 +3,7 @@
 //   左上のプルダウン … 画風・背景・曲の切り替え(?style= ?desk= ?set= を付けて読み直し、見ていた位置へ戻る。作品の theme.pickers: false で3つとも、theme.stylePicker: false で画風だけ出さない)
 //   画面の文字(操作の案内・ボタンの説明・プルダウン)は、作品の lang が 'ja' なら日本語、ほかは英語。作品の ui: { … } で言語ごとに差し替えられる(references/book-api.md)
 //   音は自動再生中だけ鳴る。どの位置から再生しても、その時刻の音から始まる(engine/sound.js が全体を合成しておく)。
-//   URL: ?t=12.5 … その時刻の静止画だけ描く(チェック・動画化用。HUDなし)   ?autoplay … 自動再生で開始   ?debug … デバッグ表示   ?at=12.5 / ?at=open … その時刻 / 最初の見開きの中ほど(字幕が出そろった所)から始める   ?embed … 操作の案内と画風のプルダウンを出さない(聞き取りページの見本用)   ?nofilter ?zoom ?lite … WebKit や重い機械向けの描き方を試す(references/pitfalls.md)
+//   URL: ?t=12.5 … その時刻の静止画だけ描く(チェック・動画化用。HUDなし)   ?autoplay … 自動再生で開始   ?debug … デバッグ表示   ?at=12.5 / ?at=open … その時刻 / 最初の見開きの中ほど(字幕が出そろった所)から始める   ?embed … 操作の案内と画風のプルダウンを出さない(聞き取りページの見本用)   ?nofilter ?zoom ?lite ?table ?afps … WebKit や重い機械向けの描き方を試す(references/pitfalls.md)
 //   ほかのページに埋め込まれているときは、いまの時刻と再生中かどうかを親へ postMessage で知らせる(聞き取りページが、画風などを替えても同じ位置から、再生中なら再生したまま見せるために使う)
 (function () {
   const q = Tobidas.query(), root = document.getElementById('tobidas');
