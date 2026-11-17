@@ -126,7 +126,7 @@ const Tobidas = (function () {
       <div class="bokeh" style="left:200px;top:-60px;width:260px;height:260px;background:rgba(255,190,110,.22)"></div>
       <div class="bokeh" style="left:1380px;top:20px;width:200px;height:200px;background:rgba(255,160,90,.16)"></div>
       <div class="bokeh" style="left:900px;top:-90px;width:300px;height:300px;background:rgba(255,220,160,.12)"></div>
-      <div id="tb-stage"><div id="tb-world"><div id="tb-table"></div><div id="tb-deco"></div><div id="tb-shadowR"></div><div id="tb-shadowL"></div><div id="tb-base"><div id="tb-spine"></div><div id="tb-backBoard" class="board"></div></div></div></div>
+      <div id="tb-stage"><div id="tb-world"><div id="tb-table"></div><div id="tb-deco"></div><div id="tb-shadowR"></div><div id="tb-shadowL"></div></div></div>
       <div id="tb-ov"><div id="tb-grade"></div><div id="tb-light"></div><canvas id="tb-dust" width="1920" height="1080"></canvas><div id="tb-vig"></div><div id="tb-capbg"></div><div id="tb-cap"></div><div id="tb-end"></div><div id="tb-fade"></div></div>
       <svg width="0" height="0" style="position:absolute"><defs><filter id="paper" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">${ST.filter}</filter></defs></svg>`;
     world = $('tb-world');
@@ -176,13 +176,13 @@ const Tobidas = (function () {
     leaves = [];
     for (let i = 0; i < NL; i++) {
       const el = div('leaf p3', world), L = { el };
-      // ほぼ同じ高さに重なる面は、立体の中で別々の面にせず、平らな入れ物(.pile / .ground / #tb-base)にまとめて、書いた順に重ねる。
-      // 別々の面だと、ブラウザが前後を決めきれずに下の面が上に出る(Safari は舞台を zoom で縮めるので、すき間も縮んで起きやすい。pitfalls.md)
-      if (i === 0) { const pile = div('pile', el); div('board', pile); div('block', pile); }   // 表紙の板と、その裏に重なるページの束
-      ['front', 'back'].forEach(k => { if (k === 'back' && i === NL - 1) return; const f = div('face p3 ' + k, el); L[k] = f; L[k + 'Ground'] = div('ground', f); L[k + 'Paper'] = div('paper', L[k + 'Ground']); });   // 紙面と、その上に落ちる影は .ground の中
+      // ほぼ同じ高さに重なる面は、立体の中で別々の面にしない。紙面・その上に落ちる影・紙面のまわりに見える表紙の板と束の縁(.rim)を、
+      // 面ごとの平らな入れ物(.ground)にまとめて、書いた順に重ねる。ページの下には、机と影のほかに面を置かない(pitfalls.md)
+      ['front', 'back'].forEach(k => { if (k === 'back' && i === NL - 1) return; const f = div('face p3 ' + k, el), g = div('ground', f); L[k] = f; L[k + 'Ground'] = g;
+        if (i === 0 && k === 'front') div('spineL', g); else { L[k + 'Rim'] = div('rim', g); div('block', L[k + 'Rim']); }   // 表紙の表は板そのものなので、縁は要らない。とじた本の背だけ足す
+        L[k + 'Paper'] = div('paper', g); });
       leaves.push(L);
     }
-    { const b = div('block', $('tb-base')); b.style.top = '-464px'; }   // 背・裏表紙の板・右の束は #tb-base の中に、この順で重ねる
     const printPage = (L, k, inner, vb) => { const p = L[k + 'Paper']; p.innerHTML = svgWrap(W, H, inner, false, vb) + grain + `<div class="gut"></div><div class="shade"></div>`; L[k + 'Shade'] = p.querySelector('.shade'); if (ST.pageFilter) p.firstElementChild.style.filter = ST.pageFilter; };   // 画風の pageFilter は、ページに印刷された地面の絵だけにかける
     { const p = leaves[0].frontPaper; p.style.cssText = `left:0;top:-14px;width:738px;height:948px;right:auto;bottom:auto;border-radius:0 14px 14px 0;background:${th.board}`;
       p.innerHTML = svgWrap(738, 948, def.cover || '', false) + grain.replace('class="grain"', 'class="grain" data-c') + `<div class="sheen"></div><div class="shade"></div>`;
@@ -394,13 +394,15 @@ const Tobidas = (function () {
       // 表を 156°まで残すのは、背で折れたパネル(FOLD_SHOW まで見せる)がこの面に付いているため。90°前後は両方残して、裏面を隠す指定に任せる
       { const f = a <= 180 - FOLD_SHOW, b = a >= 80 && !(i === 0 && covered);
         if (f !== L.fOn) { L.fOn = f; L.front.style.display = f ? '' : 'none'; } if (L.back && b !== L.bOn) { L.bOn = b; L.back.style.display = b ? '' : 'none'; } }
+        // 板と束の縁は、山の一番上で寝ているページにだけ見せる(めくっている最中のページには付けない)。表紙と一緒に動いているページ(表紙を開くときの表紙の裏、
+        // 最後にとじるときの束の一番上)は、表紙の板そのものが見えるので、動いている間も見せる
+        { const fr = a < .01, br = a > 179.99 || a === th[0]; if (L.frontRim && fr !== L.frOn) { L.frOn = fr; L.frontRim.style.display = fr ? '' : 'none'; } if (L.backRim && br !== L.brOn) { L.brOn = br; L.backRim.style.display = br ? '' : 'none'; } }
       const sn = Math.sin(a * Math.PI / 180), z = 2 + 3 * sn + (a > 0 && a < 180 ? 3 + (N - i) * .02 : 0);
       L.el.style.transform = `translateZ(${z.toFixed(2)}px) rotateY(${(-a).toFixed(3)}deg)`;   // めくり中は 3px 浮かせる(紙面は葉の表裏へ 1.4px ずつ離してあるので、それより大きく。めくり始めに下のページと前後が入れ替わって、次のページが一瞬見えるのを防ぐ)
       if (L.frontShade) L.frontShade.style.opacity = (a < 90 ? .5 * sn : 0).toFixed(3);
       if (L.backShade) L.backShade.style.opacity = (a > 90 ? .32 * sn : 0).toFixed(3);
     }
     $('tb-shadowL').style.opacity = cl((th[0] - 60) / 120) * (T.scenes ? T.scenes.shadow : 1);
-    { const open = th[0] > 179.9; if (open !== T.spineOpen) { T.spineOpen = open; $('tb-spine').classList.toggle('open', open); } }
     if (T.scenes) {   // 動く背景。環境の時計(amb)で動かす。見開きごとの背景は、その見開きへめくる間に現れ、次へめくる間に消える
       const S = T.scenes, show = (L, o) => { const on = o > .004; if (on !== L.on) { L.el.style.display = on ? '' : 'none'; L.on = on; } if (on) { L.el.style.opacity = o.toFixed(3); if (L.sc.anim) L.sc.anim(amb, L.svg, L.q); } };
       let cover = 0;
