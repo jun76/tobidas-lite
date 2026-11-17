@@ -62,7 +62,7 @@ html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
 #tb-hud:hover .bar { height: 8px; }
 #tb-hud .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: #f3c64f; }
 #tb-hud .tick { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: rgba(255,255,255,.55); }
-#tb-hint { position: fixed; right: 18px; bottom: 22px; z-index: 10; padding: 8px 14px; border-radius: 18px; background: rgba(20,10,4,.6); color: #fff6e0; font: 14px/1.2 system-ui, sans-serif; letter-spacing: .04em; transition: opacity .8s; pointer-events: none; }
+#tb-hint { position: fixed; right: 18px; bottom: 22px; z-index: 10; max-width: calc(100% - 176px); box-sizing: border-box; padding: 8px 14px; border-radius: 18px; background: rgba(20,10,4,.6); color: #fff6e0; font: 14px/1.2 system-ui, sans-serif; letter-spacing: .04em; transition: opacity .8s; pointer-events: none; }
 #tb-debug { position: fixed; left: 12px; top: 10px; z-index: 10; padding: 6px 10px; border-radius: 6px; background: rgba(0,0,0,.6); color: #9f9; font: 13px/1.4 ui-monospace, monospace; white-space: pre; display: none; }
 #tb-ctl { position: fixed; left: 16px; bottom: 20px; z-index: 11; display: flex; gap: 10px; align-items: center; }
 #tb-ctl button { all: unset; box-sizing: border-box; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; background: rgba(20,10,4,.62); color: #fff6e0; box-shadow: 0 2px 10px rgba(0,0,0,.35); transition: background .15s, transform .15s, opacity .4s; }
@@ -74,10 +74,10 @@ html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
 #tb-ctl.playing button { opacity: .45; }
 #tb-ctl.playing button:hover { opacity: 1; }
 #tb-ctl .snd.wait { opacity: .35; }
-/* 画風・背景・曲のプルダウン。字幕と重ならないよう、左上に並べる */
-#tb-pick { position: fixed; left: 16px; top: 16px; z-index: 11; display: flex; gap: 8px; align-items: center; opacity: .7; transition: opacity .2s; }
+/* 画風・背景・曲のプルダウン。字幕と重ならないよう、左上に並べる。狭い画面(スマホの縦持ち)では折り返す。右端まで広げた入れ物が本の操作をさえぎらないよう、入れ物自体は操作を受けない */
+#tb-pick { position: fixed; left: 16px; right: 16px; top: 16px; z-index: 11; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; pointer-events: none; opacity: .7; transition: opacity .2s; }
 #tb-pick:hover { opacity: 1; }
-#tb-pick .sty { max-width: 190px; text-overflow: ellipsis; appearance: none; -webkit-appearance: none; box-sizing: border-box; height: 40px; margin: 0; padding: 0 34px 0 16px; border: 0; border-radius: 20px; cursor: pointer; color: #fff6e0; font: 14px/1 system-ui, sans-serif; letter-spacing: .04em; background: rgba(20,10,4,.62) url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23fff6e0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") right 14px center/11px no-repeat; box-shadow: 0 2px 10px rgba(0,0,0,.35); transition: background-color .15s, opacity .4s; }
+#tb-pick .sty { pointer-events: auto; max-width: 190px; text-overflow: ellipsis; appearance: none; -webkit-appearance: none; box-sizing: border-box; height: 40px; margin: 0; padding: 0 34px 0 16px; border: 0; border-radius: 20px; cursor: pointer; color: #fff6e0; font: 14px/1 system-ui, sans-serif; letter-spacing: .04em; background: rgba(20,10,4,.62) url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23fff6e0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") right 14px center/11px no-repeat; box-shadow: 0 2px 10px rgba(0,0,0,.35); transition: background-color .15s, opacity .4s; }
 #tb-pick .sty:hover { background-color: rgba(60,34,12,.85); }
 #tb-pick .sty option { background: #2a1a12; color: #fff6e0; }
 #tb-pick.playing .sty { opacity: .45; }

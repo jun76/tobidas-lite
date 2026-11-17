@@ -27,7 +27,8 @@
     const turns = TL.ts.map(a => [a, a + TL.TURN]).concat([[TL.tc, TL.tc + TL.CLOSE]]);
     // --- HUD ---
     const hud = document.createElement('div'); hud.id = 'tb-hud'; hud.innerHTML = `<div class="bar"><div class="fill"></div>${stops.slice(1).map(s => `<div class="tick" style="left:${(s / TL.END * 100).toFixed(3)}%"></div>`).join('')}</div>`;
-    const hint = document.createElement('div'); hint.id = 'tb-hint'; hint.textContent = tx('hint', 'ホイールでめくる ・ ←→ 見開き ・ ▶ / Space で再生(音つき)', 'Scroll to turn pages · ←→ spreads · ▶ / Space to play with sound');
+    const hint = document.createElement('div'); hint.id = 'tb-hint'; hint.textContent = window.matchMedia && matchMedia('(pointer: coarse)').matches ? tx('hintTouch', 'スワイプでめくる ・ ▶ で再生(音つき)', 'Swipe to turn pages · ▶ to play with sound')   // 指で操作する画面では、ホイールやキーの案内を出さない
+      : tx('hint', 'ホイールでめくる ・ ←→ 見開き ・ ▶ / Space で再生(音つき)', 'Scroll to turn pages · ←→ spreads · ▶ / Space to play with sound');
     if (q.has('embed')) hint.style.display = 'none';
     const dbg = document.createElement('div'); dbg.id = 'tb-debug'; if (q.has('debug')) dbg.style.display = 'block';
     // --- 再生ボタンと音 ---
