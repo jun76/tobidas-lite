@@ -32,6 +32,10 @@ for (const [kind, list, tt, cols] of [['style', info.styles, t, 3], ['desk', inf
   await thumb.close();
   console.log(`${kind}: ${list.map(l => l[0]).join(' ')} → ${path.join(out, kind + 's.jpg')}`);
 }
+// 見本の表紙ポスター。聞き取りページの見本プレイヤー(iframe)が描けない環境(Mac の Muse アプリ)で、代わりに出す。イントロの終わり頃(t0)は表紙が閉じたまま机に見えている
+await shoot('embed', info.t0, path.join(out, 'poster.jpg'));
+{ const thumb = await browser.newPage({ viewport: { width: 640, height: 360 } }); const f = path.join(out, 'poster.jpg'); await thumb.setContent(`<body style="margin:0"><img src="data:image/jpeg;base64,${fs.readFileSync(f).toString('base64')}" style="width:640px;height:360px;display:block">`); await thumb.waitForFunction(() => [...document.images].every(i => i.complete)); await thumb.screenshot({ path: f, type: 'jpeg', quality: 80 }); await thumb.close(); }
+console.log(`poster: 表紙 → ${path.join(out, 'poster.jpg')}`);
 // 聞き取りページが読む一覧。sample は、選んだ組み合わせを当てはめて見せる見本(テーマのフォルダから見たパス)
 const themeDir = path.resolve(out, '..'), sample = path.relative(themeDir, path.dirname(path.resolve(html))).split(path.sep).join('/');
 fs.writeFileSync(path.join(out, 'index.json'), JSON.stringify({ theme: info.theme, defaults: info.defaults, styles: info.styles, desks: info.desks, sets: info.sets, sample: sample.startsWith('..') ? '' : sample }, null, 1) + '\n');
