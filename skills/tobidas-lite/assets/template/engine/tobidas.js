@@ -389,7 +389,11 @@ const Tobidas = (function () {
       // 山の一番上のページだけ描く(同一平面に重なったページは描画順が不定になるため)
       const covered = a < 90 ? (i > 0 && th[i - 1] === a) : (i < N - 1 && th[i + 1] === a), hidden = covered && i > 0;
       L.el.style.display = hidden ? 'none' : ''; if (hidden) continue;
-      if (i === 0) L.back.style.display = covered ? 'none' : '';
+      // カメラに背を向けている面は、立体から外す(表は開き角 156°まで、裏は 80°から)。裏向きの面は描かれないが、Safari は前後判定には入れるので、
+      // めくり始めと終わりに、ほぼ水平なその面がとなりのページのパーツの足元を横切り、手前のパーツが奥のパーツの後ろに回る(pitfalls.md)。
+      // 表を 156°まで残すのは、背で折れたパネル(FOLD_SHOW まで見せる)がこの面に付いているため。90°前後は両方残して、裏面を隠す指定に任せる
+      { const f = a <= 180 - FOLD_SHOW, b = a >= 80 && !(i === 0 && covered);
+        if (f !== L.fOn) { L.fOn = f; L.front.style.display = f ? '' : 'none'; } if (L.back && b !== L.bOn) { L.bOn = b; L.back.style.display = b ? '' : 'none'; } }
       const sn = Math.sin(a * Math.PI / 180), z = 2 + 3 * sn + (a > 0 && a < 180 ? 3 + (N - i) * .02 : 0);
       L.el.style.transform = `translateZ(${z.toFixed(2)}px) rotateY(${(-a).toFixed(3)}deg)`;   // めくり中は 3px 浮かせる(紙面は葉の表裏へ 1.4px ずつ離してあるので、それより大きく。めくり始めに下のページと前後が入れ替わって、次のページが一瞬見えるのを防ぐ)
       if (L.frontShade) L.frontShade.style.opacity = (a < 90 ? .5 * sn : 0).toFixed(3);
