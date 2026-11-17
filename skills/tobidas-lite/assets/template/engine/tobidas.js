@@ -154,7 +154,7 @@ const Tobidas = (function () {
     leaves = [];
     for (let i = 0; i < NL; i++) {
       const el = div('leaf p3', world), L = { el };
-      if (i === 0) { div('board', el); const b = div('block', el); b.style.transform = 'rotateY(180deg) translateZ(.2px)'; b.style.transformOrigin = '50% 50%'; }   // 裏返す軸は束の中央(ずれていると、束が背の外へはみ出して白い線に見える)
+      if (i === 0) { div('board', el); const b = div('block', el); b.style.transform = 'rotateY(180deg) translateZ(.8px)'; b.style.transformOrigin = '50% 50%'; }   // 裏返す軸は束の中央(ずれていると、束が背の外へはみ出して白い線に見える)
       ['front', 'back'].forEach(k => { if (k === 'back' && i === NL - 1) return; const f = div('face p3 ' + k, el); L[k] = f; L[k + 'Paper'] = div('paper', f); });
       leaves.push(L);
     }
@@ -363,8 +363,8 @@ const Tobidas = (function () {
       const covered = a < 90 ? (i > 0 && th[i - 1] === a) : (i < N - 1 && th[i + 1] === a), hidden = covered && i > 0;
       L.el.style.display = hidden ? 'none' : ''; if (hidden) continue;
       if (i === 0) L.back.style.display = covered ? 'none' : '';
-      const sn = Math.sin(a * Math.PI / 180), z = 2 + 3 * sn + (a > 0 && a < 180 ? 1 + (N - i) * .02 : 0);
-      L.el.style.transform = `translateZ(${z.toFixed(2)}px) rotateY(${(-a).toFixed(3)}deg)`;   // めくり中は 1px 浮かせる(めくり始めに下のページと前後が入れ替わって、次のページが一瞬見えるのを防ぐ)
+      const sn = Math.sin(a * Math.PI / 180), z = 2 + 3 * sn + (a > 0 && a < 180 ? 3 + (N - i) * .02 : 0);
+      L.el.style.transform = `translateZ(${z.toFixed(2)}px) rotateY(${(-a).toFixed(3)}deg)`;   // めくり中は 3px 浮かせる(紙面は葉の表裏へ 1.4px ずつ離してあるので、それより大きく。めくり始めに下のページと前後が入れ替わって、次のページが一瞬見えるのを防ぐ)
       if (L.frontShade) L.frontShade.style.opacity = (a < 90 ? .5 * sn : 0).toFixed(3);
       if (L.backShade) L.backShade.style.opacity = (a > 90 ? .32 * sn : 0).toFixed(3);
     }

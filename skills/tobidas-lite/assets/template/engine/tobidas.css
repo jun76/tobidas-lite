@@ -21,8 +21,9 @@ html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
 #tobidas .block { position: absolute; left: 0; top: -4px; width: 727px; height: 928px; background: repeating-linear-gradient(90deg,#efe3c6 0 2px,#d9c9a4 2px 3px); border-radius: 0 6px 6px 0; }
 #tobidas .leaf { position: absolute; left: 0; top: -460px; width: 720px; height: 920px; transform-origin: 0 50%; }
 #tobidas .face { position: absolute; inset: 0; }
-#tobidas .face.front { transform: translateZ(.5px); }
-#tobidas .face.back { transform: rotateY(180deg) translateZ(.5px); }
+/* 表紙の板・ページの束・紙面は、0.6px ずつ離して重ねる。すき間が 0.1px を切ると前後が入れ替わってちらつく。WebKit では舞台を zoom で縮めるので、すき間も一緒に縮む(iPhone では約 0.36 倍) */
+#tobidas .face.front { transform: translateZ(1.4px); }
+#tobidas .face.back { transform: rotateY(180deg) translateZ(1.4px); }
 #tobidas .paper { position: absolute; inset: 0; overflow: hidden; background: var(--paper); backface-visibility: hidden; border-radius: 0 8px 8px 0; }
 #tobidas .back .paper { border-radius: 8px 0 0 8px; }
 #tobidas .paper > svg { position: absolute; left: 0; top: 0; }
