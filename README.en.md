@@ -32,7 +32,7 @@ The goal of tobidas-lite is that **you give an agent the URL of this repository 
 
 ## Examples
 
-Five finished books are included, all made with this skill. The model used for each book is listed below. Open a link in the table to view the book right in your browser. If you clone the repository, open the `index.html` of each book.
+Finished books are included, all made with this skill. The model used for each book is listed below. Open a link in the table to view the book right in your browser. If you clone the repository, open the `index.html` of each book.
 
 | Book | Language | Spreads | Look (art style / background / music) | Made by | Notes |
 |---|---|---|---|---|---|
@@ -48,6 +48,7 @@ Five finished books are included, all made with this skill. The model used for e
 | Book | Language | Spreads | Look (art style / background / music) | Made by | Notes |
 |---|---|---|---|---|---|
 | [`examples/bremen`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/bremen/) — Die Bremer Stadtmusikanten (The Town Musicians of Bremen) | German | 6 | Paper-cut / original backgrounds / original score | GPT-6.2 Astra medium | Created in one turn |
+| [`examples/sarukani`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/sarukani/) — さるかに がっせん (The Crab and the Monkey) | Japanese | 8 | Paper-cut / original backgrounds / Japanese flute | GPT-6.2 Astra Max | Created in one turn |
 
 </details>
 

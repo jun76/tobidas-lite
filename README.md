@@ -32,7 +32,7 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 
 ## 見本
 
-完成見本を5作品同梱しています。いずれもこのスキルを使って制作したもので、制作モデルは表に記載しています。表のリンクを開くと、ブラウザでそのまま見られます。リポジトリを clone した場合は、それぞれの `index.html` をブラウザで開いてください。
+完成見本を同梱しています。いずれもこのスキルを使って制作したもので、制作モデルは表に記載しています。表のリンクを開くと、ブラウザでそのまま見られます。リポジトリを clone した場合は、それぞれの `index.html` をブラウザで開いてください。
 
 | 作品 | 言語 | 見開き数 | 見た目(画風 / 背景 / 曲) | 制作 | 備考 |
 |---|---|---|---|---|---|
@@ -48,6 +48,7 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 | 作品 | 言語 | 見開き数 | 見た目(画風 / 背景 / 曲) | 制作 | 備考 |
 |---|---|---|---|---|---|
 | [`examples/bremen`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/bremen/): Die Bremer Stadtmusikanten(ブレーメンの音楽隊) | ドイツ語 | 6 | 切り紙 / 描き下ろし背景 / 描き下ろしの曲 | GPT-6.2 Astra medium | 1ターンで作成 |
+| [`examples/sarukani`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/sarukani/): さるかに がっせん | 日本語 | 8 | 切り紙 / 描き下ろし背景 / 和笛 | GPT-6.2 Astra Max | 1ターンで作成 |
 
 </details>
 
