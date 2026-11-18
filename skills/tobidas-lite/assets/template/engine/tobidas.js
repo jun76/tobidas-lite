@@ -410,7 +410,11 @@ const Tobidas = (function () {
     if (T.scenes) {   // 動く背景。環境の時計(amb)で動かす。見開きごとの背景は、その見開きへめくる間に現れ、次へめくる間に消える
       const S = T.scenes, show = (L, o) => { const on = o > .004; if (on !== L.on) { L.el.style.display = on ? '' : 'none'; L.on = on; } if (on) { L.el.style.opacity = o.toFixed(3); if (L.sc.anim) L.sc.anim(amb, L.svg, L.q); } };
       let cover = 0;
-      S.per.forEach((L, i) => { if (!L) return; let o = sm((t - TL.ts[i]) / TL.TURN) * (1 - sm((t - TL.until(i + 1)) / (i + 1 < N ? TL.TURN : TL.CLOSE)));
+      S.per.forEach((L, i) => { if (!L) return;
+        const until = TL.until(i + 1);
+        // 次の景色は上からフェードインする。その間は下の景色を不透明に保ち、さらに下の表紙が透けるのを防ぐ。
+        const fadeOut = S.per[i + 1] ? Number(t >= until + TL.TURN) : sm((t - until) / (i + 1 < N ? TL.TURN : TL.CLOSE));
+        let o = sm((t - TL.ts[i]) / TL.TURN) * (1 - fadeOut);
         if (i === S.first && t < TL.ts[i] + TL.TURN) o = 1; if (i === S.last && t > TL.until(i + 1)) o = 1; cover = Math.max(cover, o); show(L, o); });
       if (S.base) show(S.base, cover > .995 ? 0 : 1);
     }
