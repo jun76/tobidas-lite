@@ -42,6 +42,15 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 | [`examples/saiyuki`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/saiyuki/): 西游记(西遊記) | 中国語 | 6 | ドット絵 / 描き下ろし背景 / チップチューン | GPT6.1-Sol medium | 1ターンで作成 |
 | [`examples/momotaro`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/momotaro/): Momotaro | 英語 | 8 | ポップアート / 動く背景の草原 / 和笛 | Qwen 3.8 Flash Next IQ3_S xhigh (Strata) | 数ターン微調整。ローカルLLM参考実装 |
 
+<details>
+<summary>その他の作品</summary>
+
+| 作品 | 言語 | 見開き数 | 見た目(画風 / 背景 / 曲) | 制作 | 備考 |
+|---|---|---|---|---|---|
+| [`examples/bremen`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/bremen/): Die Bremer Stadtmusikanten(ブレーメンの音楽隊) | ドイツ語 | 6 | 切り紙 / 描き下ろし背景 / 描き下ろしの曲 | GPT-6.2 Astra medium | 1ターンで作成 |
+
+</details>
+
 見本は `skills/tobidas-lite/themes/default_storybook/` の下にあります。
 
 ### 操作

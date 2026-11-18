@@ -42,6 +42,15 @@ Five finished books are included, all made with this skill. The model used for e
 | [`examples/saiyuki`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/saiyuki/) — 西游记 (Journey to the West) | Chinese | 6 | Pixel art / original backgrounds / chiptune | GPT6.1-Sol medium | Created in one turn |
 | [`examples/momotaro`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/momotaro/) — Momotaro | English | 8 | Pop art / moving meadow / Japanese flute | Qwen 3.8 Flash Next IQ3_S xhigh (Strata) | Minor adjustments over a few turns. Local LLM reference implementation |
 
+<details>
+<summary>Other books</summary>
+
+| Book | Language | Spreads | Look (art style / background / music) | Made by | Notes |
+|---|---|---|---|---|---|
+| [`examples/bremen`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/bremen/) — Die Bremer Stadtmusikanten (The Town Musicians of Bremen) | German | 6 | Paper-cut / original backgrounds / original score | GPT-6.2 Astra medium | Created in one turn |
+
+</details>
+
 The examples are under `skills/tobidas-lite/themes/default_storybook/`.
 
 ### Controls
