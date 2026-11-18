@@ -248,7 +248,7 @@
   D('town.city', 'ビル街', 840, 380, (o, w, h) => {
     const q = rnd(o.seed || 3), cs = o.night ? ['#3d4a6b', '#4a5880', '#34405e'] : ['#a9bfd9', '#8fa9c9', '#c3d4e6'], gl = o.night ? '#ffe27a' : '#e6f0fa'; let s = '', x = 0, i = 0;
     while (x < w - 10) { const ww = Math.min(w - x, 70 + q() * 60), hh = h * (.4 + q() * .58), y = h - hh, f = cs[i % 3];
-      s += r(x, y, ww - 4, hh, f, 3) + (q() > .6 ? r(x + ww * .3, y - 26, ww * .3, 28, f) + r(x + ww * .44, y - 50, 4, 26, f) : '');
+      s += r(x, y, ww - 4, hh, f, 3) + (q() > .6 && y >= 52 ? r(x + ww * .3, y - 26, ww * .3, 28, f) + r(x + ww * .44, y - 50, 4, 26, f) : '');   // 屋上の箱とアンテナは、絵の箱(y≧0)に収まるビルにだけ付ける(背をまたいで切り分けられると、箱の上へ出た分は描かれない)
       for (let yy = y + 14; yy < h - 22; yy += 26) for (let xx = x + 10; xx < x + ww - 22; xx += 20) if (!o.night || q() > .45) s += r(xx, yy, 11, 15, gl, 2);
       x += ww; i++; }
     return s;
