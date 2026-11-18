@@ -186,7 +186,7 @@ If a book runs slowly, add `?lite&nofilter` to its URL (for example `index.html?
 
 In the in-app browsers of AI agent apps, some things may not work reliably. The following two cases have been confirmed.
 
-- In the Codex app, the books run slowly.
+- In the Claude Code app, the books run slowly.
 - In the Muse app for Mac, the sample player on the setup page cannot be used.
 
 ## License

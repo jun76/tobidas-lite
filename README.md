@@ -184,7 +184,7 @@ node scripts/render-video.mjs themes/default_storybook/examples/jack
 
 AI エージェントアプリのアプリ内ブラウザでは、一部の動作が不安定になる可能性があります。次の2点を確認しています。
 
-- Codex アプリ内では、処理が重くなります。
+- Claude Code アプリ内では、処理が重くなります。
 - Mac 版 Muse アプリ内では、聞き取りページの見本プレイヤーが使えません。
 
 ## ライセンス
