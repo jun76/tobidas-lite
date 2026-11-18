@@ -169,6 +169,24 @@ node scripts/render-video.mjs themes/default_storybook/examples/jack
 - 動画ファイルを素材として作品の中に入れること。素材に使えるのは画像と音声です。完成した作品を動画ファイルに書き出すことはできます(`render-video.mjs`)。
 - 読み上げ(声)の生成。用意した声の音声ファイルを鳴らすことはできます。後付けできるように、現在時刻を通知する `tobidas:time` イベントも用意しています。
 
+## 動作確認環境
+
+次の環境で表示を確認しています。
+
+| 機種 | ブラウザ |
+|---|---|
+| Windows 11 PC | Chrome、Firefox、Edge |
+| Ubuntu 26.04 PC | Chrome、Firefox |
+| iPhone 13 | Chrome、Safari |
+| MacBook Pro M1 | Chrome、Safari |
+
+処理が重い場合は、作品の URL に `?lite&nofilter` を付けてください(例: `index.html?lite&nofilter`)。飾りの層と画風のフィルタを省いて表示します。
+
+AI エージェントアプリのアプリ内ブラウザでは、一部の動作が不安定になる可能性があります。次の2点を確認しています。
+
+- Codex アプリ内では、処理が重くなります。
+- Mac 版 Muse アプリ内では、聞き取りページの見本プレイヤーが使えません。
+
 ## ライセンス
 
 [MIT](LICENSE)

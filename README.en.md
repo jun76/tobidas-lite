@@ -171,6 +171,24 @@ The following are outside the scope of the skill.
 - Using video files as material inside a book. Only image and audio files can be used as material. A finished book can still be exported as a video file (`render-video.mjs`).
 - Generating narration (voice). Voice audio files you provide can be played. A `tobidas:time` event also reports the current time so you can add your own playback.
 
+## Tested environments
+
+The books have been checked in the following environments.
+
+| Device | Browsers |
+|---|---|
+| Windows 11 PC | Chrome, Firefox, Edge |
+| Ubuntu 26.04 PC | Chrome, Firefox |
+| iPhone 13 | Chrome, Safari |
+| MacBook Pro M1 | Chrome, Safari |
+
+If a book runs slowly, add `?lite&nofilter` to its URL (for example `index.html?lite&nofilter`). The decorative layers and the art-style filter are then left out.
+
+In the in-app browsers of AI agent apps, some things may not work reliably. The following two cases have been confirmed.
+
+- In the Codex app, the books run slowly.
+- In the Muse app for Mac, the sample player on the setup page cannot be used.
+
 ## License
 
 [MIT](LICENSE)
