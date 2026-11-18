@@ -1,9 +1,9 @@
-// 作品定義。書き方は references/book-api.md、完成見本は themes/default_storybook/examples/jack/book/book.js。
+// 作品定義。書き方は references/book-api.md、完成見本は themes/storybook/examples/jack/book/book.js。
 // 座標: X∈[-720,720](0=本の背)、Y∈[0,920](大きいほど手前)。tl = 見開きが開ききってからの秒数。
 
 const spread1 = {
   hold: 7.5,
-  music: 'bright',                             // BGMの気分(themes/default_storybook/sound.md)。自動再生中だけ鳴る
+  music: 'bright',                             // BGMの気分(themes/storybook/sound.md)。自動再生中だけ鳴る
   ground: A.gMeadow({ seed: 5 }),
   caption: ['むかし むかし、あるところに……', '(ここに 字幕を 書きます)'],
   pieces: [
@@ -42,7 +42,7 @@ const spread2 = {
 Tobidas.book({
   title: 'とびだすえほん',
   lang: 'ja',
-  theme: { board: '#1f3f66', spine: '#17304f', style: 'flat', desk: 'wood' },   // 画風と机(themes/default_storybook/presets.md)。画風は作る間 'flat' のままにし、全部できてから決まった画風に書き換える
+  theme: { board: '#1f3f66', spine: '#17304f', style: 'flat', desk: 'wood' },   // 画風と机(themes/storybook/presets.md)。画風は作る間 'flat' のままにし、全部できてから決まった画風に書き換える
   sound: { set: 'musicbox' },                                                     // 曲集
   cover: A.cover(),
   end: { title: 'おしまい', sub: 'だいめい' },

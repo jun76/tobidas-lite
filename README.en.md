@@ -36,23 +36,23 @@ Finished books are included, all made with this skill. The model used for each b
 
 | Book | Language | Spreads | Look (art style / background / music) | Made by | Notes |
 |---|---|---|---|---|---|
-| [`examples/jack`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/jack/) — Jack and the Beanstalk | Japanese | 8 | Paper-cut / wooden desk / music box | Claude Fable5.2 medium | Minor adjustments over a few turns |
-| [`examples/urashima`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/urashima/) — Urashima Taro | English | 8 | Crayon / moving seaside / Japanese flute | Claude Opus 5.5 medium | Minor adjustments over a few turns |
-| [`examples/alice`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Flat / original backgrounds / fife and drum | GPT-6 Astra medium | Created in one turn |
-| [`examples/saiyuki`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/saiyuki/) — 西游记 (Journey to the West) | Chinese | 6 | Pixel art / original backgrounds / chiptune | GPT6.1-Sol medium | Created in one turn |
-| [`examples/momotaro`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/momotaro/) — Momotaro | English | 8 | Pop art / moving meadow / Japanese flute | Qwen 3.8 Flash Next IQ3_S xhigh (Strata) | Minor adjustments over a few turns. Local LLM reference implementation |
+| [`examples/jack`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/jack/) — Jack and the Beanstalk | Japanese | 8 | Paper-cut / wooden desk / music box | Claude Fable5.2 medium | Minor adjustments over a few turns |
+| [`examples/urashima`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/urashima/) — Urashima Taro | English | 8 | Crayon / moving seaside / Japanese flute | Claude Opus 5.5 medium | Minor adjustments over a few turns |
+| [`examples/alice`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/alice/) — Alice's Adventures in Wonderland | Japanese | 6 | Flat / original backgrounds / fife and drum | GPT-6 Astra medium | Created in one turn |
+| [`examples/saiyuki`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/saiyuki/) — 西游记 (Journey to the West) | Chinese | 6 | Pixel art / original backgrounds / chiptune | GPT6.1-Sol medium | Created in one turn |
+| [`examples/momotaro`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/momotaro/) — Momotaro | English | 8 | Pop art / moving meadow / Japanese flute | Qwen 3.8 Flash Next IQ3_S xhigh (Strata) | Minor adjustments over a few turns. Local LLM reference implementation |
 
 <details>
 <summary>Other books</summary>
 
 | Book | Language | Spreads | Look (art style / background / music) | Made by | Notes |
 |---|---|---|---|---|---|
-| [`examples/bremen`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/bremen/) — Die Bremer Stadtmusikanten (The Town Musicians of Bremen) | German | 6 | Paper-cut / original backgrounds / original score | GPT-6.2 Astra medium | Created in one turn |
-| [`examples/sarukani`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/sarukani/) — さるかに がっせん (The Crab and the Monkey) | Japanese | 8 | Paper-cut / original backgrounds / Japanese flute | GPT-6.2 Astra Max | Created in one turn |
+| [`examples/bremen`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/bremen/) — Die Bremer Stadtmusikanten (The Town Musicians of Bremen) | German | 6 | Paper-cut / original backgrounds / original score | GPT-6.2 Astra medium | Created in one turn |
+| [`examples/sarukani`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/sarukani/) — さるかに がっせん (The Crab and the Monkey) | Japanese | 8 | Paper-cut / original backgrounds / Japanese flute | GPT-6.2 Astra Max | Created in one turn |
 
 </details>
 
-The examples are under `skills/tobidas-lite/themes/default_storybook/`.
+The examples are under `skills/tobidas-lite/themes/storybook/`.
 
 ### Controls
 
@@ -107,7 +107,7 @@ Once asked, the agent works through these steps:
 
 ## Themes
 
-The look and sound live in a folder called a theme, which can be swapped. One theme, `default_storybook`, is included.
+The look and sound live in a folder called a theme, which can be swapped. One theme, `storybook`, is included.
 
 | Item | Built-in choices |
 |---|---|
@@ -115,28 +115,28 @@ The look and sound live in a folder called a theme, which can be swapped. One th
 | Desk | 10: wood, light wood, linen, felt, marble, grass, sky, night sky, cutting mat, steel plate |
 | Moving background | 5: seaside, meadow, forest, town, retro game |
 | Music set | 5: music box, fife and drum, harp, Japanese flute, chiptune |
-| Drawing parts | 300: houses, castles, trees, mountains, vehicles, people, animals, furniture, tools, food and more (previews in [`parts/previews/`](skills/tobidas-lite/themes/default_storybook/parts/previews/)) |
+| Drawing parts | 300: houses, castles, trees, mountains, vehicles, people, animals, furniture, tools, food and more (previews in [`parts/previews/`](skills/tobidas-lite/themes/storybook/parts/previews/)) |
 
-For the desk or background and the music, you either pick a built-in choice or have the agent write a new one for that book. The art style is picked from the built-in choices. Preview images are in [`themes/default_storybook/previews/`](skills/tobidas-lite/themes/default_storybook/previews/). The theme format is described in [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) (in Japanese).
+For the desk or background and the music, you either pick a built-in choice or have the agent write a new one for that book. The art style is picked from the built-in choices. Preview images are in [`themes/storybook/previews/`](skills/tobidas-lite/themes/storybook/previews/). The theme format is described in [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) (in Japanese).
 
 ## Scripts
 
 Run these from `skills/tobidas-lite/`.
 
 ```bash
-node scripts/new-book.mjs ../my-book --theme default_storybook
+node scripts/new-book.mjs ../my-book --theme storybook
 ```
 
 Creates a new book folder from the template and the theme.
 
 ```bash
-node scripts/check.mjs themes/default_storybook/examples/jack
+node scripts/check.mjs themes/storybook/examples/jack
 ```
 
 Captures representative frames into one contact sheet, and reports sound errors.
 
 ```bash
-node scripts/render-video.mjs themes/default_storybook/examples/jack
+node scripts/render-video.mjs themes/storybook/examples/jack
 ```
 
 Exports a video with sound. This one also needs ffmpeg.

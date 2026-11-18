@@ -36,23 +36,23 @@ tobidas-lite が目指しているのは、**このリポジトリのURLと作�
 
 | 作品 | 言語 | 見開き数 | 見た目(画風 / 背景 / 曲) | 制作 | 備考 |
 |---|---|---|---|---|---|
-| [`examples/jack`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/jack/): ジャックと豆の木 | 日本語 | 8 | 切り紙 / 板張りの机 / オルゴール | Claude Fable5.2 medium | 数ターン微調整 |
-| [`examples/urashima`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/urashima/): Urashima Taro | 英語 | 8 | クレヨン / 動く背景の海辺 / 和笛 | Claude Opus 5.5 medium | 数ターン微調整 |
-| [`examples/alice`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/alice/): 不思議な国のアリス | 日本語 | 6 | フラット / 描き下ろし背景 / 鼓笛隊 | GPT-6 Astra medium | 1ターンで作成 |
-| [`examples/saiyuki`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/saiyuki/): 西游记(西遊記) | 中国語 | 6 | ドット絵 / 描き下ろし背景 / チップチューン | GPT6.1-Sol medium | 1ターンで作成 |
-| [`examples/momotaro`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/momotaro/): Momotaro | 英語 | 8 | ポップアート / 動く背景の草原 / 和笛 | Qwen 3.8 Flash Next IQ3_S xhigh (Strata) | 数ターン微調整。ローカルLLM参考実装 |
+| [`examples/jack`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/jack/): ジャックと豆の木 | 日本語 | 8 | 切り紙 / 板張りの机 / オルゴール | Claude Fable5.2 medium | 数ターン微調整 |
+| [`examples/urashima`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/urashima/): Urashima Taro | 英語 | 8 | クレヨン / 動く背景の海辺 / 和笛 | Claude Opus 5.5 medium | 数ターン微調整 |
+| [`examples/alice`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/alice/): 不思議な国のアリス | 日本語 | 6 | フラット / 描き下ろし背景 / 鼓笛隊 | GPT-6 Astra medium | 1ターンで作成 |
+| [`examples/saiyuki`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/saiyuki/): 西游记(西遊記) | 中国語 | 6 | ドット絵 / 描き下ろし背景 / チップチューン | GPT6.1-Sol medium | 1ターンで作成 |
+| [`examples/momotaro`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/momotaro/): Momotaro | 英語 | 8 | ポップアート / 動く背景の草原 / 和笛 | Qwen 3.8 Flash Next IQ3_S xhigh (Strata) | 数ターン微調整。ローカルLLM参考実装 |
 
 <details>
 <summary>その他の作品</summary>
 
 | 作品 | 言語 | 見開き数 | 見た目(画風 / 背景 / 曲) | 制作 | 備考 |
 |---|---|---|---|---|---|
-| [`examples/bremen`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/bremen/): Die Bremer Stadtmusikanten(ブレーメンの音楽隊) | ドイツ語 | 6 | 切り紙 / 描き下ろし背景 / 描き下ろしの曲 | GPT-6.2 Astra medium | 1ターンで作成 |
-| [`examples/sarukani`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/default_storybook/examples/sarukani/): さるかに がっせん | 日本語 | 8 | 切り紙 / 描き下ろし背景 / 和笛 | GPT-6.2 Astra Max | 1ターンで作成 |
+| [`examples/bremen`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/bremen/): Die Bremer Stadtmusikanten(ブレーメンの音楽隊) | ドイツ語 | 6 | 切り紙 / 描き下ろし背景 / 描き下ろしの曲 | GPT-6.2 Astra medium | 1ターンで作成 |
+| [`examples/sarukani`](https://jun76.github.io/tobidas-lite/skills/tobidas-lite/themes/storybook/examples/sarukani/): さるかに がっせん | 日本語 | 8 | 切り紙 / 描き下ろし背景 / 和笛 | GPT-6.2 Astra Max | 1ターンで作成 |
 
 </details>
 
-見本は `skills/tobidas-lite/themes/default_storybook/` の下にあります。
+見本は `skills/tobidas-lite/themes/storybook/` の下にあります。
 
 ### 操作
 
@@ -107,7 +107,7 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 
 ## テーマ
 
-見た目と音の素材は「テーマ」というフォルダ単位でまとまっていて、差し替えられます。同梱しているのは `default_storybook`(童話の絵本)です。
+見た目と音の素材は「テーマ」というフォルダ単位でまとまっていて、差し替えられます。同梱しているのは `storybook`(童話の絵本)です。
 
 | 項目 | 内蔵の選択肢 |
 |---|---|
@@ -115,28 +115,28 @@ cd ~/.claude/skills/tobidas-lite/scripts && npm install
 | 机 | 10種: 板張り、白木、麻布、フェルト、大理石、芝生、青空、星空、カッティングマット、鉄板 |
 | 動く背景 | 5種: 海辺、草原、森、市街、レトロゲーム |
 | 曲集 | 5種: オルゴール、鼓笛隊、ハープ、和笛、チップチューン |
-| 絵の部品 | 300点: 家、城、木、山、乗り物、人物、動物、家具、道具、食べ物など(見本は [`parts/previews/`](skills/tobidas-lite/themes/default_storybook/parts/previews/)) |
+| 絵の部品 | 300点: 家、城、木、山、乗り物、人物、動物、家具、道具、食べ物など(見本は [`parts/previews/`](skills/tobidas-lite/themes/storybook/parts/previews/)) |
 
-机・背景と曲は、内蔵から選ぶか、その作品のためにエージェントに書き下ろしてもらうかを決められます。画風は内蔵から選びます。見本画像は [`themes/default_storybook/previews/`](skills/tobidas-lite/themes/default_storybook/previews/) に、テーマの書式は [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) にあります。
+机・背景と曲は、内蔵から選ぶか、その作品のためにエージェントに書き下ろしてもらうかを決められます。画風は内蔵から選びます。見本画像は [`themes/storybook/previews/`](skills/tobidas-lite/themes/storybook/previews/) に、テーマの書式は [`references/theme-format.md`](skills/tobidas-lite/references/theme-format.md) にあります。
 
 ## スクリプト
 
 `skills/tobidas-lite/` で実行します。
 
 ```bash
-node scripts/new-book.mjs ../my-book --theme default_storybook
+node scripts/new-book.mjs ../my-book --theme storybook
 ```
 
 ひな形とテーマから、新しい作品フォルダを作ります。
 
 ```bash
-node scripts/check.mjs themes/default_storybook/examples/jack
+node scripts/check.mjs themes/storybook/examples/jack
 ```
 
 代表フレームを撮って一覧画像にまとめ、音の間違いも報告します。
 
 ```bash
-node scripts/render-video.mjs themes/default_storybook/examples/jack
+node scripts/render-video.mjs themes/storybook/examples/jack
 ```
 
 音つきの動画を書き出します。これだけ ffmpeg も必要です。

@@ -1,6 +1,6 @@
 # 定番の仕掛け
 
-どれも `tl`(見開きが開ききってからの秒数)の関数として書く。見本 `themes/default_storybook/examples/jack/book/book.js` に実例がある。仕掛けを入れた見開きは `node scripts/check.mjs <作品> --spread N` で時間方向に確認する。
+どれも `tl`(見開きが開ききってからの秒数)の関数として書く。見本 `themes/storybook/examples/jack/book/book.js` に実例がある。仕掛けを入れた見開きは `node scripts/check.mjs <作品> --spread N` で時間方向に確認する。
 
 ## ぽんと現れる(途中で登場)
 

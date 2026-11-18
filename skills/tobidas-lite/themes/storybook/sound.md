@@ -17,7 +17,7 @@
 
 音つきの作品では、曲集を書き下ろす場合も表紙はエンジンの短いメロディーに任せ、BGMは最初の見開きから始める。表紙にBGMを重ねるのは、ユーザーが明示的に希望した場合に限る。
 
-曲そのものは曲集(`sound: { set: 'march' }` など。内蔵5種、または書き下ろし)で決まる。一覧と書き方は `themes/default_storybook/presets.md`。下の「気分」は曲集の3曲(明るい主題・もうひとつの明るい曲・短調)を速さや高さを変えて使い分ける。
+曲そのものは曲集(`sound: { set: 'march' }` など。内蔵5種、または書き下ろし)で決まる。一覧と書き方は `themes/storybook/presets.md`。下の「気分」は曲集の3曲(明るい主題・もうひとつの明るい曲・短調)を速さや高さを変えて使い分ける。
 
 ## `music` BGMの気分
 
@@ -76,7 +76,7 @@
 | `sound: false` | 音なしの作品にする(スピーカーのボタンも消える) |
 | `sound: { auto: false }` | 表紙・めくり・とじるの自動の音を付けない |
 | `sound: { moods: { march: { tune: 'majA', beat: .45, stac: true } } }` | 気分を足す |
-| `sound: { set: 'march' }` | 曲集を選ぶ(内蔵の名前、または書き下ろしのオブジェクト。`themes/default_storybook/presets.md`) |
+| `sound: { set: 'march' }` | 曲集を選ぶ(内蔵の名前、または書き下ろしのオブジェクト。`themes/storybook/presets.md`) |
 | `sound: { music: false }` | 合成のBGMを付けない(本の音と効果音は残る。音声ファイルのBGMに任せるとき) |
 | `sound: { files: [{ src: 'assets/bgm.mp3', vol: .7 }] }` | 音声ファイルを混ぜる(`references/assets.md`) |
 | `sound: { extra: S => { … } }` | 自由に鳴らす(`S.O(見開き番号)` で開いた時刻が取れる) |

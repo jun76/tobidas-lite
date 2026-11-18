@@ -1,5 +1,5 @@
 // 「ジャックと豆の木」だけの絵。共通パーツ(theme/parts/parts.js の A.* と目録)に足す形で定義する。
-// どれも「SVGの中身の文字列」を返す。描き方は themes/default_storybook/art-style.md。
+// どれも「SVGの中身の文字列」を返す。描き方は themes/storybook/art-style.md。
 
 // ---------- ジャック(緑の服と羽根つきの帽子) ----------
 // 骨格は A.person。髪と帽子はこの作品のために描く。ポーズは使う側で armL / armR / mouth などを渡す

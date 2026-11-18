@@ -1,4 +1,4 @@
-# テーマ「default_storybook」— 童話の絵本
+# テーマ「storybook」— 童話の絵本
 
 色紙の工作のような絵と、オルゴールふうの音で作る、子ども向けの絵本。昔話・童話・オリジナルのお話に向く。絵は平塗りの SVG で描き、音はブラウザ内で合成する。ユーザーが用意した画像・音声ファイルを使うこともできる(`references/assets.md`)。
 
@@ -39,4 +39,4 @@
 
 ## このテーマを直したとき
 
-`node scripts/check.mjs themes/default_storybook/examples/jack` と `…/examples/urashima` で見本を撮って確かめる。画風・机・曲集を足した・変えたときは `node scripts/gallery.mjs themes/default_storybook/examples/jack --out themes/default_storybook/previews` で見本画像と一覧(`previews/index.json`)を作り直す。聞き取りページはこの一覧を読む。
+`node scripts/check.mjs themes/storybook/examples/jack` と `…/examples/urashima` で見本を撮って確かめる。画風・机・曲集を足した・変えたときは `node scripts/gallery.mjs themes/storybook/examples/jack --out themes/storybook/previews` で見本画像と一覧(`previews/index.json`)を作り直す。聞き取りページはこの一覧を読む。

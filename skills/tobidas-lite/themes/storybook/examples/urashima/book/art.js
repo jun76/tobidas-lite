@@ -1,5 +1,5 @@
 // 「Urashima Taro」だけの絵。共通パーツ(theme/parts/parts.js の A.*、目録の put/lib)に足す形で定義する。
-// どれも「SVGの中身の文字列」を返す。描き方は themes/default_storybook/art-style.md。
+// どれも「SVGの中身の文字列」を返す。描き方は themes/storybook/art-style.md。
 
 const GOLD = '#f3c64f', VERM = '#d9483b', VERM2 = '#a8322a', WHITE = '#f7f0e0', ROOF = '#3f9a8c', ROOF2 = '#2e7a6e';
 const SERIF = '"Noto Serif","DejaVu Serif",Georgia,serif';
