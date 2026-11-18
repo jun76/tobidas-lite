@@ -97,7 +97,7 @@ const Tobidas = (function () {
 
   T.book = function (def) { T.def = def; if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build); else build(); };
 
-  const ANIM_FPS = 15;   // 絵の中の動き(anim)を描き直す回数(毎秒)
+  const ANIM_FPS = 25;   // 絵の中の動き(anim)を描き直す回数(毎秒)
   const TABLE_RES = .5;   // 机の面を描く canvas の細かさ(CSS の 1px あたりの画素数)
   const FOLD = 12, FOLD_MIN = 200;   // 背をまたぐ横長パネルを折る角度の既定(度。一番奥は正、ほかは負)と、自動で折る条件(左右それぞれの張り出しがこれ以上)
   let leaves, spreads, N, NL, CAM, world, dctx, motes, capIdx = -1, capSpans = [];
