@@ -93,6 +93,14 @@
     const mute = () => { wake(); AU.muted = !AU.muted; store.set('tobidas-muted', AU.muted ? '1' : '0'); };
     bPlay.addEventListener('click', toggle); bSnd.addEventListener('click', mute);
     addEventListener('pointerdown', wake, true); addEventListener('keydown', wake, true);
+    // ページを離れるとき(戻る・閉じる・読み直し)は、音を絞ってから止める。鳴らしたままページが消えると、波形が途中で断ち切られてスピーカーからノイズが出る。
+    // 絞る指示を出しても、ページがすぐ消えると音の側に届かない。絞りきるまでの 40ms ほど、ここで待ってから手を離す
+    addEventListener('pagehide', () => {
+      const c = AU.ctx; if (!c || c.state !== 'running') return;
+      if (AU.src) { const now = c.currentTime, s = AU.src; AU.gain.gain.cancelScheduledValues(now); AU.gain.gain.setValueAtTime(AU.gain.gain.value, now); AU.gain.gain.linearRampToValueAtTime(0, now + .02); s.onended = null; s.stop(now + .03); AU.src = null;
+        const until = performance.now() + 40; while (performance.now() < until) { } }
+      P.auto = false; c.suspend().catch(() => { });   // 戻る操作でこのページに帰ってきたときは、止まった状態から始まる
+    });
     document.body.append(hud, ctl, pk, hint, dbg);
     const fill = hud.querySelector('.fill');
     let lastInput = performance.now(), touched = false;
