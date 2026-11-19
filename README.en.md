@@ -188,6 +188,7 @@ In the in-app browsers of AI agent apps, some things may not work reliably. The 
 
 - In the Claude Code app, the books run slowly.
 - In the Muse app for Mac, the sample player on the setup page cannot be used.
+- In the Muse app for Chrome (browser extension), the sample player on the setup page cannot be used either; the sample is replaced with the cover poster and a note.
 
 ## License
 
