@@ -4,6 +4,7 @@
 //   → <テーマ>/parts/previews/NN.jpg(1枚に 4×3 個)と <テーマ>/parts/parts-lib.md(名前・寸法・載っている画像の一覧)
 //   --only を付けると、名前がその文字列で始まる部品だけを <テーマ>/parts/previews/_only_NN.jpg に撮る(描いている途中の確認用。一覧は書きかえない)
 import { chromium } from 'playwright-core';
+import { chromeTries, CHROME_NOT_FOUND } from './find-chrome.mjs';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -22,8 +23,8 @@ const html = `<!doctype html><meta charset="utf-8"><style>body{margin:0;backgrou
 <script src="${u(path.join(skill, 'assets/template/engine/tobidas.js'))}"></script>${files.map(f => `<script src="${u(path.join(partsDir, f))}"></script>`).join('')}`;
 const tmp = path.join(out, '_sheet.html'); fs.writeFileSync(tmp, html);
 const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars', '--enable-gpu'] };
-let browser; for (const o of [process.env.CHROME_PATH && { ...base, executablePath: process.env.CHROME_PATH }, { ...base, channel: 'chrome' }, { ...base, channel: 'msedge' }, base].filter(Boolean)) { try { browser = await chromium.launch(o); break; } catch { } }
-if (!browser) { console.error('Chrome が見つかりません(CHROME_PATH を指定)'); process.exit(1); }
+let browser; for (const o of chromeTries(base)) { try { browser = await chromium.launch(o); break; } catch { } }
+if (!browser) { console.error(CHROME_NOT_FOUND); process.exit(1); }
 const page = await browser.newPage({ viewport: { width: 1600, height: 1200 } }), errors = [];
 page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
 await page.goto(u(tmp));

@@ -6,6 +6,7 @@
 //   node check.mjs <作品フォルダ> --times 31.5,36 指定した時刻だけ
 //   --out <dir> 出力先(既定: <作品フォルダ>/.check)
 import { chromium } from 'playwright-core';
+import { chromeTries, CHROME_NOT_FOUND } from './find-chrome.mjs';
 import path from 'node:path';
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -19,11 +20,9 @@ fs.mkdirSync(out, { recursive: true });
 for (const f of fs.readdirSync(out)) if (/^(t\d|sheet)/.test(f)) fs.unlinkSync(path.join(out, f));
 
 export async function launch() {
-  const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars', '--enable-gpu'] }, tries = [];
-  if (process.env.CHROME_PATH) tries.push({ ...base, executablePath: process.env.CHROME_PATH });
-  tries.push({ ...base, channel: 'chrome' }, { ...base, channel: 'msedge' }, base);
-  for (const o of tries) { try { return await chromium.launch(o); } catch { } }
-  throw new Error('Chrome が見つかりません。Chrome を入れるか、CHROME_PATH を指定するか、`npx playwright install chromium` を実行してください。');
+  const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars', '--enable-gpu'] };
+  for (const o of chromeTries(base)) { try { return await chromium.launch(o); } catch { } }
+  throw new Error(CHROME_NOT_FOUND);
 }
 
 const browser = await launch(), page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });

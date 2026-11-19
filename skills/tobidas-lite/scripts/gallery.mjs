@@ -3,6 +3,7 @@
 //   node gallery.mjs <作品フォルダ> [--t 秒] [--out dir]   → <out>/styles.jpg, <out>/desks.jpg(一覧)
 //   聞き取りページ(scripts/setup.mjs)用に、1種ずつの小さい画像 <out>/style_<名前>.jpg, <out>/desk_<名前>.jpg と、名前の一覧 <out>/index.json も作る
 import { chromium } from 'playwright-core';
+import { chromeTries, CHROME_NOT_FOUND } from './find-chrome.mjs';
 import path from 'node:path';
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -12,8 +13,8 @@ if (!work) { console.error('usage: node gallery.mjs <作品フォルダ> [--t �
 const html = fs.statSync(work).isDirectory() ? path.join(work, 'index.html') : work, out = path.resolve(opt.out || path.join(path.dirname(html), '.check'));
 fs.mkdirSync(out, { recursive: true });
 const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars', '--enable-gpu'] };
-let browser; for (const o of [process.env.CHROME_PATH && { ...base, executablePath: process.env.CHROME_PATH }, { ...base, channel: 'chrome' }, { ...base, channel: 'msedge' }, base].filter(Boolean)) { try { browser = await chromium.launch(o); break; } catch { } }
-if (!browser) { console.error('Chrome が見つかりません(CHROME_PATH を指定)'); process.exit(1); }
+let browser; for (const o of chromeTries(base)) { try { browser = await chromium.launch(o); break; } catch { } }
+if (!browser) { console.error(CHROME_NOT_FOUND); process.exit(1); }
 const url = pathToFileURL(path.resolve(html)).href, errors = [];
 const shoot = async (q, t, file) => { const p = await browser.newPage({ viewport: { width: 1920, height: 1080 } }); p.on('pageerror', e => errors.push(q + ': ' + e.message)); await p.goto(`${url}?t=${t}&${q}`); await p.waitForFunction(() => typeof Tobidas !== 'undefined' && Tobidas.ready); await p.evaluate(() => document.fonts.ready); const w = await p.evaluate(() => Tobidas.warnings); if (w.length) errors.push(q + ': ' + w.join(' / ')); await p.screenshot({ path: file, type: 'jpeg', quality: 84 }); await p.close(); };
 const first = await browser.newPage(); await first.goto(url + '?t=0'); await first.waitForFunction(() => typeof Tobidas !== 'undefined' && Tobidas.ready);

@@ -2,6 +2,7 @@
 // (任意)作品を動画にする。全フレームを撮って ffmpeg でまとめる。音(engine/sound.js の合成)も付ける。--no-audio で映像だけ。
 //   node render-video.mjs <作品フォルダ> [--out out.mp4] [--workers 8] [--fps 30]
 import { chromium } from 'playwright-core';
+import { chromeTries, CHROME_NOT_FOUND } from './find-chrome.mjs';
 import path from 'node:path';
 import fs from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -14,8 +15,8 @@ const html = fs.statSync(work).isDirectory() ? path.join(work, 'index.html') : w
 const frames = path.join(dir, '.frames'), out = path.resolve(opt.out || path.join(dir, 'book.mp4')), W = +(opt.workers || 8), fps = +(opt.fps || 30);
 fs.rmSync(frames, { recursive: true, force: true }); fs.mkdirSync(frames, { recursive: true });
 const base = { args: ['--no-sandbox', '--force-color-profile=srgb', '--hide-scrollbars', '--enable-gpu'] };
-let browser; for (const o of [process.env.CHROME_PATH && { ...base, executablePath: process.env.CHROME_PATH }, { ...base, channel: 'chrome' }, base].filter(Boolean)) { try { browser = await chromium.launch(o); break; } catch { } }
-if (!browser) { console.error('Chrome が見つかりません(CHROME_PATH を指定)'); process.exit(1); }
+let browser; for (const o of chromeTries(base)) { try { browser = await chromium.launch(o); break; } catch { } }
+if (!browser) { console.error(CHROME_NOT_FOUND); process.exit(1); }
 const open = async () => { const p = await browser.newPage({ viewport: { width: 1920, height: 1080 } }); await p.goto(pathToFileURL(path.resolve(html)).href + '?t=0'); await p.waitForFunction(() => typeof Tobidas !== 'undefined' && Tobidas.ready); await p.evaluate(() => document.fonts.ready); return p; };
 const first = await open(), END = await first.evaluate(() => Tobidas.TL.END), N = Math.round(END * fps);
 const wav = path.join(frames, 'sound.wav'); let hasAudio = false;
